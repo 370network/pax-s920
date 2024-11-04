@@ -1,4 +1,4 @@
-# pax-build
+# Build záležitosti, headery a podobné srandy
 
 ## pax-printf.h
 header použitý ako redefinícia pre printf s flushom do stdoutu.
