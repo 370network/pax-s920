@@ -1,5 +1,5 @@
-#ifndef PAX_PRINTF
-#define PAX_PRINTF
+#ifndef PROLIN_PRINTF_H
+#define PROLIN_PRINTF_H
 
 #include <stdio.h>
 
