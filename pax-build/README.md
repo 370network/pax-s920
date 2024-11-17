@@ -13,4 +13,10 @@ testuvačka pre osal funkcie, mení jas od 0 do 10, vyžaduje loader aby nastavi
 ## osal.h
 header pre šecky libosal.so relevantné funkcie, pre použití kukaj osal_test.c
 
+## xui_test.c
+testuvačka pre xui funkcie, vykreslí xui okno, vykreslí statusbar s 8 ikonami a vypíše text Xui testuvacka
 
+`arm-none-linux-gnueabi-gcc -fPIC -nostartfiles -shared -include prolin_printf.h xui_test.c -o xui_test.so`
+
+## xui.h
+poloprepečený a ručne vyskladaný header pre skoro šecky libxui.so relevantné funkcie, pre čiastočné použití kukaj xui_test.c
