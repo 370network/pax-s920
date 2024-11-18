@@ -1,3 +1,14 @@
+/**
+ * @file osal.h
+ * @brief Header for Prolin API programming.
+ *
+ * This file was manually assembled based on the Prolin API Programming Guide V2.5.3. It is incomplete and may contain errors.
+ * Authors:
+ * - Milan Babuljak (hiimmilan.dev), 2024
+ * - Richard Gráčik (Morc), 2024
+ */
+
+
 #ifndef PROLIN_API_H
 #define PROLIN_API_H
 
@@ -18,6 +29,34 @@
 #define ERR_FILE_NOT_FOUND       -2201
 #define ERR_NO_SPACE             -2205
 #define ERR_NEED_ADMIN           -2207
+
+// RF
+#define PCD_ERR_PAR_FLAG         -2901  // Parity error.
+#define PCD_ERR_CRC_FLAG         -2902  // CRC error.
+#define PCD_ERR_WTO_FLAG         -2903  // Timeout or no card.
+#define PCD_ERR_COLL_FLAG        -2904  // Multiple cards collision.
+#define PCD_ERR_ECD_FLAG         -2905  // Frame format error.
+#define PCD_ERR_EMD_FLAG         -2906  // Interference.
+#define PCD_ERR_COM_FLAG         -2907  // Chip error, fail to communicate correctly.
+#define PCD_ERR_AUT_FLAG         -2908  // M1 authentication error.
+#define PCD_ERR_TRANSMIT_FLAG    -2909  // Transmission error.
+#define PCD_ERR_PROTOCOL_FLAG    -2910  // Protocol error.
+#define PCD_ERR_PARAMFILE_FLAG   -2911  // Configuration file does not exist.
+#define PCD_ERR_USER_CANCEL      -2912  // Transaction is cancelled.
+#define PCD_ERR_CARRIER_OBTAIN_FLAG -2913 // No obtained carrier.
+#define PCD_ERR_CONFIG_FLAG      -2914  // Fail to configure register.
+#define PCD_ERR_RXLEN_EXCEED_FLAG -2915 // The returned data length exceeds the set receiving length.
+#define PCD_ERR_NOT_ALLOWED_FLAG -2951 // Parameter error or invalid value.
+#define PCD_CHIP_ABNORMAL        -2952  // Chip is abnormal or does not exist.
+#define PCD_CHIP_NOT_OPENED      -2953  // Module is not open.
+#define PCD_CHIP_CARDEXIST       -2954  // Card is not removed.
+#define PCD_ERR_NOT_IDLE_FLAG    -2955  // Card is not in idle state.
+#define PCD_ERR_NOT_POLLING_FLAG -2956  // No polling.
+#define PCD_ERR_NOT_WAKEUP_FLAG  -2957  // Card does not wakeup.
+#define PCD_ERR_NOT_ACTIVE_FLAG  -2958  // Card is not activated.
+#define PCD_ERR_NOT_SUPPORT      -2959  // Chip is unsupported.
+#define ERR_BATTERY_VOLTAGE_TOO_LOW -1024 // Battery voltage is too low.
+
 
 /*--------------------------------------------
  * File Types
@@ -69,6 +108,39 @@ typedef struct {
     char FileName[64];
     char FontName[64];
 } FT_FONT;
+
+typedef struct pcd_user_t {
+     unsigned char wait_retry_limit_w; /* S(WTX) responds to write permission of sending times*/ 
+     unsigned int wait_retry_limit_val; /*S(WTX)responds to the maximum repetition times.*/
+     unsigned char check_cancel_key_w; /*respond to write permission of the cancel key*/ 
+     unsigned char check_cancel_key_val; /* 0: No response to the cancel key; 1: Respond to the cancel key */
+     int (*check_cancel_key_function)(void); /*Check whether the cancel key is pressed. If set check_cancel_key_w=1 and check_cancel_key_val=1, check_cancel_key_function () will be called during RF card transaction process. If check_cancel_key_function () returns 0, it means the cancel key is not pressed. If the function returns non-zero, it means the cancel key is pressed and will exit transaction by force,*/ 
+     unsigned char os_picc_transfer_set_w; /*1 means “os_picc_transfer_set_val” value is valid, 0 means “os_picc_transfer_set_val” value is invalid*/ 
+     unsigned char os_picc_transfer_set_val; /* Set OsPiccTransfer receive/send: Bit0=0: send disable CRC; Bit0=1: send enable CRC; Bit1=0: receive disable CRC; Bit1=1: receive enable CRC*/ 
+     unsigned char anti_interference_flag; /*Anti-interference setting when searching the card; 1- enable anti-interference, 0- disable an-interference.*/ 
+     unsigned char protocol_layer_fwt_set_w; /*1 indicates that the value of protocol_layer_fwt_set_val is valid, 0 indicates that the value of protocol_layer_fwt_set_val is invalid */
+    unsigned int protocol_layer_fwt_set_val; /* Set the frame wait time for the protocol layer (value of FWT)*/ 
+    unsigned char os_picc_transfer_rxlen_set_w; /*1 indicates that the value of os_picc_transfer_rxlen_set_val is vaild, 0 indicates that the value ofos_picc_transfer_rxlen_set_val is invalid */ 
+    unsigned int os_picc_transfer_rxlen_set_val; /*Set the maximum allowable data length in the half-duplex block (OsPiccTransfer) transfer*/ 
+    unsigned char os_picc_transfer_direct_transmit_set_w; /* 1 means the data is transmitted in the way of data stream, that is, the half-duplex block transmission protocol is not applicable;0 represents data transfer using the half duplex block transfer protocol */ 
+    unsigned char configure_technology_type_w; /* Set whether the configure_technology_type_val parameter can be written：1—allowed, other values--not allowed */ 
+    unsigned char configure_technology_type_val; /* Configure the modulation technology type of the data sent by OsPiccTransfer()*/ 
+    unsigned char reserved[34]; /* Reserved byte, for future use. sizeof(PCD_USER_ST)= 76*/ 
+} PCD_USER_ST;
+
+typedef struct { 
+    unsigned char Cmd[4]; /*CLA, INS, P1, P2*/ 
+    int LC; /* The valid length of DataIn sent to IC card */ 
+    unsigned char DataIn[512];/* The data sent to ICC */ 
+    int LE; /* The expected length of returned data*/ 
+} ST_APDU_REQ;
+
+typedef struct { 
+    int LenOut; /* Data length returned from ICC*/ 
+    unsigned char DataOut[512]; /*Data pointer returned from ICC */ 
+    unsigned char SWA; /*status word 1 of ICC */ 
+    unsigned char SWB; /* status word 2 of ICC */ 
+} ST_APDU_RSP;
 
 /*--------------------------------------------
  * Function Prototypes - System
@@ -127,8 +199,8 @@ int OsNetSetConfig(const char *config);
 /*--------------------------------------------
  * Function Prototypes - File System
  *-------------------------------------------*/
-int OsMount(const char *device, const char *mountPoint);
-int OsUmount(const char *mountPoint);
+int OsMount(const char *Source, const char *Target, const char *FileSystemType, unsigned long MountFlags, const void *Data);
+int OsUmount(const char *Target, int Flags);
 
 /*--------------------------------------------
  * Function Prototypes - Encryption/Decryption
@@ -145,7 +217,21 @@ int OsRSAKeyGen(char *publicKey, char *privateKey, int keySize);
  *-------------------------------------------*/
 int OsPiccOpen(void);
 int OsPiccClose(void);
-int OsPiccTransfer(const unsigned char *sendData, int sendLen, unsigned char *recvData, int *recvLen);
+int OsPiccResetCarrier(void);
+int OsPiccPoll( char *pcPiccType, unsigned char *pucATQx );
+int OsPiccAntiSel( const char pcPiccType, unsigned char *pucUID, const unsigned char ucATQ0, unsigned char *pucSAK );
+int OsPiccActive( const char pcPiccType, unsigned char *pucRATS );
+int OsPiccTransfer(const unsigned char*pucTxBuff, int iTxLen, unsigned char* pucRxBuff, int *piRxLen );
+int OsPiccRemove(void );
+int OsMifareAuthority(unsigned char *uid, unsigned char blk_no, unsigned chargroup, unsigned char *psw);
+int OsMifareOperate(unsigned charucOpCode, unsigned charucSrcBlkNo, unsigned char*pucVal, unsigned char ucDesBlkNo );
+int OsPiccInitFelica(unsigned char ucSpeed, unsigned char ucModInvert );
+int OsPiccIsoCommand(int cid, ST_APDU_REQ *ApduReq, ST_APDU_RSP *ApduRsp);
+int OsPiccSetUserConfig(PCD_USER_ST *pcd_user_config) ;
+int OsPiccGetUserConfig(PCD_USER_ST *pcd_user_config);
+int OsPiccApplePoll(char *pcPiccType, unsigned char *pucATQx, unsigned char *pucSendData);
+int OsPiccInitIso15693(unsigned char ucDataCodeMode);
+int OsPiccOffCarrier(void);
 int OsPiccRemove(void);
 
 /*--------------------------------------------
