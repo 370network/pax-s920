@@ -1,11 +1,19 @@
-//manually assembled from prolin-xui-interface-2.1.7.pdf
-//Richard Gráčik - Morc, 2024
+/**
+ * @file xui.h
+ * @brief Header for Prolin XUI GUI Interface.
+ *
+ * This file was manually assembled based on the Prolin XUI Interface V2.1.7. It is incomplete and may contain errors.
+ * Authors:
+ * - Milan Babuljak (hiimmilan.dev), 2024
+ * - Richard Gráčik (Morc), 2024
+ */
+
 
 #ifndef PROLIN_XUI_H
 #define PROLIN_XUI_H
 
 /*--------------------------------------------
- * Macros
+ * Macros and Enums
  *-------------------------------------------*/
 #define XuiColor(b, g, r, a) ( b  << 24 | g << 16 | r << 8 | (a) )
 
@@ -191,8 +199,6 @@ void XuiDestroyWindow(XuiWindow *window);
 int XuiTextWidth(XuiFont *font, int size, char *text);
 int XuiTextWidthEx(XuiFont *font, int size, XuiTextStyle textstyle, char *text);
 void XuiShowWindow(XuiWindow *window, int show, int flag);
-int XuiHasKey(void);
-int XuiGetKey(void);
 int XuiSetStatusbarIcon(int index, const char* path);
 int XuiGetHzString(XuiImeAttr attr, char *outstr, unsigned int maxlen, unsigned int timeout);
 int XuiGetString(XuiGetStrAttr attr, char *outstr, unsigned char mode, int minlen, int maxlen);
@@ -200,7 +206,6 @@ char *XuiBidiStrdup(const char *str);
 int XuiGetGesture(XuiGesture *gesture);
 int XuiSetGestureRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 int XuiShowSoftKeyboard(int type, int show);
-int XuiScanerDecode(XuiWindow *window, unsigned char *outdata, int *datalen, int maxlen, int timeout);
 //XuiTsUpdate
 
 /*--------------------------------------------
@@ -208,6 +213,8 @@ int XuiScanerDecode(XuiWindow *window, unsigned char *outdata, int *datalen, int
  *-------------------------------------------*/
 int XuiButtonSetStat(XuiWindow *window, XuiButtonStatType type, XuiButtonStat *stat);
 int XuiButtonSetKey(XuiWindow *window, int key);
+int XuiHasKey(void);
+int XuiGetKey(void);
 //XuiButtonRegisterKey
 
 /*--------------------------------------------
@@ -222,6 +229,7 @@ XuiSignData *XuiSigBoardSignData(XuiWindow *window);
  *-------------------------------------------*/
 int XuiCameraSetStat(XuiWindow *window, XuiCameraStat *stat);
 XuiImg *XuiCameraCapture(XuiWindow *window);
+int XuiScanerDecode(XuiWindow *window, unsigned char *outdata, int *datalen, int maxlen, int timeout);
 
 /*--------------------------------------------
  * Function Prototypes - Canvas
