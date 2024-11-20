@@ -109,6 +109,12 @@ typedef struct {
     char FontName[64];
 } FT_FONT;
 
+typedef struct {
+    unsigned char TrackData[256]; /* Decoded bit stream*/
+    int DataLen; /* Track data length*/
+    int Status; /*Track data status, 0 means succeeded, other value means failed*/
+} ST_MSR_DATA;
+
 typedef struct pcd_user_t {
      unsigned char wait_retry_limit_w; /* S(WTX) responds to write permission of sending times*/ 
      unsigned int wait_retry_limit_val; /*S(WTX)responds to the maximum repetition times.*/
@@ -176,10 +182,11 @@ int OsScrGetSize(int *width, int *height);
 /*--------------------------------------------
  * Function Prototypes - Printer
  *-------------------------------------------*/
-int OsPrnOpen(void);
-int OsPrnSetSize(int size);
+int OsPrnOpen(unsigned int printertype, const char* targetname );
+void OsPrnSelectFontSize(int SingleCodeWidth, int SingleCodeHeight, int MultiCodeWidth, int MultiCodeHeight);
 int OsPrnSetDirection(int direction);
 int OsPrnPrintText(const char *text);
+void OsPrnSetGray(int Level);
 void OsPrnClose(void);
 
 /*--------------------------------------------
@@ -187,7 +194,9 @@ void OsPrnClose(void);
  *-------------------------------------------*/
 int OsMsrOpen(void);
 int OsMsrClose(void);
-int OsMsrRead(char *track1, char *track2, char *track3);
+void OsMsrReset(void);
+int OsMsrSwiped(void);
+int OsMsrRead(ST_MSR_DATA *Track1, ST_MSR_DATA *Track2, ST_MSR_DATA *Track3);
 
 /*--------------------------------------------
  * Function Prototypes - Network Communication
