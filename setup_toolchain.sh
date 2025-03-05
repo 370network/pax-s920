@@ -56,14 +56,20 @@ else
     new_device="device.ConnectDevice(port_path=None, serial=\"$addr,115200\")"
 fi
 
-sed -i "s|device.ConnectDevice(port_path=None, serial=[^)]*)|$new_device|" xcb/client.py
+sed -i '' "s|device.ConnectDevice(port_path=None, serial=[^)]*)|$new_device|" xcb/client.py
 
 echo "XCB env"
 python3 -m venv xcb
 source xcb/bin/activate
-pip3 install M2Crypto pyserial libusb1
-
-
+pip3 install pyserial libusb1
+if [ "$(uname)" == "Darwin" ]; then
+	export CFLAGS=$(pkg-config --cflags openssl)
+	export LDFLAGS=$(pkg-config --libs openssl)
+	export SWIG_FEATURES="-cpperraswarn -includeall $(pkg-config --cflags openssl)"
+	pip3 install --pre --no-binary :all: M2Crypto --no-cache
+else
+	pip3 install M2Crypto
+fi
 
 echo ""
 echo ""
