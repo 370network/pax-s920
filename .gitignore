@@ -10,3 +10,4 @@ toolchain/libexec
 toolchain/include/lib
 toolchain/include/include
 toolchain/arm-none-linux-gnueabi
+homebrew/*/repo
