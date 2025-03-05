@@ -7,7 +7,7 @@ DEPENDENCY_FILES = $(patsubst %.c,%.d,$(SOURCE_FILES))
 ROMS = $(foreach directory,snapshots-roms,$(wildcard $(directory)/*))
 OUTPUT_FOLDER = $(PWD)/
 
-CC = $(PREFIX)/bin/arm-none-linux-gnueabi-gcc
+CC = $(PREFIX)/bin/$(HOST)-gcc
 CFLAGS = -Wall -fPIC $(foreach DIRECTORY,$(INCLUDE_DIRECTORIES),-I$(DIRECTORY)) -nostartfiles -std=c99
 DEPENDENCY_FLAGS = -MMD -MP
 UPLOAD_COMMON_PATH = /data/app/MAINAPP

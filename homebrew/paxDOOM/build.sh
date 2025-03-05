@@ -9,7 +9,7 @@ echo "=================="
 
 git clone https://github.com/370network/paxDOOM.git repo
 
-export CROSS_COMPILE=$PREFIX/bin/arm-none-linux-gnueabi-
+export CROSS_COMPILE=$PREFIX/bin/$HOST-
 
 if [ ! -f repo/fbdoom/fbdoom ]; then
 	echo "paxDOOM build process!"

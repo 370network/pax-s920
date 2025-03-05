@@ -1,8 +1,10 @@
 set(PREFIX $ENV{PREFIX})
+set(HOST $ENV{HOST})
+
 
 set(CMAKE_SYSTEM_NAME Linux)
-set(CMAKE_C_COMPILER   arm-none-linux-gnueabi-gcc)
-set(CMAKE_CXX_COMPILER arm-none-linux-gnueabi-g++)
+set(CMAKE_C_COMPILER   ${HOST}-gcc)
+set(CMAKE_CXX_COMPILER ${HOST}-g++)
 
 set(CMAKE_FIND_ROOT_PATH  ${PREFIX} ${PREFIX}/arm-none-linux-gnueabi)
 

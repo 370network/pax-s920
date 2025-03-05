@@ -1,4 +1,4 @@
-CXX = arm-none-linux-gnueabi-gcc
+CXX = $(HOST)
 CXXFLAGS = -fPIC -shared -nostartfiles -Wall -I$(PREFIX)/include
 
 SRCS = osal_test.c magstripe_reader.c sd_mount.c xui_test.c

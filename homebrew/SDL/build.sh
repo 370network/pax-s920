@@ -12,7 +12,7 @@ git clone https://github.com/370network/SDL-1.2-pax.git repo
 if [ ! -f repo/build/.libs/libSDL-1.2.so.0.11.5 ]; then
 	echo "SDL1.2 build process!"
 	cd repo
-	./configure --disable-pulseaudio --prefix=$PREFIX --host=arm-none-linux-gnueabi
+	./configure --disable-pulseaudio --prefix=$PREFIX --host=$HOST
 	make -j$(nproc)
 	make install
 fi
