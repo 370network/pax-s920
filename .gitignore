@@ -1,5 +1,8 @@
 .DS_Store
 ._*
+*.so
+cache/
+xcb/
 toolchain/bin
 toolchain/lib
 toolchain/libexec
