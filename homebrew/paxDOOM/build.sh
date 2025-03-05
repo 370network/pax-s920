@@ -1,5 +1,6 @@
 #!/bin/bash
 # build.sh - Morc @ 370network
+source $PREFIX/../homebrew/build_helper.sh
 
 echo "=================="
 echo "370network paxdevs"
@@ -15,8 +16,4 @@ if [ ! -f repo/fbdoom/fbdoom ]; then
 	make -j$(nproc) -C repo/fbdoom/
 fi
 
-if [ -f repo/fbdoom/fbdoom ]; then
-        echo "paxDOOM built successfully!"
-        mv repo/fbdoom/fbdoom paxdoom.so
-	echo "file: paxdoom.so"
-fi
+build_check "fbdoom/fbdoom" "paxdoom"
