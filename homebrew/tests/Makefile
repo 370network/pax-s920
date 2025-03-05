@@ -1,23 +1,20 @@
-CXX = arm-none-linux-gnueabi-g++
-CXXFLAGS = -fPIC -shared -nostartfiles -Wall
+CXX = arm-none-linux-gnueabi-gcc
+CXXFLAGS = -fPIC -shared -nostartfiles -Wall -I$(PREFIX)/include
 
-SRCS = launcher.cpp settings.cpp
-OBJS = $(SRCS:.cpp=.o)
+SRCS = osal_test.c magstripe_reader.c sd_mount.c xui_test.c
 
-TARGET = launcher.so
+OBJS = $(SRCS:.c=.o)
+TARGETS = $(SRCS:.c=.so)
 
-all: $(TARGET) push
+all: $(TARGETS)
 
-$(TARGET): $(OBJS)
-	$(CXX) $(OBJS) -fPIC -shared -o $(TARGET)
+%.so: %.o
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+%.o: %.c
+	$(CXX) $(CXXFLAGS) -include prolin_printf.h -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(TARGET)
-
-push:
-	python3 $(PREFIX)/xcb/client.py . push launcher.so /data/app/MAINAPP/lib/libosal.so
+	rm -f $(OBJS) $(TARGETS)
 
 .PHONY: all clean
