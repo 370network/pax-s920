@@ -8,6 +8,8 @@ echo "=================="
 
 
 
+echo ""
+echo ""
 echo "Cache setup!"
 if [ ! -d cache ]; then
         echo "Cache directory create"
@@ -16,6 +18,8 @@ fi
 
 
 
+echo ""
+echo ""
 echo "Toolchain setup!"
 if [ -f cache/toolchain.tar.bz2 ]; then
 	echo "Toolchain already exists"
@@ -33,6 +37,8 @@ fi
 
 
 
+echo ""
+echo ""
 echo "XCB setup!"
 if [ -d xcb ]; then
         echo "XCB already exists"
@@ -42,7 +48,7 @@ else
 fi
 
 echo "XCB client.py setup!"
-read -p "Enter device address (IP or /dev/tty path): " addr
+read -p "Enter device address (IP or whole /dev/ path): " addr
 
 if [[ "$addr" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     new_device="device.ConnectDevice(port_path=None, serial=\"$addr:5555\")"
@@ -56,3 +62,10 @@ echo "XCB env"
 python3 -m venv xcb
 source xcb/bin/activate
 pip3 install M2Crypto pyserial libusb1
+
+
+
+echo ""
+echo ""
+echo "Initial setup done!"
+echo "In case of errors, please use your eyes and read, then open https://github.com/370network/pax-s920/issues and report problems."
