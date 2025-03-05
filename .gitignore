@@ -1,2 +1,8 @@
 .DS_Store
 ._*
+toolchain/bin
+toolchain/lib
+toolchain/libexec
+toolchain/include/lib
+toolchain/include/include
+toolchain/arm-none-linux-gnueabi
