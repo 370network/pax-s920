@@ -68,4 +68,4 @@ pip3 install M2Crypto pyserial libusb1
 echo ""
 echo ""
 echo "Initial setup done!"
-echo "In case of errors, please use your eyes and read, then open https://github.com/370network/pax-s920/issues and report problems."
+echo "In case of errors, please use your eyes and read. Continue by opening https://github.com/370network/pax-s920/issues and report problems."

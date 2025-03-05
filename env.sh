@@ -1,5 +1,7 @@
 #!/bin/bash
 # pax-build envset
+source xcb/bin/activate
+
 export LD_LIBRARY_PATH=$PWD/toolchain/lib
 export QEMU_LD_PREFIX=$PWD/toolchain/arm-none-linux-gnueabi/libc/
 export PATH=$PWD/toolchain/bin:$PATH

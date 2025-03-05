@@ -5,6 +5,7 @@ cache/
 xcb/
 toolchain/bin
 toolchain/lib
+toolchain/share
 toolchain/libexec
 toolchain/include/lib
 toolchain/include/include

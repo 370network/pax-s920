@@ -1,14 +1,23 @@
 # ProlinOS/PAX toolchain
 
 ## setup instructions
-make sure you have python3 venv, wget, git, *(qemu-user-static/qemu-arm-static for possibly running executables)* installed
+### debian/ubuntu 64bit specific
+install multiarch support
+```bash
+sudo dpkg --add-architecture i386
+sudo apt-get update
+sudo apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386
+```
+
+### common for all platforms
+make sure you have `python3`, `python3-venv`, `wget`, `git`, *(`qemu-user-static`/`qemu-arm-static` for possibly running executables)* installed
+
 ```bash
 ./setup_toolchain.sh
 ```
 
-continue with
+continue *(or start on your next session)* with
 ```bash
-source xui/bin/activate
 source env.sh
 ```
 
@@ -27,9 +36,13 @@ paxpull <pax source> <local destination>
 ```
 *eg. paxpull /usr/lib/libcbinder.so libcbinder.so*
 
+## building homebrew
+~~download using the homebrew downloader (coming soon or never)~~
+
+traverse into the `homebrew` folder, pick your desired port and run `./build.sh` or `make`
 
 ## additional official docs
-[pax-docs](https://github.com/370network/pax-s920/tree/main/pax-docs)
+see [pax-docs](https://github.com/370network/pax-s920/tree/main/pax-docs)
 
 ## headers
 
