@@ -1,7 +1,7 @@
 # ProlinOS/PAX toolchain
 
 ## setup instructions
-make sure you have python3 venv, wget, git installed
+make sure you have python3 venv, wget, git, *(qemu-user-static/qemu-arm-static for possibly running executables)* installed
 ```bash
 ./setup_toolchain.sh
 ```
@@ -12,7 +12,23 @@ source xui/bin/activate
 source env.sh
 ```
 
-## documentation
+## commands
+### paxpush
+used as a shorter alias for the xcb command
+```bash
+paxpush <source file> <pax destination>
+```
+*eg. paxpush osal_test.c /data/app/MAINAPP/libosal.so*
+
+### paxpull
+used as a shorter alias for the xcb command
+```bash
+paxpull <pax source> <local destination>
+```
+*eg. paxpull /usr/lib/libcbinder.so libcbinder.so*
+
+
+## additional official docs
 [pax-docs](https://github.com/370network/pax-s920/tree/main/pax-docs)
 
 ## headers
