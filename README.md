@@ -39,7 +39,9 @@ paxpull <pax source> <local destination>
 ## building homebrew
 ~~download using the homebrew downloader (coming soon or never)~~
 
-traverse into the `homebrew` folder, pick your desired port and run `./build.sh` or `make`
+traverse into the `homebrew` folder, pick your desired port and run `./install.sh`, `./build.sh` or `make`
+
+some ports (mainly libs)* contain both `./install.sh` and `./build.sh` because you can save time by just installing it instead of building them
 
 ## additional official docs
 see [pax-docs](https://github.com/370network/pax-s920/tree/main/pax-docs)
