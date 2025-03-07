@@ -1,0 +1,76 @@
+diff --git a/uisimulator/common/backlight-sim.c b/uisimulator/common/backlight-sim.c
+index 7acdee84ae..ee61fb51ab 100644
+--- a/uisimulator/common/backlight-sim.c
++++ b/uisimulator/common/backlight-sim.c
+@@ -20,6 +20,9 @@
+  ****************************************************************************/
+ 
+ #include <stdbool.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <stdio.h>
+ #include "config.h"
+ #include "backlight.h"
+ #include "lcd.h"
+@@ -40,14 +43,27 @@ bool backlight_hw_init(void)
+ 
+ static inline int normalize_backlight(int val)
+ {
+-    /* normalize to xx% brightness for sdl */
+-    return ((val - MIN_BRIGHTNESS_SETTING + 1) * 100) /
+-           (MAX_BRIGHTNESS_SETTING - MIN_BRIGHTNESS_SETTING + 1);
++	if (val == 0)
++		return 0;
++	else
++	    return 80 + (val - MIN_BRIGHTNESS_SETTING) * (255 - 80) / (MAX_BRIGHTNESS_SETTING - MIN_BRIGHTNESS_SETTING);
+ }
+ 
+ void backlight_hw_brightness(int val)
+ {
+-    sim_backlight(normalize_backlight(val));
++	char str_value[4];
++	sprintf(str_value, "%d", normalize_backlight(val));
++
++	int fd = open("/sys/devices/platform/pwm-backlight/backlight/pwm-backlight/brightness", O_WRONLY);
++    write(fd, str_value, 3);
++    close(fd);
++    
++    fd = open("/sys/devices/platform/keypad/backlight_on", O_WRONLY);
++    if (val > 0)
++    	write(fd, "1", 3);
++    else
++    	write(fd, "0", 3);
++    close(fd);
+ }
+ 
+ #endif /* HAVE_BACKLIGHT_BRIGHTNESS */
+@@ -60,24 +76,18 @@ void backlight_hw_on(void)
+ #elif defined(HAVE_LCD_SLEEP)
+     lcd_awake();
+ #endif
+-#if (CONFIG_BACKLIGHT_FADING != BACKLIGHT_FADING_SW_SETTING)
+-    /* if we set the brightness to the settings value, then fading up
+-     * is glitchy */
+-#ifdef HAVE_BACKLIGHT_BRIGHTNESS
+-    sim_backlight(normalize_backlight(backlight_brightness));
+-#else
+-    sim_backlight(100);
+-#endif
+ 
+-#endif
++    backlight_hw_brightness(backlight_brightness);
++
+ }
+ 
+ void backlight_hw_off(void)
+ {
+-    sim_backlight(0);
++    backlight_hw_brightness(0);
+ #ifdef HAVE_LCD_ENABLE
+-    lcd_enable(false);
++	lcd_enable(false);
+ #endif
++
+ }
+ 
+ 

@@ -1,0 +1,35 @@
+diff --git a/uisimulator/common/sim_tasks.c b/uisimulator/common/sim_tasks.c
+index 6ac2376316..12d1163a93 100644
+--- a/uisimulator/common/sim_tasks.c
++++ b/uisimulator/common/sim_tasks.c
+@@ -29,7 +29,15 @@
+ #include "debug.h"
+ #include "usb.h"
+ #include "mv.h"
++#include "storage.h"
+ #include "ata_idle_notify.h"
++#include <dlfcn.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/mount.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <unistd.h>
+ 
+ #ifdef WIN32
+ #include <windows.h>
+@@ -138,6 +146,14 @@ void sim_tasks_init(void)
+ 
+     create_thread(sim_thread, sim_thread_stack, sizeof(sim_thread_stack), 0,
+                   sim_thread_name IF_PRIO(,PRIORITY_BACKGROUND) IF_COP(,CPU));
++                  
++    //@TODO: IMPLEMENT uSD SUPPORT BASED ON sim_trigger_external/SIM_EXT_EXTRACTED
++	struct stat st = {0};
++	if (stat("/mnt/sdcard", &st) != -1) {
++    	queue_broadcast(SYS_HOTSWAP_INSERTED, 0);
++    	queue_broadcast(SYS_FS_CHANGED, 0);
++    	sim_trigger_external(1);
++	}
+ }
+ 
+ void sim_trigger_screendump(void)

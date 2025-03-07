@@ -1,0 +1,22 @@
+diff --git a/firmware/target/hosted/sdl/pcm-sdl.c b/firmware/target/hosted/sdl/pcm-sdl.c
+index 587b678550..32bb7189ce 100644
+--- a/firmware/target/hosted/sdl/pcm-sdl.c
++++ b/firmware/target/hosted/sdl/pcm-sdl.c
+@@ -87,7 +87,7 @@ void pcm_play_unlock(void)
+ 
+ static void pcm_dma_apply_settings_nolock(void)
+ {
+-    cvt_status = SDL_BuildAudioCVT(&cvt, AUDIO_S16SYS, 2, pcm_sampr,
++    cvt_status = SDL_BuildAudioCVT(&cvt, AUDIO_S16SYS, 1, pcm_sampr,
+                     obtained.format, obtained.channels, obtained.freq);
+ 
+     if (cvt_status < 0) {
+@@ -350,7 +350,7 @@ void pcm_play_dma_init(void)
+     /* Set 16-bit stereo audio at 44Khz */
+     wanted_spec.freq = 44100;
+     wanted_spec.format = AUDIO_S16SYS;
+-    wanted_spec.channels = 2;
++    wanted_spec.channels = 1;
+     wanted_spec.samples = 2048;
+     wanted_spec.callback =
+         (void (SDLCALL *)(void *userdata,

@@ -1,0 +1,18 @@
+diff --git a/firmware/export/config/sim.h b/firmware/export/config/sim.h
+index 0aeca695f0..942044e73f 100644
+--- a/firmware/export/config/sim.h
++++ b/firmware/export/config/sim.h
+@@ -35,6 +35,13 @@
+ #define CONFIG_CHARGING CHARGING_MONITOR
+ #endif
+ 
++#define HAVE_MULTIDRIVE  /* But _not_ CONFIG_STORAGE_MULTI */
++#define NUM_DRIVES 2
++#define MULTIDRIVE_DIR "/mnt/sdcard"
++#define MULTIDRIVE_DEV "/dev/block/mmcblk0p1"
++
++
++
+ /*
+  * Effectively disable battery smoothing, our simulated charge/ discharge
+  * cycle is way too fast for it otherwise

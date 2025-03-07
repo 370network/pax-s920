@@ -1,0 +1,150 @@
+diff --git a/firmware/target/hosted/sdl/lcd-sdl.c b/firmware/target/hosted/sdl/lcd-sdl.c
+index 8cbb6c5651..a747d9e3d1 100644
+--- a/firmware/target/hosted/sdl/lcd-sdl.c
++++ b/firmware/target/hosted/sdl/lcd-sdl.c
+@@ -26,14 +26,42 @@
+ 
+ double display_zoom = 1;
+ 
++
++void rotate_and_update(SDL_Surface *surface, SDL_Surface *gui_surface)
++{
++    if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
++    if (SDL_MUSTLOCK(gui_surface)) SDL_LockSurface(gui_surface);
++
++    int src_w = 240;   // 240
++    int src_h = 320;   // 320
++    int bpp = 2;  // Bytes per pixel (2 for 16-bit, 4 for 32-bit)
++
++    Uint8 *src_pixels = (Uint8 *)surface->pixels;
++    Uint8 *dst_pixels = (Uint8 *)gui_surface->pixels;
++
++    int src_pitch = surface->pitch;
++    int dst_pitch = gui_surface->pitch;
++
++    for (int y = 0; y < src_h; y++) {
++        for (int x = 0; x < src_w; x++) {
++            int src_offset = (y * src_pitch) + (x * bpp);
++            int dst_offset = ((x * dst_pitch) + ((src_h - y - 1) * bpp));
++
++            memcpy(dst_pixels + dst_offset, src_pixels + src_offset, bpp);
++        }
++    }
++
++    if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
++    if (SDL_MUSTLOCK(gui_surface)) SDL_UnlockSurface(gui_surface);
++
++    SDL_UpdateRect(gui_surface, 0, 0, 0, 0);  // Refresh the screen
++}
++
+ void sdl_update_rect(SDL_Surface *surface, int x_start, int y_start, int width,
+                      int height, int max_x, int max_y,
+                      unsigned long (*getpixel)(int, int))
+ {
+     SDL_Rect dest;
+-#if LCD_DEPTH >= 8 && (LCD_PIXELFORMAT == RGB565) && \
+-    (LCD_STRIDEFORMAT == HORIZONTAL_STRIDE) && \
+-    !defined(HAVE_LCD_SPLIT) && !defined(HAVE_REMOTE_LCD)
+     SDL_Rect src;
+     (void)max_x;
+     (void)max_y;
+@@ -47,80 +75,33 @@ void sdl_update_rect(SDL_Surface *surface, int x_start, int y_start, int width,
+     src.y = y_start;
+     src.w = width;
+     src.h = height;
++	
++    SDL_BlitSurface(lcd, &src, surface, &src);
+ 
+-    if (display_zoom == 1) {
+-        dest = src;
+-        SDL_BlitSurface(lcd, &src, surface, &dest);
+-    } else {
+-        /* Note: SDL_SoftStretch is currently marked as DO NOT USE
+-           but there are no real alternatives for efficent zooming. */
+-        dest.x = src.x * display_zoom;
+-        dest.y = src.y * display_zoom;
+-        dest.w = src.w * display_zoom;
+-        dest.h = src.h * display_zoom;
+-        SDL_SoftStretch(lcd, &src, surface, &dest);
+-    }
+     SDL_FreeSurface(lcd);
+-#else
+-    int x, y;
+-    int xmax, ymax;
+-    /* Very slow pixel-by-pixel drawing */
+-    ymax = y_start + height;
+-    xmax = x_start + width;
+-
+-    if(xmax > max_x)
+-        xmax = max_x;
+-    if(ymax >= max_y)
+-        ymax = max_y;
+ 
+-    dest.w = display_zoom;
+-    dest.h = display_zoom;
+-
+-    for (x = x_start; x < xmax; x++) {
+-        dest.x = x * display_zoom;
+-
+-#ifdef HAVE_LCD_SPLIT
+-        for (y = y_start; y < MIN(ymax, LCD_SPLIT_POS); y++) {
+-            dest.y = y * display_zoom;
+-
+-            SDL_FillRect(surface, &dest, (Uint32)(getpixel(x, y) | 0x80));
+-        }
+-        for (y = MAX(y_start, LCD_SPLIT_POS); y < ymax; y++) {
+-            dest.y = (y + LCD_SPLIT_LINES) * display_zoom ;
+-
+-            SDL_FillRect(surface, &dest, (Uint32)getpixel(x, y));
+-        }
+-#else
+-        for (y = y_start; y < ymax; y++) {
+-            dest.y = y * display_zoom;
+-
+-            SDL_FillRect(surface, &dest, (Uint32)getpixel(x, y));
+-        }
+-#endif
+-    }
+-#endif
+ }
+ 
+ void sdl_gui_update(SDL_Surface *surface, int x_start, int y_start, int width,
+                     int height, int max_x, int max_y, int ui_x, int ui_y)
+ {
+-    if (x_start + width > max_x)
+-        width = max_x - x_start;
+-    if (y_start + height > max_y)
+-        height = max_y - y_start;
+-
+-    SDL_Rect src = {x_start * display_zoom, y_start * display_zoom,
+-                    width * display_zoom, height * display_zoom};
+-    SDL_Rect dest= {(ui_x + x_start) * display_zoom,
+-                    (ui_y + y_start) * display_zoom,
+-                    width * display_zoom, height * display_zoom};
+-
+-    if (surface->flags & SDL_SRCALPHA) /* alpha needs a black background */
+-        SDL_FillRect(gui_surface, &dest, 0);
+-
+-    SDL_BlitSurface(surface, &src, gui_surface, &dest);
+-
+-    SDL_Flip(gui_surface);
++   //if (x_start + width > max_x)
++   //    width = max_x - x_start;
++   //if (y_start + height > max_y)
++   //    height = max_y - y_start;
++//
++   //SDL_Rect dest = {0, 0,
++   //                320, 240};
++
++	//SDL_Surface *rotated_surface = SDL_CreateRGBSurface(0, 320, 240, 2 ,gui_surface->format->Rmask, gui_surface->format->Gmask, gui_surface->format->Bmask, gui_surface->format->Amask);
++	
++	rotate_and_update(surface, gui_surface);
++	//rotate_90(surface, rotated_surface);
++ 
++    //SDL_BlitSurface(surface, NULL, gui_surface, &dest);
++    //SDL_UpdateRect(surface, 0, 0, 0, 0);
++    //SDL_FreeSurface(rotated_surface);
++    //SDL_Flip(gui_surface);
+ }
+ 
+ /* set a range of bitmap indices to a gradient from startcolour to endcolour */

@@ -1,0 +1,14 @@
+diff --git a/firmware/common/inflate.c b/firmware/common/inflate.c
+index e39fe3a14e..7dfa263184 100644
+--- a/firmware/common/inflate.c
++++ b/firmware/common/inflate.c
+@@ -48,6 +48,9 @@
+ #include "crc32.h"
+ #include "system.h"
+ 
++#include <stddef.h>
++#define _Alignof(type) offsetof(struct {char c; type t; }, t)
++
+ enum {
+     INFLATE_BUFFER_SIZE = 32768,
+     INFLATE_SYMBOL_MAX = 288,

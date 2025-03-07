@@ -1,0 +1,42 @@
+diff --git a/firmware/export/config/sansafuzeplus.h b/firmware/export/config/sansafuzeplus.h
+index c96131e37d..0dc65dfca5 100644
+--- a/firmware/export/config/sansafuzeplus.h
++++ b/firmware/export/config/sansafuzeplus.h
+@@ -18,15 +18,6 @@
+ //#define HW_SAMPR_CAPS       SAMPR_CAP_ALL_192
+ #define HW_SAMPR_CAPS       SAMPR_CAP_ALL_48
+ 
+-/* define this if you have recording possibility */
+-#define HAVE_RECORDING
+-
+-#define REC_SAMPR_CAPS      SAMPR_CAP_ALL_96
+-
+-/* Default recording levels */
+-#define DEFAULT_REC_MIC_GAIN    23
+-#define DEFAULT_REC_LEFT_GAIN   23
+-#define DEFAULT_REC_RIGHT_GAIN  23
+ 
+ /* Define bitmask of input sources - recordable bitmask can be defined
+    explicitly if different */
+@@ -36,8 +27,7 @@
+ 
+ /* define this if you have a colour LCD */
+ #define HAVE_LCD_COLOR
+-#define HAVE_LCD_FLIP
+-#define HAVE_LCD_INVERT
++
+ 
+ #ifndef BOOTLOADER
+ #define HAVE_ALBUMART
+@@ -71,11 +61,6 @@
+ 
+ #endif /* !BOOTLOADER */
+ 
+-/* define this if you have an i.MX23 codec */
+-#define HAVE_IMX233_CODEC
+-
+-#define CONFIG_TUNER SI4700
+-#define HAVE_RDS_CAP
+ 
+ /* There is no hardware tone control */
+ #define HAVE_SW_TONE_CONTROLS

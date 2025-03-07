@@ -1,0 +1,134 @@
+diff --git a/uisimulator/common/powermgmt-sim.c b/uisimulator/common/powermgmt-sim.c
+index 1535971e29..ced01deb4f 100644
+--- a/uisimulator/common/powermgmt-sim.c
++++ b/uisimulator/common/powermgmt-sim.c
+@@ -25,9 +25,13 @@
+ #include "kernel.h"
+ #include "powermgmt.h"
+ #include "power.h"
++#include <fcntl.h>
++#include <unistd.h>
++#include <stdio.h>
++#include <stdlib.h>
+ 
+-#define BATT_MINMVOLT   3300      /* minimum millivolts of battery */
+-#define BATT_MAXMVOLT   4300      /* maximum millivolts of battery */
++#define BATT_MINMVOLT   2900      /* minimum millivolts of battery */
++#define BATT_MAXMVOLT   4200      /* maximum millivolts of battery */
+ #define BATT_MAXRUNTIME (10 * 60) /* maximum runtime with full battery in
+                                      minutes */
+ /* Number of millivolts to discharge the battery every second */
+@@ -39,6 +43,8 @@
+ #define POWER_AFTER_CHARGE_TICKS (8 * HZ)
+ #endif
+ 
++static int last_charg_state = 0;
++
+ static bool charging = false;
+ static unsigned int batt_millivolts = BATT_MAXMVOLT;
+ static unsigned int batt_percent = 100;
+@@ -49,52 +55,29 @@ void powermgmt_init_target(void) {}
+ 
+ static void battery_status_update(void)
+ {
+-    /* Delay next battery update until tick */
+-    static long update_after_tick = 0;
+-#if CONFIG_CHARGING >= CHARGING_MONITOR
+-    /* When greater than 0, the tick to unplug the external power at */
+-    static unsigned int ext_power_until_tick = 0;
+-#endif
+-
+-    if(TIME_BEFORE(current_tick, update_after_tick))
+-        return;
+-
+-    update_after_tick = current_tick + HZ;
+-
+-#if CONFIG_CHARGING >= CHARGING_MONITOR
+-    /* Handle period of being externally powered */
+-    if (ext_power_until_tick > 0) {
+-        if (TIME_AFTER(current_tick, ext_power_until_tick)) {
+-            /* Pretend the charger was disconnected */
+-            charger_input_state = CHARGER_UNPLUGGED;
+-            ext_power_until_tick = 0;
+-        }
+-        return;
+-    }
+-#endif
+ 
+-    if (charging) {
+-        batt_millivolts += BATT_CHARGE_STEP;
+-        if (batt_millivolts >= BATT_MAXMVOLT) {
+-            charging = false;
+-#if CONFIG_CHARGING >= CHARGING_MONITOR
+-            /* Keep external power until tick */
+-            ext_power_until_tick = current_tick + POWER_AFTER_CHARGE_TICKS;
+-#elif CONFIG_CHARGING
+-            /* Pretend the charger was disconnected */
+-            charger_input_state = CHARGER_UNPLUGGED;
+-#endif
+-        }
+-    } else {
+-        batt_millivolts -= BATT_DISCHARGE_STEP;
+-        if (batt_millivolts <= BATT_MINMVOLT) {
+-            charging = true;
+-#if CONFIG_CHARGING
+-            /* Pretend the charger was connected */
+-            charger_input_state = CHARGER_PLUGGED;
+-#endif
+-        }
+-    }
++	int fd = open("/sys/devices/platform/pwr_spy/power_supply/battery/voltage_now", O_RDONLY);
++	
++	char read_val[10];
++	read(fd, read_val, sizeof(read_val) - 1);
++	batt_millivolts = atoi(read_val)/1000;
++	
++	close(fd);
++	
++	fd = open("/sys/devices/platform/pwr_spy/power_supply/adapter/online", O_RDONLY);
++	read(fd, read_val, sizeof(read_val) - 1);
++	if (atoi(read_val) != last_charg_state)
++		if(atoi(read_val) == 1){
++			charging = true;
++			charger_input_state = CHARGER_PLUGGED;
++		}else{
++			charging = false;
++			charger_input_state = CHARGER_UNPLUGGED;
++		}
++	//printf("batt: %d %d", atoi(read_val), last_charg_state);
++	//fflush(stdout);
++	close(fd);
++    last_charg_state = atoi(read_val);
+ 
+     batt_percent = (batt_millivolts - BATT_MINMVOLT) / (BATT_MAXMVOLT - BATT_MINMVOLT);
+     batt_runtime = batt_percent * BATT_MAXRUNTIME;
+@@ -102,14 +85,14 @@ static void battery_status_update(void)
+     batt_current = charging ? BATT_CHARGE_STEP : BATT_DISCHARGE_STEP;
+ }
+ 
+-const unsigned short battery_level_dangerous[BATTERY_TYPES_COUNT] = { 3200 };
+-const unsigned short battery_level_shutoff[BATTERY_TYPES_COUNT] = { 3200 };
++const unsigned short battery_level_dangerous[BATTERY_TYPES_COUNT] = { 2500 };
++const unsigned short battery_level_shutoff[BATTERY_TYPES_COUNT] = { 2500 };
+ 
+ /* make the simulated curve nicely linear */
+ const unsigned short percent_to_volt_discharge[BATTERY_TYPES_COUNT][11] =
+-{ { 3300, 3400, 3500, 3600, 3700, 3800, 3900, 4000, 4100, 4200, 4300 } };
++{ { 2900, 3030, 3160, 3290, 3420, 3550, 3680, 3810, 3940, 4070, 4200 } };
+ const unsigned short percent_to_volt_charge[11] =
+-{ 3300, 3400, 3500, 3600, 3700, 3800, 3900, 4000, 4100, 4200, 4300  };
++{ 2900, 3030, 3160, 3290, 3420, 3550, 3680, 3810, 3940, 4070, 4200  };
+ 
+ #if CONFIG_BATTERY_MEASURE & VOLTAGE_MEASURE
+ int _battery_voltage(void)
+@@ -186,10 +169,6 @@ bool remote_detect(void)
+ #ifdef HAVE_BATTERY_SWITCH
+ unsigned int input_millivolts(void)
+ {
+-    if ((power_input_status() & POWER_INPUT_BATTERY) == 0) {
+-        /* Just return a safe value if battery isn't connected */
+-        return 4050;
+-    }
+ 
+     return battery_voltage();
+ }

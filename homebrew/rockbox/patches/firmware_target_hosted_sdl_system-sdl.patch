@@ -1,0 +1,90 @@
+diff --git a/firmware/target/hosted/sdl/system-sdl.c b/firmware/target/hosted/sdl/system-sdl.c
+index e53643f449..79c46e22fb 100644
+--- a/firmware/target/hosted/sdl/system-sdl.c
++++ b/firmware/target/hosted/sdl/system-sdl.c
+@@ -47,7 +47,7 @@
+ 
+ #endif
+ 
+-#define SIMULATOR_DEFAULT_ROOT "simdisk"
++#define SIMULATOR_DEFAULT_ROOT "rockbox"
+ 
+ SDL_Surface    *gui_surface;
+ 
+@@ -83,7 +83,7 @@ int wps_verbose_level = 3;
+  **/
+ static int sdl_event_thread(void * param)
+ {
+-    SDL_InitSubSystem(SDL_INIT_VIDEO);
++    //SDL_InitSubSystem(SDL_INIT_VIDEO);
+ 
+ #if (CONFIG_PLATFORM & PLATFORM_MAEMO)
+     SDL_sem *wait_for_maemo_startup;
+@@ -93,14 +93,6 @@ static int sdl_event_thread(void * param)
+     int depth;
+     Uint32 flags;
+ 
+-    /* Try and load the background image. If it fails go without */
+-    if (background) {
+-        picture_surface = SDL_LoadBMP("UI256.bmp");
+-        if (picture_surface == NULL) {
+-            background = false;
+-            DEBUGF("warn: %s\n", SDL_GetError());
+-        }
+-    }
+     
+     /* Set things up */
+     if (background)
+@@ -128,7 +120,7 @@ static int sdl_event_thread(void * param)
+     if (depth < 8)
+         depth = 16;
+ 
+-    flags = SDL_HWSURFACE|SDL_DOUBLEBUF;
++    flags = SDL_SWSURFACE;
+ #if (CONFIG_PLATFORM & (PLATFORM_MAEMO|PLATFORM_PANDORA))
+     /* Fullscreen mode for maemo app */
+     flags |= SDL_FULLSCREEN;
+@@ -136,10 +128,12 @@ static int sdl_event_thread(void * param)
+ 
+     SDL_WM_SetCaption(UI_TITLE, NULL);
+ 
+-    if ((gui_surface = SDL_SetVideoMode(width * display_zoom, height * display_zoom, depth, flags)) == NULL) {
++    if ((gui_surface = SDL_SetVideoMode(320, 240, depth, 0)) == NULL) {
+         panicf("%s", SDL_GetError());
+     }
+ 
++	SDL_ShowCursor(SDL_DISABLE);
++
+ #if (CONFIG_PLATFORM & (PLATFORM_MAEMO|PLATFORM_PANDORA))
+     /* SDL touch screen fix: Work around a SDL assumption that returns
+        relative mouse coordinates when you get to the screen edges
+@@ -251,18 +245,27 @@ void system_init(void)
+     g_type_init();
+ #endif
+ 
++    printf("system_init: timer\n");
++
+     if (SDL_Init(SDL_INIT_TIMER))
+         panicf("%s", SDL_GetError());
+ 
++    printf("system_init: semaphore\n");
+     s = SDL_CreateSemaphore(0); /* 0-count so it blocks */
+ 
++    printf("system_init: event thread\n");
+     evt_thread = SDL_CreateThread(sdl_event_thread, s);
+ 
+     /* wait for sdl_event_thread to run so that it can initialize the surfaces
+      * and video subsystem needed for SDL events */
+-    SDL_SemWait(s);
++
++    printf("system_init: semaphore wait\n");
++    usleep(3 * 1000000);
++    //SDL_SemWait(s);
+     /* cleanup */
+-    SDL_DestroySemaphore(s);
++
++    printf("system_init: sem destroy\n");
++    //SDL_DestroySemaphore(s);
+ }
+ 
+ 

@@ -1,0 +1,24 @@
+diff --git a/firmware/export/config.h b/firmware/export/config.h
+index bedf7df4e2..4be5561500 100644
+--- a/firmware/export/config.h
++++ b/firmware/export/config.h
+@@ -381,8 +381,8 @@ Lyre prototype 1 */
+ #define IMX233_CREATIVE     (1 << 1) /* Creative MBLK windowing */
+ 
+ /* CONFIG_BUFLIB_BACKEND */
+-#define BUFLIB_BACKEND_MEMPOOL      0 /* Default memory pool backed buflib */
+-#define BUFLIB_BACKEND_MALLOC       1 /* malloc() buflib (for debugging) */
++#define BUFLIB_BACKEND_MEMPOOL      1 /* Default memory pool backed buflib */
++#define BUFLIB_BACKEND_MALLOC       0 /* malloc() buflib (for debugging) */
+ 
+ /* now go and pick yours */
+ #if defined(IRIVER_H100)
+@@ -1367,7 +1367,7 @@ Lyre prototype 1 */
+ #define PCM_SW_VOLUME_UNBUFFERED /* pcm driver itself is buffered */
+ #ifdef SIMULATOR
+ /* For sim, nice res for ~ -127dB..+36dB that so far covers all targets */
+-#define PCM_SW_VOLUME_FRACBITS  (24)
++#define PCM_SW_VOLUME_FRACBITS  (16)
+ #else
+ /* For app, use fractional-only setup for -79..+0, no large-integer math */
+ #define PCM_SW_VOLUME_FRACBITS  (16)

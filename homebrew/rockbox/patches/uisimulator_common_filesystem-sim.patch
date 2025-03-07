@@ -1,0 +1,22 @@
+diff --git a/uisimulator/common/filesystem-sim.c b/uisimulator/common/filesystem-sim.c
+index dc9d3ec345..8c4b774700 100644
+--- a/uisimulator/common/filesystem-sim.c
++++ b/uisimulator/common/filesystem-sim.c
+@@ -229,6 +229,8 @@ void sim_ext_extracted(int drive)
+  */
+ int sim_get_os_path(char *buffer, const char *path, size_t bufsize)
+ {
++	
++    
+     #define ADVBUF(amt) \
+         ({ buffer += (amt); bufsize -= (amt); })
+ 
+@@ -266,7 +268,7 @@ int sim_get_os_path(char *buffer, const char *path, size_t bufsize)
+     char dirbase[size + 3 + 1];
+ 
+     /* Basename of ext directory to switch to alternate volume */
+-    #define SIMEXT_FMT   ".." PATH_SEPSTR "simext%d"
++    #define SIMEXT_FMT   "../../../../" PATH_SEPSTR MULTIDRIVE_DIR
+     char extbuf[sizeof (SIMEXT_FMT) + 20 + 1];
+ #endif /* HAVE_MULTIVOLUME */
+ 
