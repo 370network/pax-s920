@@ -1,6 +1,6 @@
 #!/bin/bash
 # build.sh - Morc @ 370network
-source $PREFIX/../homebrew/build_helper.sh
+source $PAXPATH/homebrew/build_helper.sh
 
 echo "=================="
 echo "370network paxdevs"
