@@ -10,7 +10,7 @@ sudo apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386
 ```
 
 ### common for all platforms
-make sure you have `python3`, `python3-venv`, `wget`, `git`, *(`qemu-user-static`/`qemu-arm-static` for possibly running executables)* installed
+make sure you have `python3`, `python3-venv`, `wget`, `git`, `swig`, `openssl`+devel *(`qemu-user-static`/`qemu-arm-static` for possibly running executables)* installed
 
 ```bash
 ./setup_toolchain.sh

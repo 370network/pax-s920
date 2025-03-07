@@ -65,14 +65,14 @@ fi
 echo "XCB env"
 python3 -m venv xcb
 source xcb/bin/activate
-pip3 install pyserial libusb1
+pip3 install pyserial libusb1 setuptools
 if [ "$(uname)" == "Darwin" ]; then
 	export CFLAGS=$(pkg-config --cflags openssl)
 	export LDFLAGS=$(pkg-config --libs openssl)
 	export SWIG_FEATURES="-cpperraswarn -includeall $(pkg-config --cflags openssl)"
 	pip3 install --pre --no-binary :all: M2Crypto --no-cache
 else
-	pip3 install M2Crypto
+	pip3 install M2Crypto==0.40.0
 fi
 
 echo ""
