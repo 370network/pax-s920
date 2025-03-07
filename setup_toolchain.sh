@@ -35,6 +35,12 @@ else
 	echo "Toolchain already unpacked"
 fi
 
+if [ ! -f toolchain/bin/arm-none-linux-gnueabi-gcc-ar ]; then
+        echo "Toolchain gcc ar copy"
+	cp toolchain/bin/arm-none-linux-gnueabi-ar toolchain/bin/arm-none-linux-gnueabi-gcc-ar
+else
+        echo "Toolchain gcc-ar already copied"
+fi
 
 
 echo ""
