@@ -26,10 +26,15 @@ if [ ! -f repo/build/rockboxui ]; then
 	mkdir build
 	cd build
 	export CROSS_COMPILE=$PREFIX/bin/$HOST-
-	../tools/configure --target=64 --type=S --ram=32 --prefix=$PREFIX
-	sed -i 's|^export GCCOPTS=|export GCCOPTS=-fPIC -shared -nostartfiles -march=armv6t2 -mtune=arm1136j-s -ftree-vectorize -funroll-loops -fomit-frame-pointer -ffast-math -s -fno-strict-aliasing |' Makefile
+	../tools/configure --target=64 --type=S --prefix=$PREFIX
+	sed -i 's| -g | -g0 -fPIC -shared -nostartfiles |' Makefile
+	sed -i 's|^export SHARED_CFLAGS=|export SHARED_CFLAGS=-g0 |' Makefile
 	sed -i 's|^export LDOPTS=|export LDOPTS=-shared |' Makefile
+	sed -i 's|^export MEMORYSIZE=64|export MEMORYSIZE=32|' Makefile
 	make -j$(nproc)
+	find "." -type f -print0 | while IFS= read -r -d '' file; do
+		$HOST-strip $file
+	done
 	make install
 	cd $BUILD_FOLDER
 fi
