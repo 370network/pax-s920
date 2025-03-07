@@ -1,4 +1,4 @@
-CXX = $(HOST)
+CXX = $(HOST)-gcc
 CXXFLAGS = -fPIC -shared -nostartfiles -Wall -I$(PREFIX)/include
 
 SRCS = osal_test.c magstripe_reader.c sd_mount.c xui_test.c
