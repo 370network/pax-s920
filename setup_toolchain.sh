@@ -56,7 +56,11 @@ else
     new_device="device.ConnectDevice(port_path=None, serial=\"$addr,115200\")"
 fi
 
-sed -i '' "s|device.ConnectDevice(port_path=None, serial=[^)]*)|$new_device|" xcb/client.py
+if [ "$(uname)" == "Darwin" ]; then
+	sed -i '' "s|device.ConnectDevice(port_path=None, serial=[^)]*)|$new_device|" xcb/client.py
+else
+	sed -i "s|device.ConnectDevice(port_path=None, serial=[^)]*)|$new_device|" xcb/client.py
+fi
 
 echo "XCB env"
 python3 -m venv xcb
