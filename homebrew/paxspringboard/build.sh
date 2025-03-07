@@ -10,6 +10,7 @@ echo "=================="
 git clone https://github.com/370network/pax-springboard.git repo
 
 if [ ! -f repo/launcher.so ]; then
+	make clean -C repo
 	make -j$(nproc) -C repo
 fi
 
