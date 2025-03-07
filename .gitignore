@@ -11,3 +11,6 @@ toolchain/include/lib
 toolchain/include/include
 toolchain/arm-none-linux-gnueabi
 homebrew/*/repo
+homebrew/*/repo.zip
+homebrew/*/install.zip
+homebrew/*/patches/*.patched
