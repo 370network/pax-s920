@@ -10,6 +10,7 @@ all: $(TARGETS)
 
 %.so: %.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(HOST)-strip $@
 
 %.o: %.c
 	$(CXX) $(CXXFLAGS) -include prolin_printf.h -c $< -o $@

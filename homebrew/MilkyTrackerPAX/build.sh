@@ -16,6 +16,9 @@ if [ ! -f repo/build/src/tracker/libmilkytracker.so ]; then
 	cmake -DSDL_1=1 -DCMAKE_TOOLCHAIN_FILE=../../build_helper.cmake ..
 	cd $BUILD_FOLDER
 	make -j$(nproc) -C repo/build/
+	$HOST-strip repo/build/src/tracker/libmilkytracker.so
+	$HOST-strip repo/build/src/milkyplay/libmilkyplay.so
+	$HOST-strip repo/build/src/ppui/libppui.so
 fi
 
 build_check "build/src/tracker/libmilkytracker.so" "milkytracker"

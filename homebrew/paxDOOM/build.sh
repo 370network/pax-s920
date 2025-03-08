@@ -14,6 +14,7 @@ export CROSS_COMPILE=$PREFIX/bin/$HOST-
 if [ ! -f repo/fbdoom/fbdoom ]; then
 	echo "paxDOOM build process!"
 	make -j$(nproc) -C repo/fbdoom/
+	$HOST-strip repo/fbdoom/fbdoom
 fi
 
 build_check "fbdoom/fbdoom" "paxdoom"

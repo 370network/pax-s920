@@ -37,6 +37,7 @@ generic-upload:
 
 compile:
 	$(CC) $(CFLAGS) $(DEPENDENCY_FLAGS) -shared -o $(OUTPUT_FOLDER)/$(TARGET) $(SOURCE)
+	$(HOST)-strip $(OUTPUT_FOLDER)/$(TARGET)
 
 zxem: src/zxem.o src/z80emu.o src/pax.o src/gui.o
 	$(MAKE) compile TARGET=$@ SOURCE="$^"

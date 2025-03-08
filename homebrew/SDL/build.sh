@@ -14,5 +14,6 @@ if [ ! -f repo/build/.libs/libSDL-1.2.so.0.11.5 ]; then
 	cd repo
 	./configure --disable-pulseaudio --prefix=$PREFIX --host=$HOST
 	make -j$(nproc)
+	$HOST-strip build/.libs/libSDL-1.2.so.0.11.5
 	make install
 fi
