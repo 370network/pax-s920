@@ -1,15 +1,28 @@
+#macOS
 .DS_Store
 ._*
+
+#libs and objects
 *.so
+*.o
+
+#cache
 cache/
 xcb/
+
+#toolchain related
 toolchain/bin
-toolchain/lib
 toolchain/share
 toolchain/libexec
+toolchain/arm-none-linux-gnueabi
+#include+libs
+toolchain/lib
+toolchain/include/SDL
+toolchain/include/SDL2
 toolchain/include/lib
 toolchain/include/include
-toolchain/arm-none-linux-gnueabi
+
+#homebrew related
 homebrew/*/repo
 homebrew/*/repo.zip
 homebrew/*/install.zip
