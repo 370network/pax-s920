@@ -1,0 +1,24 @@
+diff --git a/src/Window_SDL2.c b/src/Window_SDL2.c
+index 51418c218..5bc259bac 100644
+--- a/src/Window_SDL2.c
++++ b/src/Window_SDL2.c
+@@ -473,7 +473,8 @@ void Window_DisableRawMouse(void) {
+ static SDL_GameController* controllers[INPUT_MAX_GAMEPADS];
+ 
+ static void LoadControllers(void) {
+-    for (int i = 0, port = 0; i < SDL_NumJoysticks() && port < INPUT_MAX_GAMEPADS; i++) 
++    int i, port;
++	for (i = 0, port = 0; i < SDL_NumJoysticks() && port < INPUT_MAX_GAMEPADS; i++)
+ 	{
+         if (!SDL_IsGameController(i)) continue;
+ 		Input.Sources |= INPUT_SOURCE_GAMEPAD;
+@@ -522,7 +523,8 @@ static void ProcessJoystick(int port, SDL_GameController* gp, int axis, float de
+ }
+ 
+ void Gamepads_Process(float delta) {
+-	for (int i = 0; i < INPUT_MAX_GAMEPADS; i++)
++	int i;
++	for (i = 0; i < INPUT_MAX_GAMEPADS; i++)
+ 	{
+ 		SDL_GameController* gp = controllers[i];
+ 		if (!gp) continue;
