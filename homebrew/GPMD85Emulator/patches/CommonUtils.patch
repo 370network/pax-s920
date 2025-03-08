@@ -1,0 +1,12 @@
+diff --git a/src/CommonUtils.h b/src/CommonUtils.h
+index b12f389..d841988 100644
+--- a/src/CommonUtils.h
++++ b/src/CommonUtils.h
+@@ -23,6 +23,7 @@
+ extern struct TGraphicsDeviceContext {
+ 	SDL_Window *window;
+ 	SDL_Renderer *renderer;
++	unsigned short *lcd_fb;
+ 	DWORD windowID;
+ 	DWORD format;
+ 	int freq;

@@ -1,0 +1,192 @@
+diff --git a/GPMD85emu.cpp b/GPMD85emu.cpp
+index fd5b038..b965e39 100644
+--- a/GPMD85emu.cpp
++++ b/GPMD85emu.cpp
+@@ -19,86 +19,89 @@
+ #include "CommonUtils.h"
+ #include "Emulator.h"
+ //-----------------------------------------------------------------------------
+-int main(int argc, char** argv)
++int test = 0;
++__attribute__((constructor)) int app_start()
+ {
+-	if (!ParseOptions(&argc, &argv))
+-		return EXIT_FAILURE;
+-	else if (argv_config.version) {
+-		printf("v%s\n", VERSION);
+-		return EXIT_SUCCESS;
+-	}
++
++
++	putenv("SDL_AUDIODRIVER=dsp");
++	putenv("SDL_PATH_DSP=/dev/snd/dsp");
+ 
+ 	IntroMessage();
++	fflush(stdout);
+ 
+-	PathUserHome = SDL_getenv("HOME");
+ 	PathApplication = getcwd(NULL, PATH_MAX);
+-	PathResources = (char *) malloc(strlen(DIR_RESOURCES) + 1);
++	PathUserHome = getcwd(NULL, PATH_MAX);
++	PathResources = (char *) malloc(strlen(PathUserHome) + 16);
+ 	PathAppConfig = (char *) malloc(strlen(PathUserHome) + 16);
+-	strcpy(PathResources, DIR_RESOURCES);
+ 	sprintf(PathAppConfig, "%s%c.%s", PathUserHome, DIR_DELIMITER, PACKAGE_TARNAME);
+-
++	strcpy(PathResources, PathAppConfig);
++	strcpy(PathApplication, PathAppConfig);
+ 	debug("",   "Resource path: %s", PathResources);
+ 	debug(NULL, "Application path: %s", PathApplication);
+ 	debug(NULL, "Application config path: %s", PathAppConfig);
+-
++fflush(stdout);
+ 	if (stat(PathAppConfig, &filestat) != 0)
+ 		mkdir(PathAppConfig, 0755);
+ 
+ 	// initialization of SDL
+-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_EVENTS) < 0)
+-		error("", "Couldn't initialize SDL:\n\t%s", SDL_GetError());
++	//if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS) < 0)
++	//	error("", "Couldn't initialize SDL:\n\t%s", SDL_GetError());
+ 
+-	SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_JOY_CONS, "1");
+-	SDL_SetHint(SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS, "0");
++	if (SDL_VideoInit("offscreen") < 0) {
++        SDL_Log("Couldn't initialize the offscreen video driver: %s\n",
++            SDL_GetError());
++        return SDL_FALSE;
++    }
++    fflush(stdout);
+ 
+-	SDL_DisplayMode desktop;
+-	if (SDL_GetDesktopDisplayMode(0, &desktop) != 0)
+-		error("", "Couldn't get desktop display mode:\n\t%s", SDL_GetError());
++	//SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_JOY_CONS, "1");
++	//SDL_SetHint(SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS, "0");
+ 
+-	debug(NULL, "Actual framebuffer resolution: %d x %d (%d Hz, %s)",
+-			desktop.w, desktop.h, desktop.refresh_rate,
+-			SDL_GetPixelFormatName(desktop.format) + 16);
++	SDL_DisplayMode desktop;
++	//if (SDL_GetDesktopDisplayMode(0, &desktop) != 0)
++	//	error("", "Couldn't get desktop display mode:\n\t%s", SDL_GetError());
+ 
++	//debug(NULL, "Actual framebuffer resolution: %d x %d (%d Hz, %s)",
++	//		desktop.w, desktop.h, desktop.refresh_rate,
++	//		SDL_GetPixelFormatName(desktop.format) + 16);
++fflush(stdout);
+ 	SDL_zero(gdc);
+-	gdc.w = desktop.w;
+-	gdc.h = desktop.h;
++	gdc.w = 288;
++	gdc.h = 256;
+ 	gdc.freq = desktop.refresh_rate;
+ 	gdc.format = desktop.format;
+-	gdc.window = SDL_CreateWindow(PACKAGE_NAME,
+-			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 256, 256,
+-			SDL_WINDOW_HIDDEN);
++	gdc.window = SDL_CreateWindow("GPMD OFFSCREEN",
++                 SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
++                 288, 256, 0);
+ 
+ 	if (!gdc.window)
+ 		error("", "Couldn't initialize window:\n\t%s", SDL_GetError());
+ 
+ 	gdc.windowID = SDL_GetWindowID(gdc.window);
+-
+-	DWORD renderFlags = SDL_RENDERER_ACCELERATED;
+-#ifndef SOFTRENDER
+-	if (argv_config.softrender)
+-#endif
+-		renderFlags = SDL_RENDERER_SOFTWARE;
++fflush(stdout);
++	DWORD renderFlags = SDL_RENDERER_SOFTWARE;
+ 
+ 	debug(NULL, "Creating %s 2D rendering context...",
+ 		(renderFlags == SDL_RENDERER_SOFTWARE) ? "software" : "accelerated");
+ 
+-	gdc.renderer = SDL_CreateRenderer(gdc.window, -1, renderFlags);
++	gdc.renderer = SDL_CreateRenderer(gdc.window, -1, 0);
+ 
+ 	if (!gdc.renderer)
+ 		error("", "Couldn't initialize renderer:\n\t%s", SDL_GetError());
+-
++fflush(stdout);
+ 	SDL_RenderSetScale(gdc.renderer, 1, 1);
+ 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, 0);
+ 
+-	SDL_Surface *icon = SDL_LoadBMP(LocateResource("icon.bmp"));
+-	if (icon) {
+-		SDL_SetColorKey(icon, SDL_TRUE, SDL_MapRGB(icon->format, 255, 0, 255));
+-		SDL_SetWindowIcon(gdc.window, icon);
+-		SDL_FreeSurface(icon);
+-	}
+-	else
+-		warning("", "Can't load icon resource file");
+-
++	//SDL_Surface *icon = SDL_LoadBMP(LocateResource("icon.bmp"));
++	//if (icon) {
++	//	SDL_SetColorKey(icon, SDL_TRUE, SDL_MapRGB(icon->format, 255, 0, 255));
++	//	SDL_SetWindowIcon(gdc.window, icon);
++	//	SDL_FreeSurface(icon);
++	//}
++	//else
++	//	warning("", "Can't load icon resource file");
++fflush(stdout);
+ //---------------------------------------------------------------------------------------
+ 	debug(NULL, "Initialization process started...");
+ 
+@@ -109,8 +112,8 @@ int main(int argc, char** argv)
+ 	if (Settings->Screen->position.x >= 0 || Settings->Screen->position.y >= 0)
+ 		SDL_SetWindowPosition(gdc.window,
+ 				Settings->Screen->position.x, Settings->Screen->position.y);
+-
+-	SDL_ShowWindow(gdc.window);
++fflush(stdout);
++	//SDL_ShowWindow(gdc.window);
+ 	SDL_Delay(WEAK_REFRESH_TIME);
+ 
+ 	debug("", "Starting %d FPS refresh timer", GPU_FRAMES_PER_SEC);
+@@ -122,7 +125,7 @@ int main(int argc, char** argv)
+ 	int i = 0, j, k = 0;
+ 	BYTE *kb = Emulator->keyBuffer;
+ 	bool waitForRelease = false;
+-
++fflush(stdout);
+ 	debug("", "Starting main CPU %dHz loop", CPU_FRAMES_PER_SEC);
+ 
+ 	while (Emulator->isActive) {
+@@ -214,16 +217,20 @@ int main(int argc, char** argv)
+ 
+ 		Emulator->CpuTimerCallback();
+ 
++		test++;
++		if (test > 100)
++			exit(1);
++
+ 		while (SDL_GetTicks() < nextTick)
+ 			SDL_Delay(1);
+ 	}
+ 
+-	SDL_GetWindowPosition(gdc.window,
+-			&Settings->Screen->position.x, &Settings->Screen->position.y);
+-
++	//SDL_GetWindowPosition(gdc.window,
++	//		&Settings->Screen->position.x, &Settings->Screen->position.y);
++fflush(stdout);
+ 	SDL_HideWindow(gdc.window);
+ 	debug("", "Main CPU loop terminated");
+-
++fflush(stdout);
+ 	SDL_RemoveTimer(Emulator->BaseTimer);
+ 	SDL_Delay(WEAK_REFRESH_TIME);
+ 
+@@ -236,7 +243,7 @@ int main(int argc, char** argv)
+ 	free(PathResources);
+ 	free(PathAppConfig);
+ 	free(PathApplication);
+-
++fflush(stdout);
+ 	return EXIT_SUCCESS;
+ }
+ //-----------------------------------------------------------------------------

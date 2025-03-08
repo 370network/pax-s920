@@ -1,0 +1,12 @@
+diff --git a/src/ArgvParser.cpp b/src/ArgvParser.cpp
+index 41fe3ef..1ef70fb 100644
+--- a/src/ArgvParser.cpp
++++ b/src/ArgvParser.cpp
+@@ -19,6 +19,7 @@
+ #include "globals.h"
+ //-----------------------------------------------------------------------------
+ #define SWPAR(str) str, false, -1
++#define INT32_MIN   (-0x7fffffff - 1)
+ #define NOVAL INT32_MIN
+ #define TEST_VALUE_RANGE(val, a, b) (val > NOVAL && val < a) || val > b
+ //-----------------------------------------------------------------------------

@@ -9,6 +9,10 @@ echo "=================="
 
 git clone https://github.com/mborik/GPMD85Emulator repo
 
+for patch_file in "patches"/*.patch; do
+	build_patch $patch_file "repo"
+done
+
 if [ ! -f repo/GPMD85emu ]; then
 	echo "GPMD85Emulator build process!"
 	cd repo

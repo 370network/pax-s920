@@ -1,0 +1,163 @@
+diff --git a/src/Emulator.cpp b/src/Emulator.cpp
+index bea7d43..f1ecd4c 100644
+--- a/src/Emulator.cpp
++++ b/src/Emulator.cpp
+@@ -32,7 +32,6 @@ TEmulator::TEmulator()
+ 	ifTimer = NULL;
+ 	ifTape = NULL;
+ 	ifGpio = NULL;
+-	joystick = NULL;
+ 	mif85 = NULL;
+ 	mouse602 = NULL;
+ 	pmd32 = NULL;
+@@ -99,9 +98,6 @@ TEmulator::~TEmulator()
+ 		delete ifTape;
+ 	ifTape = NULL;
+ 
+-	if (joystick)
+-		delete joystick;
+-	joystick = NULL;
+ 
+ 	if (pmd32) // must be preceded by ifGpio
+ 		delete pmd32;
+@@ -381,10 +377,7 @@ void TEmulator::ProcessSettings(BYTE filter)
+ 		ConnectMouse602(init);
+ 		ConnectPMD32(init);
+ 
+-		if (init || Settings->Joystick->GPIO0->connected || Settings->Joystick->GPIO1->connected) {
+-			if (joystick)
+-				joystick->Connect();
+-		}
++		
+ 
+ 		if (romModuleConnected) {
+ 			if (megaModuleEnabled)
+@@ -433,9 +426,6 @@ void TEmulator::BaseTimerCallback()
+ 		blinkCounter += (thisTime - lastTick);
+ 
+ 	if (isRunning) {
+-		if (joystick)
+-			joystick->ScanJoy(keyBuffer);
+-
+ 		if (systemPIO) {
+ 			systemPIO->ScanKeyboard(keyBuffer);
+ 
+@@ -448,10 +438,10 @@ void TEmulator::BaseTimerCallback()
+ 		}
+ 
+ 		// status bar icon with priority: ifTape > PMD 32 > none
+-		BYTE icon = (ifTape) ? ifTape->GetTapeIcon() : 0;
+-		if (!icon && pmd32 && pmd32->diskIcon)
+-			icon = pmd32->diskIcon;
+-		GUI->SetIconState(icon);
++		//BYTE icon = (ifTape) ? ifTape->GetTapeIcon() : 0;
++		//if (!icon && pmd32 && pmd32->diskIcon)
++		//	icon = pmd32->diskIcon;
++		//GUI->SetIconState(icon);
+ 
+ 		video->FillBuffer(
+ 			memory->GetVramPointer(),
+@@ -460,18 +450,18 @@ void TEmulator::BaseTimerCallback()
+ 	}
+ 
+ 	// status bar FPS and CPU indicators
+-	if (thisTime >= nextTick) {
+-		int perc = GUI->InMenu() - 1; // -> false = -1, true = 0 ;)
+-		if (!Settings->isPaused)
+-			perc = (cpuUsage * 100.0f) / (float) (thisTime - (nextTick - MEASURE_PERIOD));
++	//if (thisTime >= nextTick) {
++	//	int perc = GUI->InMenu() - 1; // -> false = -1, true = 0 ;)
++	//	if (!Settings->isPaused)
++	//		perc = (cpuUsage * 100.0f) / (float) (thisTime - (nextTick - MEASURE_PERIOD));
+ 
+-		GUI->SetStatusPercentage(perc);
+-		GUI->SetStatusFPS(frames);
++	//	GUI->SetStatusPercentage(perc);
++	//	GUI->SetStatusFPS(frames);
+ 
+-		nextTick = thisTime + MEASURE_PERIOD;
+-		cpuUsage = 0;
+-		frames = 0;
+-	}
++	//	nextTick = thisTime + MEASURE_PERIOD;
++	//	cpuUsage = 0;
++	//	frames = 0;
++	//}
+ 
+ 	SDL_PushEvent(&exposeEvent);
+ 
+@@ -495,11 +485,11 @@ void TEmulator::CpuTimerCallback()
+ 		pc = cpu->GetPC();
+ 
+ 		// catch debugger breakpoint
+-		if (Debugger->CheckBreakPoint(pc)) {
+-			Debugger->Reset();
+-			ActionDebugger();
+-			return;
+-		}
++		//if (Debugger->CheckBreakPoint(pc)) {
++		//	Debugger->Reset();
++		//	ActionDebugger();
++		//	return;
++		//}
+ 
+ 		// switch PMD 85-3 to compatibility mode
+ 		if (pc == 0xE04C && model == CM_V3 && compatibilityMode)
+@@ -517,18 +507,18 @@ void TEmulator::CpuTimerCallback()
+ 		}
+ 
+ 		// back to debugger after RET, Rx instructions
+-		if (Debugger->flag == 9 && Debugger->CheckDebugRet(&tci)) {
+-			Debugger->Reset();
+-			ActionDebugger();
+-			return;
+-		}
+-		else
++		//if (Debugger->flag == 9 && Debugger->CheckDebugRet(&tci)) {
++		//	Debugger->Reset();
++		//	ActionDebugger();
++		//	return;
++		//}
++		//else
+ 			tci = cpu->DoInstruction();
+ 
+ 		// status bar LED's state
+ 		// (with pull-up delay simulation)
+-		if (systemPIO)
+-			GUI->SetLedState(systemPIO->ledState);
++		//if (systemPIO)
++		//	GUI->SetLedState(systemPIO->ledState);
+ 
+ 	} while (cpu->GetTCycles() < tcpf);
+ 
+@@ -1278,10 +1268,8 @@ void TEmulator::ActionHideCursor(bool hide)
+ //---------------------------------------------------------------------------
+ int TEmulator::ActionJoyControllers(SDL_GameController ***controllers, bool refresh)
+ {
+-	if (!joystick)
+ 		return 0;
+ 
+-	return joystick->GetControllers(controllers, refresh);
+ }
+ //---------------------------------------------------------------------------
+ void TEmulator::SetComputerModel(bool fromSnap, int snapRomLen, BYTE *snapRom)
+@@ -1301,9 +1289,7 @@ void TEmulator::SetComputerModel(bool fromSnap, int snapRomLen, BYTE *snapRom)
+ 	if (ifTimer)
+ 		delete ifTimer;
+ 	ifTimer = NULL;
+-	if (joystick)
+-		delete joystick;
+-	joystick = NULL;
++	
+ 	if (ifGpio)
+ 		delete ifGpio;
+ 	ifGpio = NULL;
+@@ -1394,7 +1380,7 @@ void TEmulator::SetComputerModel(bool fromSnap, int snapRomLen, BYTE *snapRom)
+ 		cpu->AddDevice(IIF_GPIO_ADR, IIF_GPIO_MASK, ifGpio, true);
+ 
+ 		// Joystick 4004/482 interface
+-		joystick = new Joy4004482(ifGpio, Settings->Joystick);
++		
+ 
+ 		// Timer interface
+ 		ifTimer = new IifTimer(model, cpu);

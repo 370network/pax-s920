@@ -1,0 +1,22 @@
+diff --git a/src/Makefile.am b/src/Makefile.am
+old mode 100755
+new mode 100644
+index 7f0e1f0..f30e535
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -28,7 +28,6 @@ libGPMD85emu_core_a_SOURCES = \
+ 	IifGPIO.cpp \
+ 	IifTape.cpp \
+ 	IifTimer.cpp \
+-	Joy4004482.cpp \
+ 	Mif85.cpp \
+ 	Mouse602.cpp \
+ 	Pmd32.cpp \
+@@ -62,7 +61,6 @@ noinst_HEADERS = \
+ 	IifTape.h \
+ 	IifTimer.h \
+ 	InterruptController.h \
+-	Joy4004482.h \
+ 	Mif85.h \
+ 	Mouse602.h \
+ 	PeripheralDevice.h \

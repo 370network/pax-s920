@@ -1,0 +1,20 @@
+diff --git a/src/Emulator.h b/src/Emulator.h
+index ffb8ba1..6af8a78 100644
+--- a/src/Emulator.h
++++ b/src/Emulator.h
+@@ -31,7 +31,6 @@
+ #include "IifTimer.h"
+ #include "IifTape.h"
+ #include "IifGPIO.h"
+-#include "Joy4004482.h"
+ #include "Mouse602.h"
+ #include "Pmd32.h"
+ #include "RomModule.h"
+@@ -104,7 +103,6 @@ class TEmulator : public sigslot::has_slots<>
+ 		IifTimer    *ifTimer;
+ 		IifTape     *ifTape;
+ 		IifGPIO     *ifGpio;
+-		Joy4004482  *joystick;
+ 		Mif85       *mif85;
+ 		Mouse602    *mouse602;
+ 		Pmd32       *pmd32;
