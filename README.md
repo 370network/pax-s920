@@ -49,12 +49,12 @@ see [pax-docs](https://github.com/370network/pax-s920/tree/main/pax-docs)
 ## headers
 
 ### xui.h
-poloprepečený a ručne vyskladaný header pre skoro šecky libxui.so relevantné funkcie, pre čiastočné použití kukaj xui_test.c
+half baked and handmade header file for nearly all libxui.so relevant functions. For (partial) usage, look at xui_test.c
 
 ### osal.h
-header pre šecky libosal.so relevantné funkcie, pre použití kukaj osal_test.c
+header file for all libosal.so relevant functions. For usage, look at osal_test.c
 
 ### prolin-printf.h
-header použitý ako redefinícia pre printf s flushom do stdoutu.
+header file use as redefinition of printf with flush to stdout.
 
-`-include prolin-printf.h` v cflagoch aby sa globálne natlačil na všetky zdrojáky v projekte
+`-include prolin-printf.h` in cflagoch for global usage across projects
