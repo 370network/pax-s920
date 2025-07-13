@@ -49,6 +49,7 @@ used as a shorter alias for the xcb command
 paxdump <dump name>
 ```
 *eg. paxdump mydump*
+
 The resulting dump will be stored in `dumps/<dump name>` inside the working directory.
 
 ## building homebrew
