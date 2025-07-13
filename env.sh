@@ -54,3 +54,27 @@ function paxpull() {
 
 	retry_cmd "python3 $PAXPATH/xcb/client.py h pull '$1' '$2'" 1
 }
+
+function paxls() {
+	if [ "$#" -lt 1 ]; then
+		echo "usage: paxls <pax directory>"
+		return
+	fi
+
+	retry_cmd "python3 $PAXPATH/xcb/client.py h ls '$1'" 1
+}
+
+function paxdump() {
+	if [ "$#" -lt 1 ]; then
+		echo "usage: paxdump <dump name>"
+		echo "The resulting dump will be stored in dumps/<dump name>/ inside the working directory"
+		return
+	fi
+
+	if [ ! -d "$PWD/dumps" ]; then
+		mkdir "$PWD/dumps"
+		[ "$?" -ne 0 ] && return
+	fi
+
+	retry_cmd "python3 $PAXPATH/xcb/client.py h dump '$1'" 1
+}

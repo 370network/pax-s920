@@ -36,6 +36,21 @@ paxpull <pax source> <local destination>
 ```
 *eg. paxpull /usr/lib/libcbinder.so libcbinder.so*
 
+### paxls
+used as a shorter alias for the xcb command
+```bash
+paxls <pax directory>
+```
+*eg. paxls /data/app/MAINAPP*
+
+### paxdump
+used as a shorter alias for the xcb command
+```bash
+paxdump <dump name>
+```
+*eg. paxdump mydump*
+The resulting dump will be stored in `dumps/<dump name>` inside the working directory.
+
 ## building homebrew
 ~~download using the homebrew downloader (coming soon or never)~~
 
