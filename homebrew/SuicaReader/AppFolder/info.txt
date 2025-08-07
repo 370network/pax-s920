@@ -1,0 +1,4 @@
+name: Suica Reader
+version: 1.0
+author: HiImMilan <milan.babuljak@hiimmilan.dev>
+description: Reader of Suica cards. Shows balance as demo.
