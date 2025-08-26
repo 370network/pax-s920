@@ -1,5 +1,7 @@
 #include "applist.h"
 #include "app.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 void initAppList(AppList* list) {
 

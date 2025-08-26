@@ -1,15 +1,12 @@
 #include "ui.h"
 #include "app.h"
 #include "applist.h"
-#include <xui.h>
 #include <stdio.h>
-#include <malloc.h>
 #include <osal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#include <malloc.h>
 #include "apploader.h"
 
 XuiWindow *root;
@@ -76,12 +73,12 @@ void initui(AppList *applist)
                 }
 
 
-                // I couldn't find a reason why Img is not working, so I'm rendering an image bellow this and making this button transparent
+                // I couldn't find a reason why img is not working, so I'm rendering an image bellow this and making this button transparent
                 // If anyone has nerves to fix it, please do so
 
                 *btn_stat = (XuiButtonStat){
                     .btn_bg = XuiColor(0, 255, 0, 255),
-                    .Img = app_icon,
+                    .img = *app_icon
                 };
 
 
