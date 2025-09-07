@@ -100,12 +100,17 @@ void initui(AppList *applist)
 
     while (1){
         int key = XuiGetKey();
-            if (key >= 16 && key < 16 + applist->count) {
-                int app_index = key - 16;
-                printf("Launching app: %s\n", applist->apps[app_index].name);
-                XuiClose();
-                LoadApp(applist->apps[app_index].app);
-                initui(applist);
+        if (key >= 16 && key < (16 + applist->count)) {
+            int app_index = key - 16;
+            printf("Launching app: %s\n", applist->apps[app_index].name);
+            XuiClose();
+            LoadApp(applist->apps[app_index].app);
+            initui(applist);
+        } else if (key == 251) {
+            printf("Got enter + exit, terminating\n");
+            exit(0);
+        } else {
+            printf("Unknown key: %d\n", key);
         }
     }
 }
