@@ -25,11 +25,7 @@ AppMetadata parseFile(const char *appName) {
     char iconPath[512];
     snprintf(iconPath, sizeof(iconPath), "%s/icon.png", basePath);
 
-    char binPath[512];
-    snprintf(binPath, sizeof(binPath), "%s/%s.so", basePath, appName);
-
     const char *required_files[][2] = {
-        {binPath, "binary"},
         {iconPath, "icon"},
         {infoPath, "info"}};
     size_t num_required_files = sizeof(required_files) / sizeof(required_files[0]);
@@ -37,6 +33,16 @@ AppMetadata parseFile(const char *appName) {
     for (size_t i = 0; i < num_required_files; ++i) {
         if (access(required_files[i][0], F_OK) != 0) {
             printf("ERROR: Application '%s' is missing %s file.\n", appName, required_files[i][1]);
+            return app;
+        }
+    }
+
+    char binPath[512];
+    snprintf(binPath, sizeof(binPath), "%s/%s.so", basePath, appName);
+    if (access(binPath, F_OK) != 0) {
+        snprintf(binPath, sizeof(binPath), "%s/%s", basePath, appName);
+        if (access(binPath, F_OK) != 0) {
+            printf("ERROR: Application '%s' is missing the binary, can be %s library or %s executable.\n", appName, binPath);
             return app;
         }
     }

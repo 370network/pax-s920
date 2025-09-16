@@ -7,8 +7,9 @@
 
 int LoadApp(const char *appName) {
     void *handle;
-    char app_path[256];
-    char so_path[256];
+    char app_path[512];
+    char binPath[512];
+    char *argv[2];
     pid_t forked_pid;
     int status = 0;
     printf("Loading app: %s\n", appName);
@@ -22,14 +23,23 @@ int LoadApp(const char *appName) {
         snprintf(app_path, sizeof(app_path), "/data/app/MAINAPP/apps/%s", appName);
         chdir(app_path);
 
-        //dlopen the so
-        snprintf(so_path, sizeof(so_path), "%s/%s.so", app_path, appName);
-        handle = dlopen(so_path, RTLD_LAZY | RTLD_LOCAL);
-        if (!handle) {
-            printf("dlopen failed: %s\n", dlerror());
-            return 1;
+        snprintf(binPath, sizeof(binPath), "%s/%s", app_path, appName);
+        if (access(binPath, F_OK) == 0) {
+            //execv into binary, call shouldn't return on success
+            argv[0] = binPath;
+            argv[1] = NULL;
+            status = execv(argv[0], argv);
+            printf("execv failed: %d\n", status);
+        } else {
+            //dlopen the so
+            snprintf(binPath, sizeof(binPath), "%s/%s.so", app_path, appName);
+            handle = dlopen(binPath, RTLD_LAZY | RTLD_LOCAL);
+            if (!handle) {
+                printf("dlopen failed: %s\n", dlerror());
+                return 1;
+            }
+            dlclose(handle);
         }
-        dlclose(handle);
         
         //Terminate the forked process
         exit(0);
