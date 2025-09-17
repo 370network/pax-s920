@@ -57,6 +57,15 @@ typedef enum {
     XUI_WIN_SIGBOARD = 3
 } XuiWindowType;
 
+#define XUI_KEY1 2
+#define XUI_KEY9  10
+#define XUI_KEY0  11
+#define XUI_KEYCANCEL 223
+#define XUI_KEYCLEAR 14
+#define XUI_KEYENTER 28
+#define XUI_KEYFUNC 102
+#define XUI_KEYALPHA 69
+
 /*--------------------------------------------
  * Structures
  *-------------------------------------------*/

@@ -57,6 +57,10 @@
 #define PCD_ERR_NOT_SUPPORT      -2959  // Chip is unsupported.
 #define ERR_BATTERY_VOLTAGE_TOO_LOW -1024 // Battery voltage is too low.
 
+// Battery
+#define POWER_USB 1
+#define POWER_BATTERY 3
+
 
 /*--------------------------------------------
  * File Types
@@ -256,6 +260,9 @@ int OsWifiDisconnect(void);
  * Function Prototypes - Battery Management
  *-------------------------------------------*/
 int OsCheckBattery(int *level);
+int OsCheckPowerSupply(void);
+int OsSysSleep();
+int OsSysSleepEx(int level);
 int OsPowerOff(void);
 
 #endif // PROLIN_API_H
