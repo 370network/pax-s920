@@ -8,6 +8,7 @@
 
 AppMetadata parseFile(const char *appName) {
     AppMetadata app = {0};
+    app.icon = 0;
     app.is_valid = false;
 
     printf("Parsing application: %s\n", appName);

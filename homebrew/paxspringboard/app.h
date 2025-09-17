@@ -13,6 +13,7 @@ typedef struct {
     char license[128];
     char url[256];
     bool is_valid;
+    void* icon;
 } AppMetadata;
 
 /**

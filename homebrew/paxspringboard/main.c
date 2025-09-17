@@ -8,6 +8,7 @@
 #include <sys/ioctl.h>
 #include <dirent.h>
 #include <errno.h>
+#include <osal.h>
 
 #include "xui.h"
 #include "app.h"
@@ -70,6 +71,12 @@ int _init()
     closedir(dir);
 
 
+    void *libosal = dlopen("/usr/lib/libosal.so", RTLD_LAZY);
+
+    void (*OsSleep)(unsigned int) = dlsym(libosal, "OsSleep");
+    int (*OsSysSleepEx)(int) = dlsym(libosal, "OsSysSleepEx");
+    int (*OsCheckPowerSupply)(void) = dlsym(libosal, "OsCheckPowerSupply");
+
     printf("Enumerating all apps in the list:\n");
     for (int i = 0; i < list.count; i++) {
         AppMetadata *app = &list.apps[i];
@@ -77,10 +84,31 @@ int _init()
     }
 
     printf("Initializing UI...\n");
-    initui(&list);
-
-    sleep(10);
-
+    int running = 1;
+    while (running) {
+        switch (initui(&list)) {
+            case UI_RESULT_RELAUNCH:
+                printf("Result: relaunch\n");
+                OsSleep(500); //In case a key is pressed when app exited
+                XuiClearKey();
+                break;
+            case UI_RESULT_EXIT:
+                printf("Result: exiting\n");
+                running = 0;
+                break;
+            case UI_RESULT_SUSPEND:
+                int supply = OsCheckPowerSupply();
+                printf("Result: suspend - power supply: %d\n", supply);
+                if (supply == POWER_BATTERY) {
+                    //Deep sleep
+                    OsSysSleepEx(2);
+                } else {
+                    //Plugged in so just shut the screen, or will wake up again
+                    OsSysSleepEx(1);
+                }
+                break;
+        }
+    }
 
     exit(0);
 }

@@ -8,8 +8,14 @@ extern "C" {
 #include <xui.h>
 #include "applist.h"
 
+typedef enum {
+    UI_RESULT_NONE = 0,
+    UI_RESULT_RELAUNCH = 1,
+    UI_RESULT_EXIT = 2,
+    UI_RESULT_SUSPEND = 3,
+} UIResult;
 
-void initui(AppList *applist);
+UIResult initui(AppList *applist);
 
 #ifdef __cplusplus
 }
