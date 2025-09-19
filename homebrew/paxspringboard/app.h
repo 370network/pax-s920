@@ -7,6 +7,7 @@
 typedef struct {
     char app[256];
     char name[256];
+    char path[512];
     char version[32];
     char author[256];
     char description[512];
@@ -28,6 +29,6 @@ typedef struct {
  * @return An AppMetadata structure filled with parsed data. If parsing fails,
  *         fields may remain empty strings.
  */
-AppMetadata parseFile(const char *appName);
+AppMetadata parseFile(const char *apps_path, const char *appName);
 
 #endif // APP_PARSER_H

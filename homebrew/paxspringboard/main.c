@@ -16,47 +16,39 @@
 #include "ui.h"
 #include "apploader.h"
 
-
-int _init()
-{
-    printf("Pax Launcher v.1.0\n");
-    printf("Checking if app folder exists...\n");
-
-    // /data/app/MAINAPP/apps/
-    if (access("/data/app/MAINAPP/apps/", F_OK) == 0) {
-        printf("App folder exists.\n");
-    } else {
-        printf("App folder does not exist, attempting to create one\n");
-        if (mkdir("/data/app/MAINAPP/apps/", 0755) == 0) {
-            printf("App folder created successfully.\n");
-        } else {
-            printf("Failed to create app folder: %s\n", strerror(errno));
-        }
+void scan_dir_apps(AppList *list, const char* base_path) {
+    char apps_path[512];
+    
+    if (access(base_path, F_OK) != 0) {
+        printf("Base app folder '%s' does not exist\n", base_path);
+        return;
     }
-
-    printf("Checking if app folder is empty...\n");
-    DIR *dir = opendir("/data/app/MAINAPP/apps/");
+    
+    snprintf(apps_path, sizeof(apps_path), "%s/apps/", base_path);
+    printf("Scanning app folder '%s'...\n", apps_path);
+    if (access(apps_path, F_OK) != 0) {
+        printf("App folder '%s' does not exist\n", apps_path);
+        return;
+    }
+    
+    DIR *dir = opendir(apps_path);
     if (dir == NULL) {
         printf("Failed to open app folder");
     }
-    
-    AppList list;
-    initAppList(&list);
 
-    // read all directories in /data/app/MAINAPP/apps/
+    // read all directories in apps_path
     struct dirent *entry;
     int is_empty = 1;
     while ((entry = readdir(dir)) != NULL) {
         if (entry->d_type == DT_DIR && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
             is_empty = 0;
             printf("Found app: %s\n", entry->d_name);
-            AppMetadata meta = parseFile(entry->d_name);
+            AppMetadata meta = parseFile(apps_path, entry->d_name);
 
             if (meta.is_valid) { 
                 printf("App metadata parsed successfully.\n");
                 printf("App: %s (v%s) by %s\n", meta.name, meta.version, meta.author);
-                addApp(&list, &meta);
-                
+                addApp(list, &meta);                
             } else {
                 printf("Failed to parse app metadata, skipping it\n");
                 printf("App: %s (v%s) by %s\n", meta.name, meta.version, meta.author);
@@ -69,13 +61,49 @@ int _init()
         printf("No apps found.\n");
     }
     closedir(dir);
+}
 
-
+int _init()
+{
+    printf("Pax Launcher v.1.0\n");
+    
+    //Load libosal stuff
+    ui_funcs funcs;
     void *libosal = dlopen("/usr/lib/libosal.so", RTLD_LAZY);
+    if (libosal) {
+        funcs.OsSleep = dlsym(libosal, "OsSleep");
+        funcs.OsSysSleepEx = dlsym(libosal, "OsSysSleepEx");
+        funcs.OsCheckPowerSupply = dlsym(libosal, "OsCheckPowerSupply");
+        funcs.OsMount = dlsym(libosal, "OsMount");
+        funcs.OsUmount = dlsym(libosal, "OsUmount");
+    }
+    
+    AppList list;
+    initAppList(&list);
 
-    void (*OsSleep)(unsigned int) = dlsym(libosal, "OsSleep");
-    int (*OsSysSleepEx)(int) = dlsym(libosal, "OsSysSleepEx");
-    int (*OsCheckPowerSupply)(void) = dlsym(libosal, "OsCheckPowerSupply");
+    // Handle /data/app/MAINAPP/apps/
+    if (access("/data/app/MAINAPP/apps/", F_OK) != 0) {
+        printf("App folder does not exist, attempting to create one\n");
+        if (mkdir("/data/app/MAINAPP/apps/", 0777) != 0) {
+            printf("Failed to create app folder: %s\n", strerror(errno));
+        }
+    }
+    
+    scan_dir_apps(&list, "/data/app/MAINAPP");
+
+    if (access("/mnt/sdcard", F_OK) != 0) {
+        mkdir("/mnt/sdcard", 0777);
+        printf("Created /mnt/sdcard\n");
+    }
+
+    int ret = funcs.OsMount("/dev/block/mmcblk0p1", "/mnt/sdcard", "vfat", 0, 0);
+    if (ret == -1003) {
+        printf("The SD card is already mounted or there's a different problem!\n");
+    } else if (ret != 0) {
+        printf("Mounting SD card failed! Error: %d\n", ret);
+    }
+    
+    scan_dir_apps(&list, "/mnt/sdcard");
 
     printf("Enumerating all apps in the list:\n");
     for (int i = 0; i < list.count; i++) {
@@ -86,29 +114,20 @@ int _init()
     printf("Initializing UI...\n");
     int running = 1;
     while (running) {
-        switch (initui(&list)) {
+        switch (initui(&funcs, &list)) {
             case UI_RESULT_RELAUNCH:
                 printf("Result: relaunch\n");
-                OsSleep(500); //In case a key is pressed when app exited
+                funcs.OsSleep(500); //In case a key is pressed when app exited
                 XuiClearKey();
                 break;
             case UI_RESULT_EXIT:
                 printf("Result: exiting\n");
                 running = 0;
                 break;
-            case UI_RESULT_SUSPEND:
-                int supply = OsCheckPowerSupply();
-                printf("Result: suspend - power supply: %d\n", supply);
-                if (supply == POWER_BATTERY) {
-                    //Deep sleep
-                    OsSysSleepEx(2);
-                } else {
-                    //Plugged in so just shut the screen, or will wake up again
-                    OsSysSleepEx(1);
-                }
-                break;
         }
     }
+
+    funcs.OsUmount("/mnt/sdcard", 0);
 
     exit(0);
 }

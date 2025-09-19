@@ -6,7 +6,7 @@
 #include <errno.h>
 #include "app.h"
 
-AppMetadata parseFile(const char *appName) {
+AppMetadata parseFile(const char *apps_path, const char *appName) {
     AppMetadata app = {0};
     app.icon = 0;
     app.is_valid = false;
@@ -16,15 +16,15 @@ AppMetadata parseFile(const char *appName) {
     strncpy(app.app, appName, sizeof(app.app) - 1);
     app.app[sizeof(app.app) - 1] = '\0';
 
-    char basePath[512];
-    snprintf(basePath, sizeof(basePath), "/data/app/MAINAPP/apps/%s", appName);
-    printf("Base path: %s\n", basePath);
+    snprintf(app.path, sizeof(app.path), "%s/%s", apps_path, appName);
+    app.app[sizeof(app.path) - 1] = '\0';
+    printf("Base path: %s\n", app.path);
 
     char infoPath[512];
-    snprintf(infoPath, sizeof(infoPath), "%s/info.txt", basePath);
+    snprintf(infoPath, sizeof(infoPath), "%s/info.txt", app.path);
 
     char iconPath[512];
-    snprintf(iconPath, sizeof(iconPath), "%s/icon.png", basePath);
+    snprintf(iconPath, sizeof(iconPath), "%s/icon.png", app.path);
 
     const char *required_files[][2] = {
         {iconPath, "icon"},
@@ -39,9 +39,9 @@ AppMetadata parseFile(const char *appName) {
     }
 
     char binPath[512];
-    snprintf(binPath, sizeof(binPath), "%s/%s.so", basePath, appName);
+    snprintf(binPath, sizeof(binPath), "%s/%s.so", app.path, appName);
     if (access(binPath, F_OK) != 0) {
-        snprintf(binPath, sizeof(binPath), "%s/%s", basePath, appName);
+        snprintf(binPath, sizeof(binPath), "%s/%s", app.path, appName);
         if (access(binPath, F_OK) != 0) {
             printf("ERROR: Application '%s' is missing the binary, can be %s library or %s executable.\n", appName, binPath);
             return app;
@@ -97,6 +97,7 @@ AppMetadata parseFile(const char *appName) {
     app.is_valid = true;
 
     printf("Parsed app as '%s':\n", appName);
+    printf("Path: %s\n", app.path);
     printf("Name: %s\n", app.name);
     printf("Version: %s\n", app.version);
     printf("Author: %s\n", app.author);

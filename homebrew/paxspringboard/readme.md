@@ -9,15 +9,20 @@ Tested on Pax S920
 
 Following is application format:
 
+```
 /data/app/MAINAPP/apps/<APP_NAME>/
-    ├── <APP_NAME>.s       (Required)  
-    ├── icon.png           (Required)  
-    ├── info.txt           (Required)  
-    └── [data/]            (Optional)
+SDCARD_ROOT/apps/<APP_NAME>/
+                        ├── <APP_NAME>         (Executable) 
+                        ├── <APP_NAME>.so      (Library)  
+                        ├── icon.png           (Required)  
+                        ├── info.txt           (Required)  
+                        └── [data/]            (Optional)
+```
 
-- The binary MUST expose an _init() function as the main entrypoint for execution.
-- icon.jpg - 32x32 pixels
-- info.txt - metadata 
+- Executable can be provided if your PAX can run unsigned binaries or binary is signed, otherwise library must be provided
+- The library MUST expose an _init() function as the main entrypoint for execution.
+- icon.jpg - 64x64 pixels max
+- info.txt - Metadata 
 - Optional: Applications may create and use a data/ subdirectory within their own folder for persistent storage.
 
 Metadata (info.txt)

@@ -1,6 +1,6 @@
 CC = arm-none-linux-gnueabi-gcc
-CFLAGS = -fPIC -std=gnu99 -shared -nostartfiles -include prolin_printf.h
 INCLUDES = -I$(PREFIX)/include 
+CFLAGS = -fPIC -march=armv6 -std=gnu99 -shared -nostartfiles -include prolin_printf.h
 
 SOURCES = main.c app.c applist.c ui.c apploader.c
 HEADERS = app.h applist.h ui.h apploader.h
