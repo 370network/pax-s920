@@ -266,13 +266,15 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
                 printf("Got error getting key: %d\n", key);
                 result = UI_RESULT_RELAUNCH;
             } else if (key == (XUI_KEYENTER)) {
-                if (state.page + 1 >= max_page) {
-                    state.page = 0;
-                } else {
-                    state.page += 1;
+                if (1 < max_page) {
+                    if (state.page + 1 >= max_page) {
+                        state.page = 0;
+                    } else {
+                        state.page += 1;
+                    }
+                    draw_grid(&state);
                 }
                 printf("page: %d/%d\n", state.page, max_page);
-                draw_grid(&state);
             } else if (key == (XUI_KEYCLEAR)) {
                 destroyui(&state);
                 int supply = funcs->OsCheckPowerSupply();
