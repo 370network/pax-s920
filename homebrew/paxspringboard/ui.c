@@ -286,7 +286,14 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
                     //Plugged in so just shut the screen, or will wake up again
                     funcs->OsSysSleepEx(1);
                 }
-            } else if (key == XUI_KEYCANCEL || key == (XUI_KEYCANCEL + XUI_KEYENTER)) {
+            } else if (key == XUI_KEYCANCEL) {
+            	printf("Launching tm\n");
+                destroyui(&state);
+                clear_framebuffer();
+                LoadApp("/usr/bin", "tm");
+                clear_framebuffer(); //Clear after app ran
+                result = UI_RESULT_RELAUNCH;
+            } else if (key == (XUI_KEYENTER + XUI_KEYCANCEL)) {
                 destroyui(&state);
                 clear_framebuffer();
                 result = UI_RESULT_EXIT;
