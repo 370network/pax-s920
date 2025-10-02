@@ -277,6 +277,9 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
                 printf("page: %d/%d\n", state.page, max_page);
             } else if (key == (XUI_KEYCLEAR)) {
                 destroyui(&state);
+                funcs->OsSysSleepEx(1);
+            } else if (key == (XUI_KEYENTER + XUI_KEYCLEAR)) {
+                destroyui(&state);
                 int supply = funcs->OsCheckPowerSupply();
                 printf("Result: suspend - power supply: %d\n", supply);
                 if (supply == POWER_BATTERY) {
@@ -284,7 +287,11 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
                     funcs->OsSysSleepEx(2);
                 } else {
                     //Plugged in so just shut the screen, or will wake up again
-                    funcs->OsSysSleepEx(1);
+                    //We do in loop since keycombo enter can wakeup
+                    for (int s = 0; s < 6; s++) {
+                        funcs->OsSysSleepEx(1);
+                        funcs->OsSleep(250);
+                    }
                 }
             } else if (key == XUI_KEYCANCEL) {
             	printf("Launching tm\n");
