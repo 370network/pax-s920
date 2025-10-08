@@ -1,4 +1,5 @@
 CC = arm-none-linux-gnueabi-gcc
+STRIP = arm-none-linux-gnueabi-strip
 INCLUDES = -I$(PREFIX)/include 
 CFLAGS = -fPIC -march=armv6 -std=gnu99 -shared -nostartfiles -include prolin_printf.h
 
@@ -11,6 +12,7 @@ all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(INCLUDES) $(OBJECTS) $(LDFLAGS) -o $@
+	$(STRIP) $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
