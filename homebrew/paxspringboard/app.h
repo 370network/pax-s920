@@ -5,14 +5,15 @@
 
 // Structure to hold application metadata
 typedef struct {
-    char app[256];
-    char name[256];
-    char path[512];
+    char app[128];
+    char name[128];
+    char path[256];
     char version[32];
     char author[256];
     char description[512];
     char license[128];
     char url[256];
+    int autolaunch;
     bool is_valid;
     void* icon;
 } AppMetadata;

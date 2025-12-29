@@ -10,6 +10,8 @@ AppMetadata parseFile(const char *apps_path, const char *appName) {
     AppMetadata app = {0};
     app.icon = 0;
     app.is_valid = false;
+    char autolaunch_str[5];
+    strcpy(autolaunch_str, "0");
 
     printf("Parsing application: %s\n", appName);
 
@@ -67,6 +69,7 @@ AppMetadata parseFile(const char *apps_path, const char *appName) {
         {"description:", app.description, sizeof(app.description)},
         {"license:", app.license, sizeof(app.license)},
         {"url:", app.url, sizeof(app.url)},
+        {"autolaunch:", autolaunch_str, sizeof(autolaunch_str)},
     };
     size_t num_parsers = sizeof(parsers) / sizeof(parsers[0]);
 
@@ -83,6 +86,8 @@ AppMetadata parseFile(const char *apps_path, const char *appName) {
         }
     }
     fclose(file);
+
+    app.autolaunch = atoi(autolaunch_str);
 
     const char *required_fields[] = {app.name, app.version, app.author, app.description};
     size_t num_required_fields = sizeof(required_fields) / sizeof(required_fields[0]);
@@ -104,6 +109,7 @@ AppMetadata parseFile(const char *apps_path, const char *appName) {
     printf("Description: %s\n", app.description);
     printf("License: %s\n", app.license);
     printf("URL: %s\n", app.url);
+    printf("Autolaunch: %d\n", app.autolaunch);
     printf("App is valid: %s\n", app.is_valid ? "true" : "false");
 
     return app;

@@ -31,6 +31,8 @@ typedef struct {
     XuiWindow *statusbar;
     XuiWindow *statusbar_battery;
     size_t page;
+    int autolaunch_ticks; //0 is no autolaunch
+    size_t autolaunch_app;
 } ui_state;
 
 void clear_framebuffer() {
@@ -50,19 +52,19 @@ void clear_framebuffer() {
         printf("Framebuffer ioctl FBIOGET_VSCREENINFO error\n");
         goto err_mmap;
     }
- 
+
     //Compute the length of framebuffer
     size_t len = vinfo.xres * vinfo.yres * (vinfo.bits_per_pixel / 8);
-    
+
     //Map it so we can write
     framebuffer_mmap = mmap(0, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if ((int) framebuffer_mmap == -1) {
         printf("Framebuffer mmap error: %d\n", (int) framebuffer_mmap);
         goto err_mmap;
     }
-    
+
     memset(framebuffer_mmap, 0, len);
-    
+
     munmap(framebuffer_mmap, len);
 
 err_mmap:
@@ -84,8 +86,7 @@ void destroyui(ui_state *state) {
     XuiClose();
 }
 
-int launch_app(ui_state *state, size_t button_index) {
-    int app_index = state->page * GRID_BUTTONS + button_index;
+int launch_app_applist(ui_state *state, size_t app_index) {
     if (app_index < state->applist->count) {
         printf("Launching app: %d %s\n", app_index, state->applist->apps[app_index].name);
         destroyui(state);
@@ -98,6 +99,11 @@ int launch_app(ui_state *state, size_t button_index) {
     }
 }
 
+int launch_app(ui_state *state, size_t button_index) {
+    int app_index = state->page * GRID_BUTTONS + button_index;
+    return launch_app_applist(state, app_index);
+}
+
 void draw_statusbar(ui_state *state, bool first) {
     char battery_status_text[BATT_STATUS_TEXT_LEN];
     char battery_level[BATT_STATUS_TEXT_LEN];
@@ -105,18 +111,16 @@ void draw_statusbar(ui_state *state, bool first) {
     FILE* file_battery_status;
     char *statusbar_text = "PaxBoard";
     uint32_t statusbar_bg_color = XuiColor(0, 128, 0, 0);
-    
-    // Battery and ethernet status in future? 
+
+    // Battery and ethernet status in future?
     // XuiSetStatusbarIcon(5, "/usr/share/tm/tm_icon_pageup.bmp");
 	// XuiSetStatusbarIcon(7, "/usr/share/tm/tm_icon_pagedown.bmp");
-    
+
     //Compute the battery text
     battery_state = (state->funcs->OsCheckPowerSupply() == POWER_BATTERY) ? ' ' : '+';
     file_battery_status = fopen("/sys/class/power_supply/battery/capacity","r");
-    if (file_battery_status != NULL) {
-    }
     memset(battery_level, 0, BATT_STATUS_TEXT_LEN);
-    if (fgets(battery_level, 4, file_battery_status) == NULL) {
+    if (file_battery_status == NULL || fgets(battery_level, 4, file_battery_status) == NULL) {
         strcpy(battery_level, "???");
     } else {
         char* c = battery_level;
@@ -129,9 +133,11 @@ void draw_statusbar(ui_state *state, bool first) {
             c++;
         }
     }
-    fclose(file_battery_status);
+    if (file_battery_status != NULL) {
+        fclose(file_battery_status);
+    }
     snprintf(battery_status_text, sizeof(battery_status_text), "%c%s%%", battery_state, battery_level);
-    
+
     //Avoid updating too many times
     if (!first && strncmp(battery_status_text_old, battery_status_text, BATT_STATUS_TEXT_LEN) == 0) {
         return;
@@ -140,7 +146,7 @@ void draw_statusbar(ui_state *state, bool first) {
     const int BATT_TEXT_FONT_SIZE = 8;
     int batt_text_len = XuiTextWidth(state->font, BATT_TEXT_FONT_SIZE, battery_status_text);
     int batt_text_x = 240 - batt_text_len - 4;
-    
+
     //printf("Battery: '%s'\n", battery_status_text);
 
     if (first) {
@@ -151,11 +157,32 @@ void draw_statusbar(ui_state *state, bool first) {
         XuiDestroyWindow(state->statusbar_battery);
         state->statusbar_battery = 0;
     }
-    
+
     state->statusbar_battery = XuiCreateCanvas(state->statusbar, batt_text_x, 0, batt_text_len, 32);
     XuiCanvasSetBackground(state->statusbar_battery, XUI_BG_NORMAL, 0, statusbar_bg_color);
     XuiCanvasDrawText(state->statusbar_battery, 0, 15, BATT_TEXT_FONT_SIZE, state->font, 0, XuiColor(255, 255, 255, 255), battery_status_text);
     XuiShowWindow(state->statusbar_battery, 1, 0);
+}
+
+bool is_backlight_off() {
+	char tmp[5];
+    FILE* file_actual_brightness = fopen("/sys/devices/platform/pwm-backlight/backlight/pwm-backlight/actual_brightness","r");
+    memset(tmp, 0, 5);
+    if (file_actual_brightness != NULL) {
+	    if (fgets(tmp, 4, file_actual_brightness) != NULL) {
+	        char* c = tmp;
+	        //Remove newline lol
+	        while (*c != 0) {
+	            if (*c == '\n') {
+	                *c = 0;
+	                break;
+	            }
+	            c++;
+	        }
+	    }
+        fclose(file_actual_brightness);
+    }
+    return strncmp(tmp, "0", 2) == 0;
 }
 
 void draw_grid(ui_state *state) {
@@ -165,7 +192,7 @@ void draw_grid(ui_state *state) {
     int cell_h = ceil(280.0 / (float) GRID_H);
     int icon_w = cell_w - GRID_MARGIN * 2;
     int icon_h = cell_h - GRID_MARGIN * 2;
-    
+
     draw_statusbar(state, true);
 
     XuiCanvasSetBackground(state->root, XUI_BG_NORMAL, 0, XuiColor(255, 255, 255, 255));
@@ -199,14 +226,14 @@ void draw_grid(ui_state *state) {
                 //XuiCanvasDrawRect(state->root, x, y, icon_w, icon_h, XuiColor(255, 220, 220, 220), 1, 1);
                 XuiCanvasDrawImg(state->root, x, y, icon_w, icon_h, XUI_BG_CENTER, app->icon);
                 XuiWindow *btn = XuiCreateButton(state->root, x, y, icon_w, icon_h);
-            
+
 
                 if (!btn) {
                     printf("Failed to create button");
                     continue;
                 }
 
-                
+
                 XuiButtonStat* btn_stat = malloc(sizeof(XuiButtonStat));
                 if (!btn_stat) {
                     printf("malloc fail");
@@ -240,11 +267,13 @@ void draw_grid(ui_state *state) {
 
 UIResult initui(ui_funcs* funcs, AppList *applist)
 {
+	//Each tick = 100ms sleep
     ui_state state;
-    int ticks = 0;
+    int autolaunch_ticks;
+    int statusbar_ticks = 0;
     size_t max_page = ceil((float) applist->count / (float) GRID_BUTTONS);
     char *xui_argv[] = {"ROTATE=90", "STATUSBAR=32"};
-    
+
     state.funcs = funcs;
     state.page = 0;
     state.applist = applist;
@@ -256,11 +285,28 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
     state.statusbar = XuiStatusbarCanvas();
     state.statusbar_battery = 0;
 
+    state.autolaunch_ticks = 0;
+    state.autolaunch_app = 0;
+    if (applist && applist->count > 0) {
+        for (size_t i = 0; i < applist->count; i++) {
+            AppMetadata *app = &applist->apps[i];
+            if (app && app->name && app->autolaunch) {
+            	state.autolaunch_ticks = app->autolaunch * 10;
+                state.autolaunch_app = i;
+                break;
+            }
+         }
+    }
+    autolaunch_ticks = state.autolaunch_ticks;
+    printf("autolaunch ticks %d app %d\n", state.autolaunch_ticks, state.autolaunch_app);
+
     draw_grid(&state);
 
     UIResult result = UI_RESULT_NONE;
     while (result == UI_RESULT_NONE) {
         if (XuiHasKey()) {
+            //Reset autolaunch timeout
+            autolaunch_ticks = state.autolaunch_ticks;
             int key = XuiGetKey();
             if (key < 0) {
                 printf("Got error getting key: %d\n", key);
@@ -321,11 +367,21 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
             }
             continue;
         } else {
-            if (ticks <= 0) {
-                ticks = 5;
+            if (statusbar_ticks <= 0) {
+                statusbar_ticks = 5;
                 draw_statusbar(&state, false);
             }
-            ticks--;
+            statusbar_ticks--;
+            if (0 < state.autolaunch_ticks) {
+                if (is_backlight_off()) {
+                    autolaunch_ticks = state.autolaunch_ticks;
+                }
+                autolaunch_ticks--;
+                if (autolaunch_ticks <= 0) {
+                    autolaunch_ticks = state.autolaunch_ticks;
+                    launch_app_applist(&state, state.autolaunch_app);
+                }
+            }
             funcs->OsSleep(100);
         }
     }
