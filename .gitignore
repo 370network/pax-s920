@@ -6,15 +6,18 @@
 *.so
 *.o
 
-#cache
+#cache & configs
 cache/
 xcb/
+.xcb_config
 
 #toolchain related
 toolchain/bin
+toolchain/usr
+toolchain/arm-*
+toolchain/build
 toolchain/share
 toolchain/libexec
-toolchain/arm-none-linux-gnueabi
 #include+libs
 toolchain/lib
 toolchain/include/SDL
