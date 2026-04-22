@@ -1,58 +1,56 @@
 #!/bin/bash
 # pax-build envset
+# 2nd revision | 2026
+
 source xcb/bin/activate
 
+export env_platform=$(uname)
+if [ "$env_platform" = "Linux" ]; then
+	env_platform="linux-gnu"
+elif [ "$env_platform" = "Darwin" ]; then
+	env_platform="apple-darwin"
+fi
+
+export env_arch=$(uname -m)
+if [ "$env_arch" = "arm64" ]; then
+	env_arch="aarch64"
+fi
+
 export LD_LIBRARY_PATH=$PWD/toolchain/lib
-export QEMU_LD_PREFIX=$PWD/toolchain/arm-none-linux-gnueabi/libc/
+export QEMU_LD_PREFIX=$PWD/toolchain/arm-unknown-linux-gnueabi2.13/lib/
 export PATH=$PWD/toolchain/bin:$PATH
 export PREFIX=$PWD/toolchain
-export BUILD=x86_64-linux-gnu
-export HOST=arm-none-linux-gnueabi
+export BUILD=$env_arch-$env_platform
+export HOST=arm-unknown-linux-gnueabi2.13
 export PAXPATH=$PWD
 
-function retry_cmd() {
-	local attempt=0
-
-	while [ $attempt -le 10 ]; do
-		eval "$1" && return 0
-		exit_code=$?
-
-		if [ $exit_code -eq $2 ]; then
-			echo "attempt $attempt failed, retrying in 3 seconds..."
-			sleep 3
-			((attempt++))
-		fi
-	done
-
-	echo "failed after 10 attempts..."
-	return
+function paxreconfigure() {
+	printf "[*] Enter device address ({IP|hostname}+port or the whole /dev/ path): "
+	read addr
+	
+	if [[ "$addr" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ || "$addr" = *:5555 ]]; then
+	    echo "export PAX_CLIENT_IP=\"$addr\"" > .xcb_config
+	else
+	    echo "export PAX_CLIENT_SERIAL=\"$addr\"" > .xcb_config
+	fi
 }
 
 function paxpush() {
 	if [ "$#" -lt 2 ]; then
-		echo "usage: paxpush <source file> <pax destination>"
+		echo "usage: paxpush <local source 1> <local source 2> .. <device destination>"
 		return
 	fi
 
-	if [ -d "$1" ]; then
-		find "$1" -type f -print0 | while IFS= read -r -d '' file; do
-			relative="${file#$1/}"
-			printf "pushing $file to $2/$relative "
-			retry_cmd "python3 $PAXPATH/xcb/client.py h push '$file' '$2/$relative'" 1
-			sleep 2
-		done
-	else
-		retry_cmd "python3 $PAXPATH/xcb/client.py h push '$1' '$2'" 1
-	fi
+	python3 $PAXPATH/xcb/src/main.py push $@
 }
 
 function paxpull() {
-	if [ "$#" -lt 2 ]; then
-		echo "usage: paxpull <pax source> <local destination>"
+	if [ "$#" -lt 1 ]; then
+		echo "usage: paxpull <pax source> [optional: local destination]"
 		return
 	fi
 
-	retry_cmd "python3 $PAXPATH/xcb/client.py h pull '$1' '$2'" 1
+	python3 $PAXPATH/xcb/src/main.py pull $1 $2
 }
 
 function paxls() {
@@ -61,12 +59,12 @@ function paxls() {
 		return
 	fi
 
-	retry_cmd "python3 $PAXPATH/xcb/client.py h ls '$1'" 1
+	python3 $PAXPATH/xcb/src/main.py ls $1
 }
 
 function paxdump() {
 	if [ "$#" -lt 1 ]; then
-		echo "usage: paxdump <dump name>"
+		echo "usage: paxdump <dump name> [optional: device path to dump]"
 		echo "The resulting dump will be stored in dumps/<dump name>/ inside the working directory"
 		return
 	fi
@@ -76,5 +74,11 @@ function paxdump() {
 		[ "$?" -ne 0 ] && return
 	fi
 
-	retry_cmd "python3 $PAXPATH/xcb/client.py h dump '$1'" 1
+	python3 $PAXPATH/xcb/src/main.py dump $1 $2
 }
+
+if [ ! -f .xcb_config ]; then
+	paxreconfigure
+else
+	source .xcb_config
+fi
