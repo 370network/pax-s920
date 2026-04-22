@@ -46,7 +46,7 @@ fi
 if [ ! -d toolchain/bin ]; then
 	echo "Toolchain unpack..."
 	tar -jxf cache/toolchain.tar.xz --strip-components=1 -C $PWD/toolchain \
-		obggcc/bin obggcc/build obggcc/lib obggcc/libexec obggcc/usr obggcc/arm-unknown-linux-gnueabi2.13
+		obggcc/bin obggcc/build obggcc/lib obggcc/libexec obggcc/usr obggcc/arm-unknown-linux-gnueabi obggcc/arm-unknown-linux-gnueabi2.13
 	
 	sync
 	sleep 1
@@ -77,6 +77,9 @@ if [ ! -d toolchain/bin ]; then
 			rm -rf $toolchain_file
 		fi
 	done
+	
+	echo "Toolchain linking"
+	ln -s $PWD/toolchain/bin/arm-unknown-linux-gnueabi-as toolchain/bin/as
 else
 	echo "Toolchain already unpacked, continuing"
 fi
