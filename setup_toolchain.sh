@@ -45,7 +45,7 @@ fi
 
 if [ ! -d toolchain/bin ]; then
 	echo "Toolchain unpack..."
-	tar -jxf cache/toolchain.tar.xz --strip-components=1 -C $PWD/toolchain \
+	tar -xf cache/toolchain.tar.xz --strip-components=1 -C $PWD/toolchain \
 		obggcc/bin obggcc/build obggcc/lib obggcc/libexec obggcc/usr obggcc/arm-unknown-linux-gnueabi obggcc/arm-unknown-linux-gnueabi2.13
 	
 	sync
