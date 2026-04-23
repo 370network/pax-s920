@@ -14,6 +14,11 @@ if [ ! -f repo/makefileupdated ]; then
 	echo "done" > repo/makefileupdated
 fi
 
+if [ ! -f repo/zxemupdated ]; then
+	cp zxem.c repo/zxem.c
+	echo "done" > repo/zxemupdated
+fi
+
 if [ ! -f repo/zxem ]; then
 	echo "zxem build process!"
 	make -j$(nproc) -C repo zxem
@@ -24,11 +29,6 @@ if [ ! -f repo/pmi ]; then
         make -j$(nproc) -C repo pmi
 fi
 
-if [ ! -f repo/telnet ]; then
-        echo "telnet build process!"
-        make -j$(nproc) -C repo telnet
-fi
 
-build_check "zxem" "zxem"
-build_check "pmi" "pmi"
-build_check "telnet" "telnet"
+build_check "zxem" "zxem/zxem"
+build_check "pmi" "pmi/pmi"
