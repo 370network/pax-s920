@@ -1,0 +1,4 @@
+name: PMI-80
+version: 1.0.0
+author: Sprotex
+description: TESLA PMI-80 Emulator

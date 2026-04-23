@@ -1,0 +1,4 @@
+name: ZX Spectrum Emulator
+version: 1.0.0
+author: Sprotex & ikonko
+description: ZX Spectrum Emulator
