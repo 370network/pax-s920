@@ -94,7 +94,7 @@ fi
 
 if [ ! -f toolchain/arm-unknown-linux-gnueabi/lib/libosal.so ]; then
 	echo "Toolchain lib unpack..."
-	tar -jxf cache/lib.tar.gz -C $PWD/toolchain/arm-unknown-linux-gnueabi/lib
+	tar -xf cache/lib.tar.gz -C $PWD/toolchain/arm-unknown-linux-gnueabi/lib
 else
 	echo "Toolchain lib already unpacked, continuing"
 fi
