@@ -109,7 +109,7 @@ void draw_statusbar(ui_state *state, bool first) {
     char battery_level[BATT_STATUS_TEXT_LEN];
     char battery_state;
     FILE* file_battery_status;
-    char *statusbar_text = "PaxBoard";
+    char *statusbar_text = "PAXBoard";
     uint32_t statusbar_bg_color = XuiColor(0, 128, 0, 0);
 
     // Battery and ethernet status in future?
