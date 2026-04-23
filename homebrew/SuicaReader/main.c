@@ -14,7 +14,7 @@ void printHex(const unsigned char *data, int len) {
 XuiWindow *root;
 XuiFont *font;
 
-int _init() {
+int main() {
     int status;
 
      char *xui_argv[] = {"ROTATE=90", "STATUSBAR=32"};
@@ -110,8 +110,6 @@ int _init() {
         printf("Failed to read balance block\n");
         OsPiccClose();
     }
-
-
 
     return 0;
 }
