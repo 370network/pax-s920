@@ -1,0 +1,4 @@
+name: MilkyTrackerPAX
+version: 0.90.86
+author: Morc @ 370network
+description: MilkyTrackerPAX
