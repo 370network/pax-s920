@@ -1,4 +1,4 @@
 name: PAXMAN
 version: 1.1.0
-author: Morc
+author: Morc @ 370network
 description: Arcade port of PACMAN

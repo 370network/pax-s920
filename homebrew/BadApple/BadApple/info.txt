@@ -1,4 +1,4 @@
-name: BadApple
+name: Bad Apple
 description: Bad Apple
 version: 1.0.0
-author: 370network
+author: rhgndf
