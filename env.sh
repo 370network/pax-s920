@@ -37,19 +37,20 @@ export LD=$HOST-ld
 export NM=$HOST-nm
 export STRIP=$HOST-strip
 export BUILD=$env_arch-$env_platform
-export PATH=$PAXPATH/toolchain/bin:$PATH
 export PREFIX=$PAXPATH/toolchain
-export LD_LIBRARY_PATH=$PAXPATH/toolchain/lib
-export QEMU_LD_PREFIX=$PAXPATH/toolchain/arm-unknown-linux-gnueabi2.13/lib/
-export CPPFLAGS="--sysroot=$PAXPATH/toolchain/arm-unknown-linux-gnueabi -I$PAXPATH/toolchain/include"
+export PATH=$PREFIX/bin:$PATH
+export LD_LIBRARY_PATH=$PREFIX/lib
+export QEMU_LD_PREFIX=$PREFIX/arm-unknown-linux-gnueabi2.13/
+export CPPFLAGS="--sysroot=$PREFIX/arm-unknown-linux-gnueabi -I$PREFIX/include"
+export LDFLAGS=="-L/Users/richardgracik/git/pax-s920/toolchain/lib"
 export CXXFLAGS=$CPPFLAGS
 export CFLAGS=$CPPFLAGS
 export CROSS_COMPILE_TRIPLET='arm-unknown-linux-gnueabi'
 export CROSS_COMPILE_SYSTEM='linux'
 export CROSS_COMPILE_ARCHITECTURE='arm'
 export CROSS_COMPILE_GLIBCVER='2.13'
-export CROSS_COMPILE_SYSROOT=$PAXPATH/toolchain/arm-unknown-linux-gnueabi2.13
-export OBGGCC_HOME=$PAXPATH/toolchain/
+export CROSS_COMPILE_SYSROOT=$PREFIX/arm-unknown-linux-gnueabi2.13
+export OBGGCC_HOME=$PREFIX/
 
 function paxreconfigure() {
 	printf "[*] Enter device address ({IP|hostname}+port or the whole /dev/ path): "
