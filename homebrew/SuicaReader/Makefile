@@ -1,9 +1,8 @@
-CC = arm-none-linux-gnueabi-gcc
-CFLAGS = -fPIC -std=gnu99 -shared -nostartfiles -include prolin_printf.h
+CFLAGS = -include prolin_printf.h -no-pie -Wl,--unresolved-symbols=ignore-all -lfreetype -lpng12 -lxui -lfribidi -lz -losal -lcbinder -lcrypto
 INCLUDES = -I$(PREFIX)/include 
 
 SOURCES = main.c
-TARGET = AppFolder/suica-reader.so
+TARGET = suica-reader/suica-reader
 OBJECTS = $(SOURCES:.c=.o)
 
 all: $(TARGET)
