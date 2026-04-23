@@ -35,6 +35,7 @@ export AS=$HOST-as
 export AR=$HOST-ar
 export LD=$HOST-ld
 export NM=$HOST-nm
+export STRIP=$HOST-strip
 export BUILD=$env_arch-$env_platform
 export PATH=$PAXPATH/toolchain/bin:$PATH
 export PREFIX=$PAXPATH/toolchain
