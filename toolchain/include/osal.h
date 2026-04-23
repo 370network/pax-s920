@@ -175,6 +175,7 @@ int OsPedEraseKeys(void);
 int OsPedSetFunctionKey(int KeyFlag);
 void OsPedClose(void);
 int OsPedWriteKey(int KeyType, const char *KeyData, int KeyLen);
+void OsBeep(int Vol, int Len);
 
 /*--------------------------------------------
  * Function Prototypes - LCD
