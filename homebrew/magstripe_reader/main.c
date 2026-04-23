@@ -6,11 +6,14 @@
  */
 
 #include <stdlib.h>
+#include <dlfcn.h>
 #include "osal.h"
 #include "xui.h"
 
-int _init()
+int main()
 {
+	
+	printf("Magstripe Reader\n");
 
     char *xui_argv[] = {"ROTATE=90","STATUSBAR=32"};
 	XuiOpen(sizeof(xui_argv)/sizeof(xui_argv[0]), xui_argv);
@@ -26,8 +29,8 @@ int _init()
 	}
 
     XuiWindow *statusbar;
-	  statusbar = XuiStatusbarCanvas();
-	  XuiCanvasSetBackground(statusbar, XUI_BG_NORMAL, NULL, XuiColor(255, 0, 255, 255));
+	statusbar = XuiStatusbarCanvas();
+	XuiCanvasSetBackground(statusbar, XUI_BG_NORMAL, NULL, XuiColor(255, 0, 255, 255));
     XuiCanvasSetBackground(root, XUI_BG_NORMAL, NULL, XuiColor(255, 255, 255, 255));
 
 
@@ -36,12 +39,11 @@ int _init()
     OsMsrOpen();
 
     XuiClearArea(root, 0, 0, 239, 288);
-	  XuiCanvasDrawText(root, (240-XuiTextWidth(font, 5, "Cakam na kartu...")) / 2, 140, 5, font, 0, XuiColor(255, 0, 0, 0), "Cakam na kartu...");
-	  XuiCanvasDrawText(statusbar, (240-XuiTextWidth(font, 1, "Magstripe Reader")) / 2, 25, 1, font, 0, XuiColor(255, 0, 0, 0), "Magstripe Reader");	
+	XuiCanvasDrawText(root, (240-XuiTextWidth(font, 5, "Cakam na kartu...")) / 2, 140, 5, font, 0, XuiColor(255, 0, 0, 0), "Cakam na kartu...");
+	XuiCanvasDrawText(statusbar, (240-XuiTextWidth(font, 1, "Magstripe Reader")) / 2, 25, 1, font, 0, XuiColor(255, 0, 0, 0), "Magstripe Reader");	
 	
     // cakame doḱym neprejdeme kartou
     while (OsMsrSwiped() == 0) {}
-
 
     OsMsrRead(&Track1, &Track2, &Track3);
     OsPrnOpen(0, NULL);
@@ -68,13 +70,19 @@ int _init()
         OsPrnPrintf("Track 3: Chyba\n");
     }
 
+
     XuiClearArea(root, 0, 0, 239, 288);
     XuiCanvasDrawText(root, (240-XuiTextWidth(font, 5, "Karta nacitana")) / 2, 140, 5, font, 0, XuiColor(255, 0, 0, 0), "Karta nacitana");
     
+    sleep(1);
+    
     // jednotlive tracky na obrazovku
+    XuiClearArea(root, 0, 0, 239, 288);
     XuiCanvasDrawText(root, 0, 0, 2, font, 0, XuiColor(255, 0, 0, 0), (char*)Track1.TrackData);
     XuiCanvasDrawText(root, 0, 40, 2, font, 0, XuiColor(255, 0, 0, 0), (char*)Track2.TrackData);
     XuiCanvasDrawText(root, 0, 80, 2, font, 0, XuiColor(255, 0, 0, 0), (char*)Track3.TrackData);
+    
+    
     OsPrnSetGray(4);
     OsPrnStart();
 
@@ -84,6 +92,6 @@ int _init()
     OsPrnClose();
     OsMsrClose();
     XuiDestroyFont(font);
-	  XuiClose();
+	XuiClose();
     exit(0);
 }
