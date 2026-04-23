@@ -191,8 +191,10 @@ int OsPrnOpen(unsigned int printertype, const char* targetname );
 void OsPrnSelectFontSize(int SingleCodeWidth, int SingleCodeHeight, int MultiCodeWidth, int MultiCodeHeight);
 int OsPrnSetDirection(int direction);
 int OsPrnPrintText(const char *text);
+void OsPrnPrintf(const char *text);
 void OsPrnSetGray(int Level);
 void OsPrnClose(void);
+void OsPrnStart(void);
 
 /*--------------------------------------------
  * Function Prototypes - MSR (Magnetic Stripe Reader)
