@@ -84,6 +84,20 @@ else
 	echo "Toolchain already unpacked, continuing"
 fi
 
+echo "[*] Toolchain libs!"
+if [ ! -f cache/lib.tar.gz ]; then
+	echo "Toolchain lib cache download"
+	curl -o cache/lib.tar.gz -L -O https://forum.370.network/download/file.php?id=927
+else
+	echo "Toolchain lib cache already exists, continuing"
+fi
+
+if [ ! -f toolchain/arm-unknown-linux-gnueabi/lib/libosal.so ]; then
+	echo "Toolchain lib unpack..."
+	tar -jxf cache/lib.tar.gz -C $PWD/toolchain/arm-unknown-linux-gnueabi/lib
+else
+	echo "Toolchain lib already unpacked, continuing"
+fi
 
 # gcc ar copy commented out, obggcc has it done correctly
 #if [ ! -f toolchain/bin/arm-none-linux-gnueabi-gcc-ar ]; then
