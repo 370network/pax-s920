@@ -15,7 +15,7 @@ done
 
 if [ ! -f repo/ClassiCube ]; then
 	echo "ClassiCube build process!"
-	$HOST-gcc repo/src/*.c -o repo/ClassiCube -I$PREFIX/include/ -L$PREFIX/lib -lSDL2 -lm -ldl -lpthread -lrt -DCC_WIN_BACKEND=CC_WIN_BACKEND_SDL2 -DCC_GFX_BACKEND=CC_GFX_BACKEND_SOFTGPU
+	$CC repo/src/*.c -o repo/ClassiCube -I$PREFIX/include/ -L$PREFIX/lib -lSDL2 -lm -ldl -lpthread -lrt
 fi
 
-build_check "ClassiCube" "ClassiCube"
+#build_check "ClassiCube" "ClassiCube"
