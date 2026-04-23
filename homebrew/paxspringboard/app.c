@@ -13,7 +13,7 @@ AppMetadata parseFile(const char *apps_path, const char *appName) {
     char autolaunch_str[5];
     strcpy(autolaunch_str, "0");
 
-    printf("Parsing application: %s\n", appName);
+    printf("[APP] Parsing application: %s\n", appName);
 
     strncpy(app.app, appName, sizeof(app.app) - 1);
     app.app[sizeof(app.app) - 1] = '\0';
@@ -35,7 +35,7 @@ AppMetadata parseFile(const char *apps_path, const char *appName) {
 
     for (size_t i = 0; i < num_required_files; ++i) {
         if (access(required_files[i][0], F_OK) != 0) {
-            printf("ERROR: Application '%s' is missing %s file.\n", appName, required_files[i][1]);
+            printf("[!] ERROR: Application '%s' is missing %s file.\n", appName, required_files[i][1]);
             return app;
         }
     }
@@ -45,14 +45,14 @@ AppMetadata parseFile(const char *apps_path, const char *appName) {
     if (access(binPath, F_OK) != 0) {
         snprintf(binPath, sizeof(binPath), "%s/%s", app.path, appName);
         if (access(binPath, F_OK) != 0) {
-            printf("ERROR: Application '%s' is missing the binary, can be %s library or %s executable.\n", appName, binPath);
+            printf("[!] ERROR: Application '%s' is missing the binary, can be %s library or %s executable.\n", appName, binPath);
             return app;
         }
     }
 
     FILE *file = fopen(infoPath, "r");
     if (!file) {
-        printf("ERROR: Cannot open metadata for '%s': %s\n", appName, strerror(errno));
+        printf("[!] ERROR: Cannot open metadata for '%s': %s\n", appName, strerror(errno));
         return app;
     }
 
@@ -94,23 +94,23 @@ AppMetadata parseFile(const char *apps_path, const char *appName) {
 
     for (size_t i = 0; i < num_required_fields; ++i) {
         if (strlen(required_fields[i]) == 0) {
-            printf("ERROR: Missing required metadata fields in '%s/info.txt'\n", appName);
+            printf("[!] ERROR: Missing required metadata fields in '%s/info.txt'\n", appName);
             return app;
         }
     }
 
     app.is_valid = true;
 
-    printf("Parsed app as '%s':\n", appName);
-    printf("Path: %s\n", app.path);
-    printf("Name: %s\n", app.name);
-    printf("Version: %s\n", app.version);
-    printf("Author: %s\n", app.author);
-    printf("Description: %s\n", app.description);
-    printf("License: %s\n", app.license);
-    printf("URL: %s\n", app.url);
-    printf("Autolaunch: %d\n", app.autolaunch);
-    printf("App is valid: %s\n", app.is_valid ? "true" : "false");
+    //printf("Parsed app as '%s':\n", appName);
+    //printf("Path: %s\n", app.path);
+    //printf("Name: %s\n", app.name);
+    //printf("Version: %s\n", app.version);
+    //printf("Author: %s\n", app.author);
+    //printf("Description: %s\n", app.description);
+    //printf("License: %s\n", app.license);
+    //printf("URL: %s\n", app.url);
+    //printf("Autolaunch: %d\n", app.autolaunch);
+    //printf("App is valid: %s\n", app.is_valid ? "true" : "false");
 
     return app;
 }

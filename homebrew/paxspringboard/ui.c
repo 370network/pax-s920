@@ -43,13 +43,13 @@ void clear_framebuffer() {
     //Open framebuffer device
     fd = open("/dev/fb", O_RDWR);
     if (fd == -1) {
-        perror("Failed to open framebuffer device");
+        perror("[!] Failed to open framebuffer device");
         return;
     }
 
     //Get framebuffer dimensions
     if (ioctl(fd, FBIOGET_VSCREENINFO, &vinfo) == -1) {
-        printf("Framebuffer ioctl FBIOGET_VSCREENINFO error\n");
+        printf("[!] Framebuffer ioctl FBIOGET_VSCREENINFO error\n");
         goto err_mmap;
     }
 
@@ -59,7 +59,7 @@ void clear_framebuffer() {
     //Map it so we can write
     framebuffer_mmap = mmap(0, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if ((int) framebuffer_mmap == -1) {
-        printf("Framebuffer mmap error: %d\n", (int) framebuffer_mmap);
+        printf("[!] Framebuffer mmap error: %d\n", (int) framebuffer_mmap);
         goto err_mmap;
     }
 
@@ -88,7 +88,7 @@ void destroyui(ui_state *state) {
 
 int launch_app_applist(ui_state *state, size_t app_index) {
     if (app_index < state->applist->count) {
-        printf("Launching app: %d %s\n", app_index, state->applist->apps[app_index].name);
+        printf("[UI] Launching app: %d %s\n", app_index, state->applist->apps[app_index].name);
         destroyui(state);
         clear_framebuffer();
         LoadApp(state->applist->apps[app_index].path, state->applist->apps[app_index].app);
@@ -205,7 +205,7 @@ void draw_grid(ui_state *state) {
             }
             AppMetadata *app = &applist->apps[i];
             if (app && app->name) {
-                printf("Adding app %d: %s\n", i, applist->apps[i].name);
+                printf("[UI] Adding app %d: %s\n", i, applist->apps[i].name);
 
                 snprintf(icon_path, sizeof(icon_path), "%s/icon.png", app->path);
                 if (!app->icon) {
@@ -213,7 +213,7 @@ void draw_grid(ui_state *state) {
                     app->icon = XuiImgLoadFromFile(icon_path);
 
                     if (!app->icon) {
-                        printf("Failed to load icon for app: %s\n", app->name);
+                        printf("[!] Failed to load icon for app: %s\n", app->name);
                         continue;
                     }
                 }
@@ -229,14 +229,14 @@ void draw_grid(ui_state *state) {
 
 
                 if (!btn) {
-                    printf("Failed to create button");
+                    printf("[!] Failed to create button");
                     continue;
                 }
 
 
                 XuiButtonStat* btn_stat = malloc(sizeof(XuiButtonStat));
                 if (!btn_stat) {
-                    printf("malloc fail");
+                    printf("[!] malloc fail");
                     continue;
                 }
 
@@ -251,7 +251,7 @@ void draw_grid(ui_state *state) {
 
 
                 if (XuiButtonSetStat(btn, XUI_BTN_NORMAL, btn_stat) != 0) {
-                    printf("Failed to set button stat");
+                    printf("[!] Failed to set button stat");
                     free(btn_stat);
                     continue;
                 }
@@ -298,7 +298,7 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
          }
     }
     autolaunch_ticks = state.autolaunch_ticks;
-    printf("autolaunch ticks %d app %d\n", state.autolaunch_ticks, state.autolaunch_app);
+    printf("[UI] autolaunch ticks %d app %d\n", state.autolaunch_ticks, state.autolaunch_app);
 
     draw_grid(&state);
 
@@ -309,7 +309,7 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
             autolaunch_ticks = state.autolaunch_ticks;
             int key = XuiGetKey();
             if (key < 0) {
-                printf("Got error getting key: %d\n", key);
+                printf("[!] Got error getting key: %d\n", key);
                 result = UI_RESULT_RELAUNCH;
             } else if (key == (XUI_KEYENTER)) {
                 if (1 < max_page) {
@@ -320,7 +320,7 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
                     }
                     draw_grid(&state);
                 }
-                printf("page: %d/%d\n", state.page, max_page);
+                printf("[UI] page: %d/%d\n", state.page, max_page);
             } else if (key == (XUI_KEYCLEAR)) {
                 destroyui(&state);
                 funcs->OsSysSleepEx(1);
@@ -340,7 +340,7 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
                     }
                 }
             } else if (key == XUI_KEYCANCEL) {
-            	printf("Launching tm\n");
+            	printf("[UI] Launching tm\n");
                 destroyui(&state);
                 clear_framebuffer();
                 LoadApp("/usr/bin", "tm");
@@ -363,7 +363,7 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
             } else if (key == XUI_KEYALPHA) {
                 result = launch_app(&state, 11);
             } else {
-                printf("Unknown key: %d\n", key);
+                printf("[UI] Unknown key: %d\n", key);
             }
             continue;
         } else {
