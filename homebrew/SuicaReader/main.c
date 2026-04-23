@@ -18,7 +18,7 @@ int main() {
     int status;
     int retry = 0;
 
-     char *xui_argv[] = {"ROTATE=90", "STATUSBAR=32"};
+    char *xui_argv[] = {"ROTATE=90", "STATUSBAR=32"};
     XuiOpen(sizeof(xui_argv) / sizeof(xui_argv[0]), xui_argv);
 
     root = XuiRootCanvas();
@@ -44,12 +44,14 @@ int main() {
 
     status = OsPiccTransfer(tx_poll, sizeof(tx_poll), rx_poll, &rx_poll_len);
     while (status != 0) {
+        if (retry > 40)
+            return 0;
         printf("Polling failed, retrying...\n");
         usleep(50000);
         rx_poll_len = sizeof(rx_poll);
         status = OsPiccTransfer(tx_poll, sizeof(tx_poll), rx_poll, &rx_poll_len);
+        retry++;
     }
-
 
     printf("Polling Response:\n");
     printHex(rx_poll, rx_poll_len);
