@@ -16,6 +16,7 @@ XuiFont *font;
 
 int main() {
     int status;
+    int retry = 0;
 
      char *xui_argv[] = {"ROTATE=90", "STATUSBAR=32"};
     XuiOpen(sizeof(xui_argv) / sizeof(xui_argv[0]), xui_argv);
@@ -30,7 +31,7 @@ int main() {
 
     XuiClearArea(root, 0, 0, 239, 288);
     XuiCanvasDrawText(root, (240 - XuiTextWidth(font, 25, "Waiting for card")) / 2, 140, 25, font, 0, XuiColor(255, 0, 0, 0), "Waiting for card");
-
+	
     status = OsPiccOpen();
     if (status != 0) { printf("OsPiccOpen failed\n"); return -1; }
 
