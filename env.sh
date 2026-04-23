@@ -25,6 +25,7 @@ fi
 
 source $PAXPATH/xcb/bin/activate
 
+export HOST=arm-unknown-linux-gnueabi
 glibc_string=2.13
 CC=$HOST$glibc_string-gcc
 CXX=$HOST$glibc_string-g++
@@ -35,7 +36,6 @@ export AR=$HOST-ar
 export LD=$HOST-ld
 export NM=$HOST-nm
 export BUILD=$env_arch-$env_platform
-export HOST=arm-unknown-linux-gnueabi
 export PATH=$PAXPATH/toolchain/bin:$PATH
 export PREFIX=$PAXPATH/toolchain
 export LD_LIBRARY_PATH=$PAXPATH/toolchain/lib
