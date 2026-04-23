@@ -1,4 +1,4 @@
-CFLAGS = -include prolin_printf.h -no-pie -Wl,--unresolved-symbols=ignore-all -lfreetype -lpng12 -lxui -lfribidi -lz -losal -lcbinder -lcrypto
+CFLAGS = -include prolin_printf.h -Wl,--unresolved-symbols=ignore-all,--dynamic-linker=/lib/ld-linux.so.3 -lfreetype -lpng12 -lxui -lfribidi -lz -losal -lcbinder -lcrypto
 INCLUDES = -I$(PREFIX)/include 
 
 SOURCES = main.c
