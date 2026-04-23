@@ -1,0 +1,4 @@
+name: PAXGBC
+description: GBC Emulator
+version: 1.0.0
+author: 370network
