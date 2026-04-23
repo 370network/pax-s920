@@ -1,0 +1,4 @@
+name: BadApple
+description: Bad Apple
+version: 1.0.0
+author: 370network
