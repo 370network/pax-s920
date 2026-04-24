@@ -26,9 +26,9 @@ fi
 source $PAXPATH/xcb/bin/activate
 
 export HOST=arm-unknown-linux-gnueabi
-glibc_string=2.13
-CC=$HOST$glibc_string-gcc
-CXX=$HOST$glibc_string-g++
+export HOST_GLIBC=arm-unknown-linux-gnueabi2.13
+CC=$HOST_GLIBC-gcc
+CXX=$HOST_GLIBC-g++
 export CC=$CC
 export CXX=$CXX
 export AS=$HOST-as
@@ -37,20 +37,20 @@ export LD=$HOST-ld
 export NM=$HOST-nm
 export STRIP=$HOST-strip
 export BUILD=$env_arch-$env_platform
-export PREFIX=$PAXPATH/toolchain
-export PATH=$PREFIX/bin:$PATH
-export LD_LIBRARY_PATH=$PREFIX/lib
-export QEMU_LD_PREFIX=$PREFIX/arm-unknown-linux-gnueabi2.13/
-export CPPFLAGS="--sysroot=$PREFIX/arm-unknown-linux-gnueabi -I$PREFIX/include"
-export LDFLAGS=="-L/Users/richardgracik/git/pax-s920/toolchain/lib"
+export TOOLCHAIN=$PAXPATH/toolchain
+export PREFIX=$TOOLCHAIN/paxroot
+export PATH=$TOOLCHAIN/bin:$PATH
+export LD_LIBRARY_PATH=$TOOLCHAIN/lib
+export QEMU_LD_PREFIX=$TOOLCHAIN/arm-unknown-linux-gnueabi2.13/
+export CPPFLAGS="--sysroot=$TOOLCHAIN/arm-unknown-linux-gnueabi -I$PREFIX/include"
+export LDFLAGS="-L$PREFIX/lib"
 export CXXFLAGS=$CPPFLAGS
 export CFLAGS=$CPPFLAGS
 export CROSS_COMPILE_TRIPLET='arm-unknown-linux-gnueabi'
 export CROSS_COMPILE_SYSTEM='linux'
 export CROSS_COMPILE_ARCHITECTURE='arm'
 export CROSS_COMPILE_GLIBCVER='2.13'
-export CROSS_COMPILE_SYSROOT=$PREFIX/arm-unknown-linux-gnueabi2.13
-export OBGGCC_HOME=$PREFIX/
+export CROSS_COMPILE_SYSROOT=$TOOLCHAIN/arm-unknown-linux-gnueabi2.13
 
 function paxreconfigure() {
 	printf "[*] Enter device address ({IP|hostname}+port or the whole /dev/ path): "
