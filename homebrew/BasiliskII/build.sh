@@ -7,7 +7,7 @@ echo "370network paxdevs"
 echo "=build BasiliskII="
 echo "=================="
 
-if [ $env_platform != "linux*" ]; then
+if [[ $env_platform != "linux"* ]]; then
 	echo "You are currently building on $env_platform, this environment is UNSUPPORTED!"
 	echo "BasiliskII compilation process currently depends on a Linux environment with qemu-binfmt!"
 	echo "If you want to compile BasiliskII, you have to do so elsewhere. Sorry :("
