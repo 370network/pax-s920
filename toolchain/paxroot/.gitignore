@@ -1,0 +1,8 @@
+bin
+usr
+arm-*
+build
+share
+libexec
+lib
+include/*
