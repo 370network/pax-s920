@@ -1,1 +1,2 @@
+#!/data/app/MAINAPP/bin/sh
 SDL_VIDEODRIVER=fbcon SDL_FBDEV=/dev/fb SDL_VIDEO_FBCON_ROTATION=CW SDL_AUDIODRIVER=dsp SDL_PATH_DSP=/dev/snd/dsp LD_LIBRARY_PATH=. ./BasiliskII_bin --config /mnt/sdcard/.basilisk_ii_prefs
