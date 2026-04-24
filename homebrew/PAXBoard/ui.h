@@ -12,7 +12,6 @@ typedef struct {
     void (*OsSleep)(unsigned int);
     int (*OsSysSleepEx)(int);
     int (*OsCheckPowerSupply)(void);
-    int (*OsMount)(char*, char*, char*, int, const void*);
     int (*OsUmount)(char*, int);
 } ui_funcs;
 

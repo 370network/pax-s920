@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/mount.h>
 #include <dirent.h>
 #include <errno.h>
 #include <osal.h>
@@ -74,7 +75,6 @@ int _init()
         funcs.OsSleep = dlsym(libosal, "OsSleep");
         funcs.OsSysSleepEx = dlsym(libosal, "OsSysSleepEx");
         funcs.OsCheckPowerSupply = dlsym(libosal, "OsCheckPowerSupply");
-        funcs.OsMount = dlsym(libosal, "OsMount");
         funcs.OsUmount = dlsym(libosal, "OsUmount");
     }
     
@@ -90,17 +90,16 @@ int _init()
     }
     
     scan_dir_apps(&list, "/data/app/MAINAPP");
-
+    
     if (access("/mnt/sdcard", F_OK) != 0) {
         mkdir("/mnt/sdcard", 0777);
+        chown("/mnt/sdcard", 999, 999); //SD workaround: mount has to be owned by MAINAPP
         printf("Created /mnt/sdcard\n");
     }
 
-    int ret = funcs.OsMount("/dev/block/mmcblk0p1", "/mnt/sdcard", "vfat", 0, 0);
-    if (ret == -1003) {
-        printf("[W] There is either no SD card, it is already mounted or there's a different problem!\n");
-    } else if (ret != 0) {
-        printf("[!] Mounting SD card failed! Error: %d\n", ret);
+    int ret = mount("/dev/block/mmcblk0p1", "/mnt/sdcard", "vfat", 0, "uid=999,gid=999,fmask=0000,dmask=0000");
+    if (ret != 0) {
+        printf("[!] Mounting SD card failed! Error: %s\n", strerror(ret));
     }
     
     scan_dir_apps(&list, "/mnt/sdcard");
