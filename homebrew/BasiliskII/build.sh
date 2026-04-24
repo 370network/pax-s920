@@ -20,9 +20,7 @@ if [ ! -d repo ]; then
 	cp -r repo-macemu/BasiliskII repo
 fi
 
-if [ ! -f repo/src/Unix/BasiliskII ]; then
-	echo "BasiliskII build process!"
-
+if [ ! -f repo/src/Unix/Makefile ]; then
 	cd repo/src/Unix
 	unset CC
 	unset CXX
@@ -35,6 +33,12 @@ if [ ! -f repo/src/Unix/BasiliskII ]; then
 	unset LDFLAGS
 	unset LIBS
 	NO_CONFIGURE=1 ./autogen.sh
-	./configure --host=$HOST_GLIBC --prefix=$PREFIX --with-sdl1 BII_CROSS_HAVE_EXTENDED_SIGNALS=yes CPPFLAGS="-I$PREFIX/include -I$PREFIX/include/SDL" LDFLAGS="-L$PREFIX/lib" LIBS="-lSDL"
+	./configure --host=$HOST_GLIBC --prefix=$PREFIX --with-sdl1 BII_CROSS_HAVE_EXTENDED_SIGNALS=yes CPPFLAGS="-I$PREFIX/include" LDFLAGS="-L$PREFIX/lib" sdl_LIBS="-lSDL" LIBS="-lSDL" sdl_CFLAGS="-I$PREFIX/include/SDL"
+fi
+
+if [ ! -f repo/src/Unix/BasiliskII ]; then
+	echo "BasiliskII build process!"
 	make -j$(nproc)
 fi
+
+mv repo/src/Unix/BasiliskII BasiliskII/BasiliskII_bin
