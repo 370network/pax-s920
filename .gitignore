@@ -26,7 +26,7 @@ toolchain/include/lib
 toolchain/include/include
 
 #homebrew related
-homebrew/*/repo
+homebrew/*/repo*
 homebrew/*/repo.zip
 homebrew/*/install.zip
 homebrew/*/patches/*.patched
