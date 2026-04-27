@@ -11,12 +11,12 @@ if [ ! -f mpfr.tar.xz ]; then
 	wget https://www.mpfr.org/mpfr-current/mpfr-4.2.2.tar.xz -O mpfr.tar.xz
 fi
 
-if [ ! -d mpfr ]; then
+if [ ! -d repo ]; then
 	tar -xf mpfr.tar.xz
 	mv mpfr-4.2.2 repo
 fi
 
-if [ ! -f repo/build/.libs/libgmp.so.10.5.0 ]; then
+if [ ! -f repo/src/.libs/libmpfr.so.6.2.2 ]; then
 	echo "mpfr build process!"
 	cd repo
 	unset CC
