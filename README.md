@@ -1,12 +1,23 @@
 # ProlinOS/PAX toolchain
+An All-In-One toolchain suite for use with the PAX S920 payment terminals running the ProlinOS Linux-based operating systen.
+Beware that, by using this toolchain, you are already more than well aware of all required pre-requisites like the root process.
 
 ## setup instructions
-### common for all platforms
-make sure you have `gcc`, `python3`, `python3-venv`, `git`, `swig`, `openssl`+devel *(`qemu-user-static`/`qemu-arm-static` for possibly running executables)* installed
+### Debian, Ubuntu, Fedora, Alpine, postmarketOS
+our toolchain script includes all necessary checks to make sure you have all things needed, just run 
 
 ```bash
 ./setup_toolchain.sh
 ```
+
+### common for all other platforms
+make sure you have `gcc`, `python3`, `python3-venv`, `git`, `swig`, `openssl` + devel, `qemu-user-static` installed and or their equivalents. Beware, that you are on your own as other platforms do not get any higher level of support.
+
+```bash
+./setup_toolchain.sh
+```
+
+## switching to the the toolchain environment
 
 continue *(or start on your next session)* with
 ```bash
@@ -14,6 +25,15 @@ source env.sh
 ```
 
 ## commands
+### paxreconfigure
+in case you plugged your terminal over USB or the IP/hostname changed, run this command to change the XCB settings
+```bash
+paxreconfigure
+```
+*eg. paxreconfigure*
+
+you will be once again asked to either write the whole ***/dev/*** path of the PAX or the IP/hostname with the :5555 port
+
 ### paxpush
 used as a shorter alias for the xcb command
 ```bash
@@ -45,24 +65,15 @@ paxdump <dump name>
 The resulting dump will be stored in `dumps/<dump name>` inside the working directory.
 
 ## building homebrew
+~~the official way of distributing packages is using the handy app package manager~~
 ~~download using the homebrew downloader (coming soon or never)~~
 
-traverse into the `homebrew` folder, pick your desired port and run `./install.sh`, `./build.sh` or `make`
+**for building homebrew:**
+traverse into the `homebrew` folder, pick your desired port and run `./build.sh` or `make`
 
-some ports (mainly libs)* contain both `./install.sh` and `./build.sh` because you can save time by just installing it instead of building them
 
 ## additional official docs
 see [pax-docs](https://github.com/370network/pax-s920/tree/main/pax-docs)
 
 ## headers
-
-### xui.h
-half baked and handmade header file for nearly all libxui.so relevant functions. For (partial) usage, look at xui_test.c
-
-### osal.h
-header file for all libosal.so relevant functions. For usage, look at osal_test.c
-
-### prolin-printf.h
-header file use as redefinition of printf with flush to stdout.
-
-`-include prolin-printf.h` in cflags for global usage across projects
+see [toolchain/paxroot/include](https://github.com/370network/pax-s920/tree/main/toolchain/paxroot/include)
