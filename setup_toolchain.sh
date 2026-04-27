@@ -61,6 +61,7 @@ elif [[ "${setup_distro,,}" = *"debian"* || "${setup_distro,,}" = *"ubuntu"* ]];
 	check_package_dpkg "cmake"
 	check_package_dpkg "libssl-dev"
 	check_package_dpkg "python3-dev"
+	check_package_dpkg "m4"
 fi
 
 
