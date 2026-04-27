@@ -15,8 +15,13 @@ if [[ $env_platform != "linux"* ]]; then
 fi
 
 echo "Dependency setup!"
-../gmp/build.sh
-../mpfr/build.sh
+cd ../gmp
+./build.sh
+
+cd ../mpfr
+./build.sh
+
+cd ../BasiliskII
 
 git clone https://github.com/kanjitalk755/macemu repo-macemu
 
