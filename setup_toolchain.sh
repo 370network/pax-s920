@@ -56,6 +56,15 @@ check_package_apk(){
 	fi
 }
 
+check_package_rpmdnf(){
+        if ! printf '%s\n' "$package_generate_list" | grep -Fxq "$1"; then
+		echo "[-] $1 missing. installing $1..."
+		sudo dnf install $1 -q -y
+	else
+		echo "$1 installed"
+	fi
+}
+
 echo ""
 echo "[*] Distro/system specific package checkup!"
 if [ "$setup_distro" == "generic" ]; then
@@ -89,6 +98,21 @@ elif [[ "${setup_distro,,}" = *"postmarketos"* || "${setup_distro,,}" = *"alpine
 	check_package_apk "py3-setuptools"
 	check_package_apk "swig"
 	check_package_apk "py3-pip"
+elif [[ "${setup_distro,,}" = *"fedora"* ]]; then
+	package_generate_list=$(rpm -qa --qf '%{NAME}\n')
+	check_package_rpmdnf "python3"
+	check_package_rpmdnf "python3-pip"
+	check_package_rpmdnf "python3-devel"
+	check_package_rpmdnf "gcc"
+	check_package_rpmdnf "cmake"
+	check_package_rpmdnf "m4"
+	check_package_rpmdnf "automake"
+	check_package_rpmdnf "make"
+	check_package_rpmdnf "gcc-c++"
+	check_package_rpmdnf "swig"
+	check_package_rpmdnf "openssl"
+	check_package_rpmdnf "openssl-devel"
+	check_package_rpmdnf "openssl-devel-engine"
 fi
 
 
@@ -198,8 +222,8 @@ setup_xcb(){
 		export LDFLAGS=$(pkg-config --libs openssl)
 		export SWIG_FEATURES="-cpperraswarn -includeall $(pkg-config --cflags openssl)"
 		pip3 install --pre --no-binary :all: M2Crypto --no-cache
-	elif [[ "${setup_distro,,}" = *"alpine"* || "${setup_distro,,}" = *"postmarketos"* ]]; then
-		echo "M2Crypto Alpine build"
+	elif [[ "${setup_distro,,}" = *"alpine"* || "${setup_distro,,}" = *"postmarketos"* || "${setup_distro,,}" = *"fedora"* ]]; then
+		echo "M2Crypto Linux build"
 		pip3 install M2Crypto
 	else
 		echo "M2Crypto fallback"
