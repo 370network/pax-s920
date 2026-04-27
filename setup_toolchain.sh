@@ -226,8 +226,8 @@ setup_xcb(){
 		echo "M2Crypto Linux build"
 		pip3 install M2Crypto
 	else
-		echo "M2Crypto fallback"
-		pip3 install M2Crypto==0.40.0
+		echo "M2Crypto alternative fallback"
+		pip3 install M2Crypto==0.44.0
 	fi
 }
 
