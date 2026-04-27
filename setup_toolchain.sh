@@ -65,6 +65,14 @@ check_package_rpmdnf(){
 	fi
 }
 
+patch_toolchain_nixos(){
+	for toolchain_file in toolchain/bin/arm-*; do
+		echo "patching file: $toolchain_file to use $(cat $NIX_CC/nix-support/dynamic-linker) as interpreter"
+		patchelf "$toolchain_file" > /dev/null 2>&1 || continue
+        patchelf --set-interpreter $(cat $NIX_CC/nix-support/dynamic-linker) "$toolchain_file" || true
+	done
+}
+
 echo ""
 echo "[*] Distro/system specific package checkup!"
 if [ "$setup_distro" == "generic" ]; then
@@ -172,6 +180,11 @@ if [ ! -d toolchain/bin ]; then
 		fi
 	done
 
+	if [[ "${setup_distro,,}" = *"nixos"* ]]; then
+		echo "Patching Toolchain to run on NixOS"
+		patch_toolchain_nixos
+	fi
+
 	echo "GCC Toolchain linking"
 	ln -s $PWD/toolchain/bin/arm-unknown-linux-gnueabi-as toolchain/bin/as
 else
@@ -216,8 +229,8 @@ setup_xcb(){
 		export LDFLAGS=$(pkg-config --libs openssl)
 		export SWIG_FEATURES="-cpperraswarn -includeall $(pkg-config --cflags openssl)"
 		pip3 install --pre --no-binary :all: M2Crypto --no-cache
-	elif [[ "${setup_distro,,}" = *"debian"* ]]; then
-		echo "M2Crypto Debian build"
+	elif [[ "${setup_distro,,}" = *"debian"* || "${setup_distro,,}" = *"nixos"* ]]; then
+		echo "M2Crypto Debian/NixOS build"
 		export CFLAGS=$(pkg-config --cflags openssl)
 		export LDFLAGS=$(pkg-config --libs openssl)
 		export SWIG_FEATURES="-cpperraswarn -includeall $(pkg-config --cflags openssl)"
