@@ -1,14 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # pax-build envset
 # 2nd revision | 2026
 
 export env_platform=$(uname)
 if [ "$env_platform" = "Linux" ]; then
 	env_libc=$(ldd --version 2>&1)
-	if [[ "$env_libc" == *"GLIBC"* ]]; then
-		env_platform="linux-gnu"
-	else
+	if [[ "$env_libc" == *"musl"* ]]; then
 		env_platform="linux-musl"
+	else
+		env_platform="linux-gnu"
 	fi	
 elif [ "$env_platform" = "Darwin" ]; then
 	env_platform="apple-darwin"
