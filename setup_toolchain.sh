@@ -11,7 +11,7 @@ echo "=================="
 echo ""
 echo "[*] System info:"
 setup_platform=$(uname)
-setup_libc=$(ldd --version)
+setup_libc=$(ldd --version 2>&1)
 if [ "$setup_platform" == "Linux" ]; then
 	if [[ "$setup_libc" == *"GLIBC"* ]]; then
 		setup_platform="linux-gnu"
@@ -47,6 +47,15 @@ check_package_dpkg(){
 	fi
 }
 
+check_package_apk(){
+	if ! printf '%s\n' "$apk_generate_list" | grep -Fxq "$1"; then
+		echo "[-] $1 missing. installing $1..."
+		sudo apk add -q $1 --no-interactive
+	else
+		echo "$1 installed"
+	fi
+}
+
 echo ""
 echo "[*] Distro/system specific package checkup!"
 if [ "$setup_distro" == "generic" ]; then
@@ -63,6 +72,23 @@ elif [[ "${setup_distro,,}" = *"debian"* || "${setup_distro,,}" = *"ubuntu"* ]];
 	check_package_dpkg "python3-dev"
 	check_package_dpkg "m4"
 	check_package_dpkg "autoconf"
+elif [[ "${setup_distro,,}" = *"postmarketos"* || "${setup_distro,,}" = *"alpine"* ]]; then
+	echo "Getting apk package list..."
+	apk_generate_list=$(apk info)
+	check_package_apk "curl"
+	check_package_apk "git"
+	check_package_apk "m4"
+	check_package_apk "autoconf"
+	check_package_apk "automake"
+	check_package_apk "cmake"
+	check_package_apk "build-base"
+	check_package_apk "pkgconf"
+	check_package_apk "openssl-dev"
+	check_package_apk "python3-dev"
+	check_package_apk "py3-gpep517"
+	check_package_apk "py3-setuptools"
+	check_package_apk "swig"
+	check_package_apk "py3-pip"
 fi
 
 
@@ -167,11 +193,14 @@ setup_xcb(){
 		export SWIG_FEATURES="-cpperraswarn -includeall $(pkg-config --cflags openssl)"
 		pip3 install --pre --no-binary :all: M2Crypto --no-cache
 	elif [[ "${setup_distro,,}" = *"debian"* ]]; then
-		echo "M2Crypto Linux build"
+		echo "M2Crypto Debian build"
 		export CFLAGS=$(pkg-config --cflags openssl)
 		export LDFLAGS=$(pkg-config --libs openssl)
 		export SWIG_FEATURES="-cpperraswarn -includeall $(pkg-config --cflags openssl)"
 		pip3 install --pre --no-binary :all: M2Crypto --no-cache
+	elif [[ "${setup_distro,,}" = *"alpine"* || "${setup_distro,,}" = *"postmarketos"* ]]; then
+		echo "M2Crypto Alpine build"
+		pip3 install M2Crypto
 	else
 		echo "M2Crypto fallback"
 		pip3 install M2Crypto==0.40.0
