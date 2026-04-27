@@ -48,7 +48,7 @@ check_package_dpkg(){
 }
 
 check_package_apk(){
-	if ! printf '%s\n' "$apk_generate_list" | grep -Fxq "$1"; then
+	if ! printf '%s\n' "$package_generate_list" | grep -Fxq "$1"; then
 		echo "[-] $1 missing. installing $1..."
 		sudo apk add -q $1 --no-interactive
 	else
@@ -74,7 +74,7 @@ elif [[ "${setup_distro,,}" = *"debian"* || "${setup_distro,,}" = *"ubuntu"* ]];
 	check_package_dpkg "autoconf"
 elif [[ "${setup_distro,,}" = *"postmarketos"* || "${setup_distro,,}" = *"alpine"* ]]; then
 	echo "Getting apk package list..."
-	apk_generate_list=$(apk info)
+	package_generate_list=$(apk info)
 	check_package_apk "curl"
 	check_package_apk "git"
 	check_package_apk "m4"
