@@ -14,6 +14,10 @@ if [[ $env_platform != "linux"* ]]; then
 	exit
 fi
 
+echo "Dependency setup!"
+../gmp/build.sh
+../mpfr/build.sh
+
 git clone https://github.com/kanjitalk755/macemu repo-macemu
 
 if [ ! -d repo ]; then
