@@ -11,12 +11,12 @@ if [ ! -f gmp.tar.xz ]; then
 	wget https://gmplib.org/download/gmp/gmp-6.3.0.tar.xz -O gmp.tar.xz
 fi
 
-if [ ! -d gmp ]; then
+if [ ! -d repo ]; then
 	tar -xf gmp.tar.xz
 	mv gmp-6.3.0 repo
 fi
 
-if [ ! -f repo/build/.libs/libgmp.so.10.5.0 ]; then
+if [ ! -f repo/.libs/libgmp.so.10.5.0 ]; then
 	echo "gmp build process!"
 	cd repo
 	unset CC
