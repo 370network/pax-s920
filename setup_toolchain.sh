@@ -13,10 +13,10 @@ echo "[*] System info:"
 setup_platform=$(uname)
 setup_libc=$(ldd --version 2>&1)
 if [ "$setup_platform" == "Linux" ]; then
-	if [[ "$setup_libc" == *"GLIBC"* ]]; then
-		setup_platform="linux-gnu"
-	else
+	if [[ "$setup_libc" == *"musl"* ]]; then
 		setup_platform="linux-musl"
+	else
+		setup_platform="linux-gnu"
 	fi
 elif [ "$setup_platform" == "Darwin" ]; then
 	setup_platform="apple-darwin"
