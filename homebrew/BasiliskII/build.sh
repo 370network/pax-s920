@@ -21,6 +21,9 @@ cd ../gmp
 cd ../mpfr
 ./build.sh
 
+cd ../SDL
+./build.sh
+
 cd ../BasiliskII
 
 git clone https://github.com/kanjitalk755/macemu repo-macemu
