@@ -4,7 +4,12 @@
 
 export env_platform=$(uname)
 if [ "$env_platform" = "Linux" ]; then
-	env_platform="linux-gnu"
+	env_libc=$(ldd --version 2>&1)
+	if [[ "$env_libc" == *"GLIBC"* ]]; then
+		env_platform="linux-gnu"
+	else
+		env_platform="linux-musl"
+	fi	
 elif [ "$env_platform" = "Darwin" ]; then
 	env_platform="apple-darwin"
 fi
@@ -15,7 +20,7 @@ if [ "$env_arch" = "arm64" ]; then
 fi
 
 #script path
-if [ "$env_platform" = "linux-gnu" ]; then
+if [ "$env_platform" = "linux"* ]; then
 	export PAXPATH=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 elif [ "$env_platform" = "apple-darwin" ]; then
 	export PAXPATH=${0:A:h}
