@@ -33,7 +33,7 @@ check_package_apk(){
 }
 
 check_package_rpmdnf(){
-        if ! printf '%s\n' "$package_generate_list" | grep -Fxq "$1"; then
+    if ! printf '%s\n' "$package_generate_list" | grep -Fxq "$1"; then
 		echo "[-] $1 missing. installing $1..."
 		sudo dnf install $1 -q -y
 	else
@@ -65,7 +65,7 @@ elif [[ "${setup_distro,,}" = *"debian"* || "${setup_distro,,}" = *"ubuntu"* ]];
 	check_package_dpkg "python3-dev"
 	check_package_dpkg "m4"
 	check_package_dpkg "autoconf"
-elif [[ "${setup_distro,,}" = *"postmarketos"* || "${setup_distro,,}" = *"alpine"* ]]; then
+elif [[ "$env_distro" = *"postmarketos"* || "$env_distro" = *"alpine"* ]]; then
 	echo "Getting apk package list..."
 	package_generate_list=$(apk info)
 	check_package_apk "curl"
@@ -82,7 +82,7 @@ elif [[ "${setup_distro,,}" = *"postmarketos"* || "${setup_distro,,}" = *"alpine
 	check_package_apk "py3-setuptools"
 	check_package_apk "swig"
 	check_package_apk "py3-pip"
-elif [[ "${setup_distro,,}" = *"fedora"* ]]; then
+elif [[ "$env_distro" = *"fedora"* ]]; then
 	package_generate_list=$(rpm -qa --qf '%{NAME}\n')
 	check_package_rpmdnf "python3"
 	check_package_rpmdnf "python3-pip"
@@ -156,7 +156,7 @@ if [ ! -d toolchain/bin ]; then
 		fi
 	done
 
-	if [[ "${setup_distro,,}" = *"nixos"* ]]; then
+	if [[ "$env_distro" = *"nixos"* ]]; then
 		echo "Patching Toolchain to run on NixOS"
 		patch_toolchain_nixos "toolchain/bin/*"
 		patch_toolchain_nixos "toolchain/libexec/gcc/arm-unknown-linux-gnueabi/$gcc_ver/*"
@@ -169,7 +169,7 @@ if [ ! -d toolchain/bin ]; then
 	ln -s $PWD/toolchain/bin/arm-unknown-linux-gnueabi-as toolchain/bin/as
 
 	echo "GCC Shebang fix"
-	if [ "$setup_platform" == "apple-darwin" ]; then
+	if [ "$env_platform" == "apple-darwin" ]; then
 		sed -i '' "s|bin\/bash|usr\/bin\/env bash|" toolchain/bin/arm-unknown-linux-gnueabi2.13-pkg-config
 	else
 		sed -i "s|bin\/bash|usr\/bin\/env bash|" toolchain/bin/arm-unknown-linux-gnueabi2.13-pkg-config
@@ -177,6 +177,7 @@ if [ ! -d toolchain/bin ]; then
 else
 	echo "GCC Toolchain already unpacked, continuing"
 fi
+
 
 echo ""
 echo "[*] GCC $gcc_ver Toolchain libs!"
