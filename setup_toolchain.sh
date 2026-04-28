@@ -66,7 +66,7 @@ check_package_rpmdnf(){
 }
 
 patch_toolchain_nixos(){
-	for toolchain_file in toolchain/bin/arm-*; do
+	for toolchain_file in $1; do
 		echo "patching file: $toolchain_file to use $(cat $NIX_CC/nix-support/dynamic-linker) as interpreter"
 		patchelf "$toolchain_file" > /dev/null 2>&1 || continue
         patchelf --set-interpreter $(cat $NIX_CC/nix-support/dynamic-linker) "$toolchain_file" || true
@@ -182,11 +182,22 @@ if [ ! -d toolchain/bin ]; then
 
 	if [[ "${setup_distro,,}" = *"nixos"* ]]; then
 		echo "Patching Toolchain to run on NixOS"
-		patch_toolchain_nixos
+		patch_toolchain_nixos "toolchain/bin/*"
+		patch_toolchain_nixos "toolchain/libexec/gcc/arm-unknown-linux-gnueabi/$gcc_ver/*"
+		patch_toolchain_nixos "toolchain/libexec/gcc/arm-unknown-linux-gnueabi/$gcc_ver/install-tools/*"
+		patch_toolchain_nixos "toolchain/libexec/gcc/arm-unknown-linux-gnueabi/$gcc_ver/plugin/*"
+		patch_toolchain_nixos "toolchain/arm-unknown-linux-gnueabi/bin/*"
 	fi
 
 	echo "GCC Toolchain linking"
 	ln -s $PWD/toolchain/bin/arm-unknown-linux-gnueabi-as toolchain/bin/as
+
+	echo "GCC Shebang fix"
+	if [ "$setup_platform" == "apple-darwin" ]; then
+		sed -i '' "s|bin\/bash|usr\/bin\/env bash|" toolchain/bin/arm-unknown-linux-gnueabi2.13-pkg-config
+	else
+		sed -i "s|bin\/bash|usr\/bin\/env bash|" toolchain/bin/arm-unknown-linux-gnueabi2.13-pkg-config
+	fi
 else
 	echo "GCC Toolchain already unpacked, continuing"
 fi
