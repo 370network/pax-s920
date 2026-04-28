@@ -2,44 +2,34 @@
 # pax-build envset
 # 2nd revision | 2026
 
-export env_platform=$(uname)
-if [ "$env_platform" = "Linux" ]; then
-	env_libc=$(ldd --version 2>&1)
-	if [[ "$env_libc" == *"musl"* ]]; then
-		env_platform="linux-musl"
-	else
-		env_platform="linux-gnu"
-	fi	
-elif [ "$env_platform" = "Darwin" ]; then
-	env_platform="apple-darwin"
-fi
-
-export env_arch=$(uname -m)
-if [ "$env_arch" = "arm64" ]; then
-	env_arch="aarch64"
-fi
-
-env_distro="generic"
-if [ -f /etc/os-release ]; then
-	. /etc/os-release
-	env_distro=$ID
-elif [ -f /etc/lsb-release ]; then
-	. /etc/lsb-release
-	env_distro=$ID
-fi
-
 #script path
-if [[ "$env_platform" = "linux"* ]]; then
-	export PAXPATH=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-elif [ "$env_platform" = "apple-darwin" ]; then
-	export PAXPATH=${0:A:h}
-else
-	export PAXPATH=$PWD
-fi
+env_tempplat=$(uname -s)
 
-source $PAXPATH/xcb/bin/activate
+#we have to use POSIX case style instead of regular *sh due to various interpreters
+case "$env_tempplat" in
+  Linux*)
+    export PAXPATH=$(CDPATH= cd -- "$(dirname -- "$0")" 2>/dev/null && pwd)
+    ;;
+  Darwin)
+    export PAXPATH=${0:A:h}
+    ;;
+  *)
+    export PAXPATH=$PWD
+    ;;
+esac
+#get platform
+eval "$(bash $PAXPATH/platform.sh)"
 
-env_xcb="python3 $PAXPATH/xcb/src/main.py"
+#load xcb client
+case "$env_distro" in
+  *nixos*)
+    env_xcb="$(nix path-info "$PAXPATH/xcb/")/bin/paxclient"
+    ;;
+  *)
+    env_xcb="python3 $PAXPATH/xcb/src/main.py"
+    source $PAXPATH/xcb/bin/activate
+    ;;
+esac
 
 export HOST=arm-unknown-linux-gnueabi
 export HOST_GLIBC=arm-unknown-linux-gnueabi2.13
