@@ -1,9 +1,9 @@
 # ProlinOS/PAX toolchain
 An All-In-One toolchain suite for use with the PAX S920 payment terminals running the ProlinOS Linux-based operating systen.
-Beware that, by using this toolchain, you are already more than well aware of all required pre-requisites like the root process.
+Beware that, by using this toolchain, you are already more than well aware of all required pre-requisites like the root process or other dependencies.
 
 ## setup instructions
-### Debian, Ubuntu, Fedora, Alpine, postmarketOS
+### Debian, Ubuntu, Fedora, Alpine, postmarketOS and macOS
 our toolchain script includes all necessary checks to make sure you have all things needed, just run 
 
 ```bash
