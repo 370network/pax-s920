@@ -7,9 +7,6 @@ env_tempplat=$(uname -s)
 
 #we have to use POSIX case style instead of regular *sh due to various interpreters
 case "$env_tempplat" in
-  Linux*)
-    export PAXPATH=$(CDPATH= cd -- "$(dirname -- "$0")" 2>/dev/null && pwd)
-    ;;
   Darwin)
     export PAXPATH=${0:A:h}
     ;;
