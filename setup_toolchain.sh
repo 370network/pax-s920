@@ -45,7 +45,7 @@ check_package_brew(){
 	grep_arg="${2:- -Fqx}"
     if ! printf '%s\n' "$package_generate_list" | grep $grep_arg "$1"; then
 		echo "[-] $1 missing. installing $1..."
-		yes | brew install $1 -q
+		brew install $1 -q -f
 	else
 		echo "$1 installed"
 	fi
