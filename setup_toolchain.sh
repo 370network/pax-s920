@@ -10,32 +10,8 @@ echo "=================="
 
 echo ""
 echo "[*] System info:"
-setup_platform=$(uname)
-setup_libc=$(ldd --version 2>&1)
-if [ "$setup_platform" == "Linux" ]; then
-	if [[ "$setup_libc" == *"musl"* ]]; then
-		setup_platform="linux-musl"
-	else
-		setup_platform="linux-gnu"
-	fi
-elif [ "$setup_platform" == "Darwin" ]; then
-	setup_platform="apple-darwin"
-fi
-
-setup_distro="generic"
-if [ -f /etc/os-release ]; then
-	. /etc/os-release
-	setup_distro=$ID
-elif [ -f /etc/lsb-release ]; then
-	. /etc/lsb-release
-	setup_distro=$ID
-fi
-
-setup_arch=$(uname -m)
-if [ "$setup_arch" == "arm64" ]; then
-	setup_arch="aarch64"
-fi
-echo "$setup_platform $setup_distro on $setup_arch"
+eval "$(bash platform.sh)"
+echo "$env_platform $env_distro on $env_arch"
 
 check_package_dpkg(){
 	PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $1|grep "install ok installed")
