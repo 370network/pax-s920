@@ -15,14 +15,16 @@ elif [ "$env_platform" == "Darwin" ]; then
 fi
 
 env_distro="generic"
-if [ -f /etc/os-release ]; then
-	. /etc/os-release
-	env_distro=$ID
-elif [ -f /etc/lsb-release ]; then
-	. /etc/lsb-release
-	env_distro=$ID
+if [ "$env_platform" != "apple-darwin" ]; then
+	if [ -f /etc/os-release ]; then
+		. /etc/os-release
+		env_distro=$ID
+	elif [ -f /etc/lsb-release ]; then
+		. /etc/lsb-release
+		env_distro=$ID
+	fi
+	env_distro="${env_distro,,}"
 fi
-env_distro="${env_distro,,}"
 
 env_arch=$(uname -m)
 if [ "$env_arch" == "arm64" ]; then
