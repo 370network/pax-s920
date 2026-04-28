@@ -190,8 +190,8 @@ if [ ! -d toolchain/bin ]; then
 		patch_toolchain_nixos "toolchain/arm-unknown-linux-gnueabi/bin/*"
 	fi
 
-	echo "GCC Toolchain linking"
-	ln -s $PWD/toolchain/bin/arm-unknown-linux-gnueabi-as toolchain/bin/as
+	#echo "GCC Toolchain linking"
+	#ln -s $PWD/toolchain/bin/arm-unknown-linux-gnueabi-as toolchain/bin/as
 
 	echo "GCC Shebang fix"
 	if [ "$env_platform" == "apple-darwin" ]; then
