@@ -100,6 +100,7 @@ elif [[ "$env_distro" = *"fedora"* ]]; then
 	check_package_rpmdnf "openssl-devel-engine"
 elif [[ "$env_platform" = *"darwin"* ]]; then
 	package_generate_list=$(brew list -1)
+	check_package_brew "bash"
 	check_package_brew "m4"
 	check_package_brew "swig"
 	check_package_brew "autoconf"
