@@ -38,37 +38,44 @@ in case you plugged your terminal over USB or the IP/hostname changed, run this 
 ```bash
 paxreconfigure
 ```
-*eg. paxreconfigure*
 
 you will be once again asked to either write the whole ***/dev/*** path of the PAX or the IP/hostname with the :5555 port
+
+### paxdeployssh
+a handy command to install your public keys from ~/.ssh or from a specified file path
+```bash
+paxdeployssh 
+# or if you want to specify a file as well
+paxdeployssh ~/.ssh/id_ed25519.pub
+```
 
 ### paxpush
 used as a shorter alias for the xcb command
 ```bash
-paxpush <source file> <pax destination>
+paxpush <local source 1> <local source 2> .. <pax destination>
+#eg. paxpush osal_test.c /data/app/MAINAPP/libosal.so
 ```
-*eg. paxpush osal_test.c /data/app/MAINAPP/libosal.so*
 
 ### paxpull
 used as a shorter alias for the xcb command
 ```bash
-paxpull <pax source> <local destination>
+paxpull <pax source> [optional: local destination]
+#eg. paxpull /usr/lib/libcbinder.so libcbinder.so
 ```
-*eg. paxpull /usr/lib/libcbinder.so libcbinder.so*
 
 ### paxls
 used as a shorter alias for the xcb command
 ```bash
 paxls <pax directory>
+#eg. paxls /data/app/MAINAPP
 ```
-*eg. paxls /data/app/MAINAPP*
 
 ### paxdump
 used as a shorter alias for the xcb command
 ```bash
-paxdump <dump name>
+paxdump <dump name> [optional: device path to dump]
+#eg. paxdump mydump
 ```
-*eg. paxdump mydump*
 
 The resulting dump will be stored in `dumps/<dump name>` inside the working directory.
 
