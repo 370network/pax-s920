@@ -41,19 +41,20 @@ check_package_rpmdnf(){
 	fi
 }
 
-patch_toolchain_nixos(){
-	for toolchain_file in $1; do
-		echo "patching file: $toolchain_file to use $(cat $NIX_CC/nix-support/dynamic-linker) as interpreter"
-		patchelf "$toolchain_file" > /dev/null 2>&1 || continue
-        patchelf --set-interpreter $(cat $NIX_CC/nix-support/dynamic-linker) "$toolchain_file" || true
-	done
+check_package_brew(){
+	grep_arg="${2:- -Fqx}"
+    if ! printf '%s\n' "$package_generate_list" | grep $grep_arg "$1"; then
+		echo "[-] $1 missing. installing $1..."
+		yes | brew install $1 -q
+	else
+		echo "$1 installed"
+	fi
 }
+
 
 echo ""
 echo "[*] Distro/system specific package checkup!"
-if [ "$setup_distro" == "generic" ]; then
-	echo "Running an unidentified distro, skipping checks..."
-elif [[ "${setup_distro,,}" = *"debian"* || "${setup_distro,,}" = *"ubuntu"* ]]; then
+if [[ "$env_distro" = *"debian"* || "$env_distro" = *"ubuntu"* ]]; then
 	check_package_dpkg "python3-venv"
 	check_package_dpkg "swig"
 	check_package_dpkg "pkg-config"
@@ -97,8 +98,22 @@ elif [[ "$env_distro" = *"fedora"* ]]; then
 	check_package_rpmdnf "openssl"
 	check_package_rpmdnf "openssl-devel"
 	check_package_rpmdnf "openssl-devel-engine"
+elif [[ "$env_platform" = *"darwin"* ]]; then
+	package_generate_list=$(brew list -1)
+	check_package_brew "m4"
+	check_package_brew "swig"
+	check_package_brew "autoconf"
+	check_package_brew "automake"
+	check_package_brew "cmake"
+	check_package_brew "pkgconf"
+	check_package_brew "gcc"
+	check_package_brew "openssl@3"
+	check_package_brew "python@3" "-q"
+elif [[ "$env_distro" = *"nixos"* ]]; then
+	echo "Package dependencies have been already handled by nix-shell, continuing..."
+elif [ "$env_distro" == "generic" ]; then
+	echo "Running an unidentified distro, skipping checks..."
 fi
-
 
 
 echo ""
@@ -110,13 +125,22 @@ else
 	echo "Cache already exists, continuing"
 fi
 
+
+patch_toolchain_nixos(){
+	for toolchain_file in $1; do
+		echo "patching file: $toolchain_file to use $(cat $NIX_CC/nix-support/dynamic-linker) as interpreter"
+		patchelf "$toolchain_file" > /dev/null 2>&1 || continue
+        patchelf --set-interpreter $(cat $NIX_CC/nix-support/dynamic-linker) "$toolchain_file" || true
+	done
+}
+
 gcc_ver=15
 
 echo ""
 echo "[*] GCC $gcc_ver Toolchain setup!"
 if [ ! -f cache/toolchain.tar.xz ]; then
 	echo "GCC Toolchain cache download"
-	curl -o cache/toolchain.tar.xz -L -O https://github.com/AmanoTeam/obggcc/releases/download/gcc-$gcc_ver/$setup_arch-unknown-$setup_platform.tar.xz
+	curl -o cache/toolchain.tar.xz -L -O https://github.com/AmanoTeam/obggcc/releases/download/gcc-$gcc_ver/$env_arch-unknown-$env_platform.tar.xz
 else
 	echo "GCC Toolchain cache already exists, continuing"
 fi
@@ -205,29 +229,39 @@ else
     echo "XCB already exists"
 fi
 
-setup_xcb(){
+setup_xcb_presetup(){
 	python3 -m venv xcb
 	source xcb/bin/activate
 	pip3 install pyserial libusb1 setuptools
-	if [ $setup_platform == "apple-darwin" ]; then
+}
+
+setup_xcb(){
+	if [ $env_platform == "apple-darwin" ]; then
 		echo "M2Crypto Darwin Brew build"
+		setup_xcb_presetup
 		brew_gcc_path=$(brew --prefix gcc)
 		export CC=$(ls "/opt/homebrew/opt/gcc/bin/gcc-"* | head -n1)
 		export CFLAGS=$(pkg-config --cflags openssl)
 		export LDFLAGS=$(pkg-config --libs openssl)
 		export SWIG_FEATURES="-cpperraswarn -includeall $(pkg-config --cflags openssl)"
 		pip3 install --pre --no-binary :all: M2Crypto --no-cache
-	elif [[ "${setup_distro,,}" = *"debian"* || "${setup_distro,,}" = *"nixos"* ]]; then
-		echo "M2Crypto Debian/NixOS build"
+	elif [[ "$env_distro" = *"debian"* ]]; then
+		echo "M2Crypto Debian build"
+		setup_xcb_presetup
 		export CFLAGS=$(pkg-config --cflags openssl)
 		export LDFLAGS=$(pkg-config --libs openssl)
 		export SWIG_FEATURES="-cpperraswarn -includeall $(pkg-config --cflags openssl)"
 		pip3 install --pre --no-binary :all: M2Crypto --no-cache
-	elif [[ "${setup_distro,,}" = *"alpine"* || "${setup_distro,,}" = *"postmarketos"* || "${setup_distro,,}" = *"fedora"* ]]; then
-		echo "M2Crypto Linux build"
+	elif [[ "$env_distro" = *"alpine"* || "$env_distro" = *"postmarketos"* || "$env_distro" = *"fedora"* ]]; then
+		echo "M2Crypto Other Linux build"
+		setup_xcb_presetup
 		pip3 install M2Crypto
+	elif [[ "$env_distro" = *"nixos"* ]]; then
+		echo "M2Crypto NixOS build"
+		nix build xcb/
 	else
 		echo "M2Crypto alternative fallback"
+		setup_xcb_presetup
 		pip3 install M2Crypto==0.44.0
 	fi
 }
