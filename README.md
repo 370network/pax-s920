@@ -10,6 +10,14 @@ our toolchain script includes all necessary checks to make sure you have all thi
 ./setup_toolchain.sh
 ```
 
+### NixOS
+NixOS wants to be special, so let's let it be so. Just run
+
+```bash
+nix-shell
+./setup_toolchain.sh
+```
+
 ### common for all other platforms
 make sure you have `gcc`, `python3`, `python3-venv`, `git`, `swig`, `openssl` + devel, `qemu-user-static` installed and or their equivalents. Beware, that you are on your own as other platforms do not get any higher level of support.
 
