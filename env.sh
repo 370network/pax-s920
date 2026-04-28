@@ -19,8 +19,17 @@ if [ "$env_arch" = "arm64" ]; then
 	env_arch="aarch64"
 fi
 
+env_distro="generic"
+if [ -f /etc/os-release ]; then
+	. /etc/os-release
+	env_distro=$ID
+elif [ -f /etc/lsb-release ]; then
+	. /etc/lsb-release
+	env_distro=$ID
+fi
+
 #script path
-if [ "$env_platform" = "linux"* ]; then
+if [[ "$env_platform" = "linux"* ]]; then
 	export PAXPATH=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 elif [ "$env_platform" = "apple-darwin" ]; then
 	export PAXPATH=${0:A:h}
@@ -29,6 +38,8 @@ else
 fi
 
 source $PAXPATH/xcb/bin/activate
+
+env_xcb="python3 $PAXPATH/xcb/src/main.py"
 
 export HOST=arm-unknown-linux-gnueabi
 export HOST_GLIBC=arm-unknown-linux-gnueabi2.13
@@ -57,6 +68,7 @@ export CROSS_COMPILE_ARCHITECTURE='arm'
 export CROSS_COMPILE_GLIBCVER='2.13'
 export CROSS_COMPILE_SYSROOT=$TOOLCHAIN/arm-unknown-linux-gnueabi2.13
 
+
 function paxreconfigure() {
 	printf "[*] Enter device address ({IP|hostname}+port or the whole /dev/ path): "
 	read addr
@@ -74,7 +86,7 @@ function paxpush() {
 		return
 	fi
 
-	python3 $PAXPATH/xcb/src/main.py push $@
+	$env_xcb push $@
 }
 
 function paxpull() {
@@ -83,7 +95,7 @@ function paxpull() {
 		return
 	fi
 
-	python3 $PAXPATH/xcb/src/main.py pull $1 $2
+	$env_xcb pull $1 $2
 }
 
 function paxls() {
@@ -92,7 +104,7 @@ function paxls() {
 		return
 	fi
 
-	python3 $PAXPATH/xcb/src/main.py ls $1
+	$env_xcb ls $1
 }
 
 function paxdump() {
@@ -107,11 +119,19 @@ function paxdump() {
 		[ "$?" -ne 0 ] && return
 	fi
 
-	python3 $PAXPATH/xcb/src/main.py dump $1 $2
+	$env_xcb dump $1 $2
 }
 
 if [ ! -f $PAXPATH/.xcb_config ]; then
 	paxreconfigure
 else
 	source $PAXPATH/.xcb_config
+	
+	if [[ "${env_distro,,}" = *"nixos"* ]]; then
+		if [[ "${PAX_CLIENT_IP}" = "" ]]; then
+			env_xcb="nix run $PAXPATH/xcb/ -- -s $PAX_CLIENT_SERIAL"
+		else
+			env_xcb="nix run $PAXPATH/xcb/ -- -s $PAX_CLIENT_IP"
+		fi
+	fi
 fi

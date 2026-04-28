@@ -26,7 +26,7 @@ setup_distro="generic"
 if [ -f /etc/os-release ]; then
 	. /etc/os-release
 	setup_distro=$ID
-elif [ -f /etc/lsb-release]; then
+elif [ -f /etc/lsb-release ]; then
 	. /etc/lsb-release
 	setup_distro=$ID
 fi
