@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # build.sh - Morc @ 370network
 source $PAXPATH/homebrew/build_helper.sh
 

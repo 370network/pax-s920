@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # build.sh - Morc @ 370network
 source $PAXPATH/homebrew/build_helper.sh
 
@@ -8,7 +8,7 @@ echo "=   build sdl 2  ="
 echo "=================="
 
 if [ ! -f repo.zip ]; then
-	wget https://github.com/libsdl-org/SDL/archive/refs/heads/SDL2.zip -O repo.zip
+	curl -o repo.zip -L -O https://github.com/libsdl-org/SDL/archive/refs/heads/SDL2.zip
 fi
 
 if [ ! -d repo ]; then

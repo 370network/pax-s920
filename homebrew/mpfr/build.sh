@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # build.sh - Morc @ 370network
 source $PAXPATH/homebrew/build_helper.sh
 
@@ -8,7 +8,7 @@ echo "=   build mpfr   ="
 echo "=================="
 
 if [ ! -f mpfr.tar.xz ]; then
-	wget https://www.mpfr.org/mpfr-current/mpfr-4.2.2.tar.xz -O mpfr.tar.xz
+	curl -o mpfr.tar.xz -L -O https://www.mpfr.org/mpfr-current/mpfr-4.2.2.tar.xz
 fi
 
 if [ ! -d repo ]; then

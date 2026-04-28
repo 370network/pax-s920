@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # build.sh - Morc @ 370network
 source $PAXPATH/homebrew/build_helper.sh
 
@@ -8,7 +8,7 @@ echo "=    build gmp   ="
 echo "=================="
 
 if [ ! -f gmp.tar.xz ]; then
-	wget https://gmplib.org/download/gmp/gmp-6.3.0.tar.xz -O gmp.tar.xz
+	curl -o gmp.tar.xz -L -O https://gmplib.org/download/gmp/gmp-6.3.0.tar.xz
 fi
 
 if [ ! -d repo ]; then
