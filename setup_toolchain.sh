@@ -241,10 +241,11 @@ setup_xcb(){
 		echo "M2Crypto Darwin Brew build"
 		setup_xcb_presetup
 		brew_gcc_path=$(brew --prefix gcc)
+		brew_openssl_path=$(brew --prefix openssl)
 		export CC=$(ls "/opt/homebrew/opt/gcc/bin/gcc-"* | head -n1)
-		export CFLAGS=$(pkg-config --cflags openssl)
-		export LDFLAGS=$(pkg-config --libs openssl)
-		export SWIG_FEATURES="-cpperraswarn -includeall $(pkg-config --cflags openssl)"
+		export CFLAGS=-I$brew_openssl_path/include
+		export LDFLAGS="-L$brew_openssl_path/lib -lssl -lcrypto"
+		export SWIG_FEATURES="-cpperraswarn -includeall $CFLAGS"
 		python3 -m pip install --pre --no-binary :all: M2Crypto --no-cache
 	elif [[ "$env_distro" = *"debian"* ]]; then
 		echo "M2Crypto Debian build"
