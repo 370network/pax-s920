@@ -24,10 +24,12 @@ eval "$(bash $PAXPATH/platform.sh)"
 case "$env_distro" in
   *nixos*)
     env_xcb="$(nix path-info "$PAXPATH/xcb/")/bin/paxclient"
+    env_xcb_args=""
     ;;
   *)
-    env_xcb="python3 $PAXPATH/xcb/src/main.py"
     source $PAXPATH/xcb/bin/activate
+    env_xcb="python3"
+    env_xcb_args="$PAXPATH/xcb/src/main.py"
     ;;
 esac
 
@@ -77,7 +79,7 @@ function paxpush() {
 		return
 	fi
 
-	$env_xcb push $@
+	$env_xcb $env_xcb_args push $@
 }
 
 function paxpull() {
@@ -86,7 +88,7 @@ function paxpull() {
 		return
 	fi
 
-	$env_xcb pull $1 $2
+	$env_xcb $env_xcb_args pull $1 $2
 }
 
 function paxls() {
@@ -95,14 +97,14 @@ function paxls() {
 		return
 	fi
 
-	$env_xcb ls $1
+	$env_xcb $env_xcb_args ls $1
 }
 
 function paxdeployssh() {
         local pubkey_file="$1"
         local tmp_auth="authorized_keys"
 
-        $env_xcb pull /data/app/MAINAPP/.ssh/authorized_keys
+        $env_xcb $env_xcb_args pull /data/app/MAINAPP/.ssh/authorized_keys
 
         if [ ! -f "$tmp_auth" ]; then
                 touch "$tmp_auth"
@@ -137,7 +139,7 @@ function paxdeployssh() {
                 fi
         fi
 
-        $env_xcb push "$tmp_auth" /data/app/MAINAPP/.ssh/authorized_keys
+        $env_xcb $env_xcb_args push "$tmp_auth" /data/app/MAINAPP/.ssh/authorized_keys
         rm "$tmp_auth"
 }
 
@@ -154,7 +156,7 @@ function paxdump() {
 		[ "$?" -ne 0 ] && return
 	fi
 
-	$env_xcb dump $1 $2
+	$env_xcb $env_xcb_args dump $1 $2
 }
 
 if [ ! -f $PAXPATH/.xcb_config ]; then
