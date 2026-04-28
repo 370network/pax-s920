@@ -121,28 +121,46 @@ function paxls() {
 }
 
 function paxdeployssh() {
-        if [ "$#" -lt 1 ]; then
-                echo "usage: paxdeployssh <key.pub file>"
-                return
+        local pubkey_file="$1"
+        local tmp_auth="authorized_keys"
+
+        $env_xcb pull /data/app/MAINAPP/.ssh/authorized_keys
+
+        if [ ! -f "$tmp_auth" ]; then
+                touch "$tmp_auth"
         fi
 
-        local pubkey_file="$1"
-		local tmp_auth="authorized_keys"
+        if [ -n "$pubkey_file" ]; then
+                if [ ! -f "$pubkey_file" ]; then
+                        echo "error: file not found: $pubkey_file"
+                        return 1
+                fi
 
-		if [ ! -f "$pubkey_file" ]; then
-		    echo "error: file not found: $pubkey_file"
-		    return 1
-		fi
+                cat "$pubkey_file" >> "$tmp_auth"
+                echo "appended: $pubkey_file"
+        else
+                local found=0
+                local f
 
-		$env_xcb pull /data/app/MAINAPP/.ssh/authorized_keys
+                for f in "$HOME"/.ssh/*.pub; do
+                        if [ ! -e "$f" ]; then
+                                continue
+                        fi
 
-		if [ ! -f "$tmp_auth" ]; then
-		    touch "$tmp_auth"
-		fi
+                        cat "$f" >> "$tmp_auth"
+                        echo "appended: $f"
+                        found=1
+                done
 
-		cat "$pubkey_file" >> "$tmp_auth"
-		$env_xcb push "$tmp_auth" /data/app/MAINAPP/.ssh/authorized_keys
-		rm "$tmp_auth"
+                if [ "$found" -eq 0 ]; then
+                        echo "error: no public key file found in ~/.ssh/"
+                        rm "$tmp_auth"
+                        return 1
+                fi
+        fi
+
+        $env_xcb push "$tmp_auth" /data/app/MAINAPP/.ssh/authorized_keys
+        rm "$tmp_auth"
 }
 
 
