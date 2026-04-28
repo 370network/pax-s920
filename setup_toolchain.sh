@@ -232,7 +232,7 @@ fi
 setup_xcb_presetup(){
 	python3 -m venv xcb
 	source xcb/bin/activate
-	pip3 install pyserial libusb1 setuptools
+	python3 -m pip install pyserial libusb1 setuptools
 }
 
 setup_xcb(){
@@ -244,25 +244,25 @@ setup_xcb(){
 		export CFLAGS=$(pkg-config --cflags openssl)
 		export LDFLAGS=$(pkg-config --libs openssl)
 		export SWIG_FEATURES="-cpperraswarn -includeall $(pkg-config --cflags openssl)"
-		pip3 install --pre --no-binary :all: M2Crypto --no-cache
+		python3 -m pip install --pre --no-binary :all: M2Crypto --no-cache
 	elif [[ "$env_distro" = *"debian"* ]]; then
 		echo "M2Crypto Debian build"
 		setup_xcb_presetup
 		export CFLAGS=$(pkg-config --cflags openssl)
 		export LDFLAGS=$(pkg-config --libs openssl)
 		export SWIG_FEATURES="-cpperraswarn -includeall $(pkg-config --cflags openssl)"
-		pip3 install --pre --no-binary :all: M2Crypto --no-cache
+		python3 -m pip install --pre --no-binary :all: M2Crypto --no-cache
 	elif [[ "$env_distro" = *"alpine"* || "$env_distro" = *"postmarketos"* || "$env_distro" = *"fedora"* ]]; then
 		echo "M2Crypto Other Linux build"
 		setup_xcb_presetup
-		pip3 install M2Crypto
+		python3 -m pip install M2Crypto
 	elif [[ "$env_distro" = *"nixos"* ]]; then
 		echo "M2Crypto NixOS build"
 		nix build xcb/
 	else
 		echo "M2Crypto alternative fallback"
 		setup_xcb_presetup
-		pip3 install M2Crypto==0.44.0
+		python3 -m pip install M2Crypto==0.44.0
 	fi
 }
 
