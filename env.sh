@@ -68,6 +68,17 @@ export CROSS_COMPILE_ARCHITECTURE='arm'
 export CROSS_COMPILE_GLIBCVER='2.13'
 export CROSS_COMPILE_SYSROOT=$TOOLCHAIN/arm-unknown-linux-gnueabi2.13
 
+function reloadxcb() {
+	source $PAXPATH/.xcb_config
+	
+	if [[ "${env_distro,,}" = *"nixos"* ]]; then
+		if [[ "${PAX_CLIENT_IP}" = "" ]]; then
+			env_xcb="nix run $PAXPATH/xcb/ -- -s $PAX_CLIENT_SERIAL"
+		else
+			env_xcb="nix run $PAXPATH/xcb/ -- -s $PAX_CLIENT_IP"
+		fi
+	fi
+}
 
 function paxreconfigure() {
 	printf "[*] Enter device address ({IP|hostname}+port or the whole /dev/ path): "
@@ -78,6 +89,8 @@ function paxreconfigure() {
 	else
 	    echo "export PAX_CLIENT_SERIAL=\"$addr\"" > .xcb_config
 	fi
+	
+	reloadxcb
 }
 
 function paxpush() {
@@ -125,13 +138,5 @@ function paxdump() {
 if [ ! -f $PAXPATH/.xcb_config ]; then
 	paxreconfigure
 else
-	source $PAXPATH/.xcb_config
-	
-	if [[ "${env_distro,,}" = *"nixos"* ]]; then
-		if [[ "${PAX_CLIENT_IP}" = "" ]]; then
-			env_xcb="nix run $PAXPATH/xcb/ -- -s $PAX_CLIENT_SERIAL"
-		else
-			env_xcb="nix run $PAXPATH/xcb/ -- -s $PAX_CLIENT_IP"
-		fi
-	fi
+	reloadxcb
 fi
