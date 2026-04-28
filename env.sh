@@ -120,6 +120,32 @@ function paxls() {
 	$env_xcb ls $1
 }
 
+function paxdeployssh() {
+        if [ "$#" -lt 1 ]; then
+                echo "usage: paxdeployssh <key.pub file>"
+                return
+        fi
+
+        local pubkey_file="$1"
+		local tmp_auth="authorized_keys"
+
+		if [ ! -f "$pubkey_file" ]; then
+		    echo "error: file not found: $pubkey_file"
+		    return 1
+		fi
+
+		$env_xcb pull /data/app/MAINAPP/.ssh/authorized_keys
+
+		if [ ! -f "$tmp_auth" ]; then
+		    touch "$tmp_auth"
+		fi
+
+		cat "$pubkey_file" >> "$tmp_auth"
+		$env_xcb push "$tmp_auth" /data/app/MAINAPP/.ssh/authorized_keys
+		rm "$tmp_auth"
+}
+
+
 function paxdump() {
 	if [ "$#" -lt 1 ]; then
 		echo "usage: paxdump <dump name> [optional: device path to dump]"
