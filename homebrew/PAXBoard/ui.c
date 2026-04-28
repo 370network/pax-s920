@@ -339,14 +339,14 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
                         funcs->OsSleep(250);
                     }
                 }
-            } else if (key == XUI_KEYCANCEL) {
+            } else if (key == (XUI_KEYENTER + XUI_KEYCANCEL)) {
             	printf("[UI] Launching tm\n");
                 destroyui(&state);
                 clear_framebuffer();
                 LoadApp("/usr/bin", "tm");
                 clear_framebuffer(); //Clear after app ran
                 result = UI_RESULT_RELAUNCH;
-            } else if (key == (XUI_KEYENTER + XUI_KEYCANCEL)) {
+            } else if (key == XUI_KEYCANCEL) {
                 destroyui(&state);
                 clear_framebuffer();
                 result = UI_RESULT_EXIT;
