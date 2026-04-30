@@ -1,9 +1,11 @@
-# ProlinOS/PAX toolchain
-An All-In-One toolchain suite for use with the PAX S920 payment terminals running the ProlinOS Linux-based operating systen.
+# ProlinOS/PAX toolchain build environment
+An All-In-One toolchain build environment suite for use with the PAX S920 payment terminals running the ProlinOS Linux-based operating systen.
 Beware that, by using this toolchain, you are already more than well aware of all required pre-requisites like the root process or other dependencies.
 
 ## setup instructions
-### Debian, Ubuntu, Fedora, Alpine, postmarketOS and macOS
+either download the repo from [this link](https://github.com/370network/pax-s920/archive/refs/heads/main.zip) and unpack it or just git clone if you already have git installed.
+
+### Debian, Ubuntu, Fedora, Alpine, postmarketOS, Arch and macOS
 our toolchain script includes all necessary checks to make sure you have all things needed, just run 
 
 ```bash
@@ -18,6 +20,12 @@ nix-shell
 ./setup_toolchain.sh
 ```
 
+### Windows
+**build environment on Windows is supported, but highly experimental!**
+
+to get working directly on Windows, just open the **`windows.bat`** batch script file. The same applies for opening the build environment later on as well.
+Beware that you will have to run it multiple times, but it essentially combines everything the other systems need in an all in one solution.
+
 ### common for all other platforms
 make sure you have `gcc`, `python3`, `python3-venv`, `git`, `swig`, `openssl` + devel, `qemu-user-static` installed and or their equivalents. Beware, that you are on your own as other platforms do not get any higher level of support.
 
@@ -25,7 +33,7 @@ make sure you have `gcc`, `python3`, `python3-venv`, `git`, `swig`, `openssl` + 
 ./setup_toolchain.sh
 ```
 
-## switching to the the toolchain environment
+## switching to the the build environment
 
 continue *(or start on your next session)* with
 ```bash
