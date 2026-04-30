@@ -125,6 +125,7 @@ elif [[ "$env_platform" = *"darwin"* ]]; then
 	check_package_brew "python@3" "-q"
 elif [ "$env_distro" == "msys2" ]; then
 	package_generate_list=$(pacman -Q | awk '{print $1}')
+	check_package_pacman "git"
 	check_package_pacman "bsdtar"
 	check_package_pacman "python"
 	check_package_pacman "gcc"
