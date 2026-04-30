@@ -161,3 +161,5 @@ if [ ! -f $PAXPATH/.xcb_config ]; then
 else
 	source $PAXPATH/.xcb_config
 fi
+
+echo "Welcome to the 370network PAX/ProlinOS build environment!"
