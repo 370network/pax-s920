@@ -51,6 +51,15 @@ check_package_brew(){
 	fi
 }
 
+check_package_pacman(){
+    if ! printf '%s\n' "$package_generate_list" | grep -Fxq "$1"; then
+		echo "[-] $1 missing. installing $1..."
+		pacman -Sy $1 --quiet --noconfirm
+	else
+		echo "$1 installed"
+	fi
+}
+
 
 echo ""
 echo "[*] Distro/system specific package checkup!"
@@ -114,6 +123,17 @@ elif [[ "$env_platform" = *"darwin"* ]]; then
 	check_package_brew "gcc"
 	check_package_brew "openssl@3"
 	check_package_brew "python@3" "-q"
+elif [ "$env_distro" == "msys2" ]; then
+	package_generate_list=$(pacman -Q | awk '{print $1}')
+	check_package_pacman "bsdtar"
+	check_package_pacman "python"
+	check_package_pacman "gcc"
+	check_package_pacman "make"
+	check_package_pacman "cmake"
+	check_package_pacman "automake-wrapper"
+	check_package_pacman "autoconf-wrapper"
+	check_package_pacman "pkgconf"
+	check_package_pacman "m4"
 elif [[ "$env_distro" = *"nixos"* ]]; then
 	echo "Package dependencies have been already handled by nix-shell, continuing..."
 elif [ "$env_distro" == "generic" ]; then
@@ -273,6 +293,8 @@ setup_xcb(){
 	elif [[ "$env_distro" = *"nixos"* ]]; then
 		echo "M2Crypto NixOS build"
 		nix build xcb/
+	elif [[ "$env_distro" = *"msys2"* ]]; then
+		echo "Skipping XCB client install for now"
 	else
 		echo "M2Crypto alternative fallback"
 		setup_xcb_presetup
