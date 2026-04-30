@@ -66,6 +66,7 @@ if [[ "$env_distro" = *"debian"* || "$env_distro" = *"ubuntu"* ]]; then
 	check_package_dpkg "python3-dev"
 	check_package_dpkg "m4"
 	check_package_dpkg "autoconf"
+	check_package_dpkg "libarchive-tools"
 elif [[ "$env_distro" = *"postmarketos"* || "$env_distro" = *"alpine"* ]]; then
 	echo "Getting apk package list..."
 	package_generate_list=$(apk info)
@@ -83,6 +84,7 @@ elif [[ "$env_distro" = *"postmarketos"* || "$env_distro" = *"alpine"* ]]; then
 	check_package_apk "py3-setuptools"
 	check_package_apk "swig"
 	check_package_apk "py3-pip"
+	check_package_apk "libarchive-tools"
 elif [[ "$env_distro" = *"fedora"* ]]; then
 	package_generate_list=$(rpm -qa --qf '%{NAME}\n')
 	check_package_rpmdnf "python3"
@@ -98,8 +100,10 @@ elif [[ "$env_distro" = *"fedora"* ]]; then
 	check_package_rpmdnf "openssl"
 	check_package_rpmdnf "openssl-devel"
 	check_package_rpmdnf "openssl-devel-engine"
+	check_package_rpmdnf "bsdtar"
 elif [[ "$env_platform" = *"darwin"* ]]; then
 	package_generate_list=$(brew list -1)
+	check_package_brew "bsdtar"
 	check_package_brew "bash"
 	check_package_brew "m4"
 	check_package_brew "swig"
@@ -139,16 +143,24 @@ gcc_ver=15
 
 echo ""
 echo "[*] GCC $gcc_ver Toolchain setup!"
-if [ ! -f cache/toolchain.tar.xz ]; then
+if [[ "$env_platform" = "mingw32" ]]; then
+	toolchain_type="-w64-"
+	toolchain_extension="zip"
+else
+	toolchain_type="-unknown-"
+	toolchain_extension="tar.xz"
+fi
+
+if [ ! -f cache/toolchain.$toolchain_extension ]; then
 	echo "GCC Toolchain cache download"
-	curl -o cache/toolchain.tar.xz -L -O https://github.com/AmanoTeam/obggcc/releases/download/gcc-$gcc_ver/$env_arch-unknown-$env_platform.tar.xz
+	curl -o cache/toolchain.$toolchain_extension -L -O https://github.com/AmanoTeam/obggcc/releases/download/gcc-$gcc_ver/$env_arch$toolchain_type$env_platform.$toolchain_extension
 else
 	echo "GCC Toolchain cache already exists, continuing"
 fi
 
 if [ ! -d toolchain/bin ]; then
 	echo "GCC $gcc_ver Toolchain unpack..."
-	tar -xf cache/toolchain.tar.xz --strip-components=1 -C $PWD/toolchain \
+	bsdtar -xf cache/toolchain.$toolchain_extension --strip-components=1 -C $PWD/toolchain \
 		obggcc/bin obggcc/build obggcc/lib obggcc/libexec obggcc/usr obggcc/arm-unknown-linux-gnueabi obggcc/arm-unknown-linux-gnueabi2.13
 
 	sync
