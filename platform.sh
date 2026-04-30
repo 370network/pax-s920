@@ -12,6 +12,8 @@ if [ "$env_platform" == "Linux" ]; then
 	fi
 elif [ "$env_platform" == "Darwin" ]; then
 	env_platform="apple-darwin"
+elif [[ "$env_platform" == *"MINGW"* ]]; then
+	env_platform="mingw32"
 fi
 
 env_distro="generic"
