@@ -37,5 +37,5 @@ IF NOT EXIST "toolchain\bin\" (
 ) ELSE (
     echo [*] Strapping to MSYS2 to open a new session
     set CHERE_INVOKING=1
-    msys64\usr\bin\env MSYSTEM=MINGW32 /usr/bin/bash -li -c "source $(PWD)/env.sh;bash"
+    msys64\usr\bin\env MSYSTEM=MINGW32 /usr/bin/bash -li -c "echo -n cd $PWD > ~/.bashrc;echo -n ';source env.sh' >> ~/.bashrc;echo ';rm ~/.bashrc' >> ~/.bashrc;exec bash"
 )
