@@ -65,14 +65,11 @@ echo ""
 echo "[*] Distro/system specific package checkup!"
 if [[ "$env_distro" = *"debian"* || "$env_distro" = *"ubuntu"* ]]; then
 	check_package_dpkg "python3-venv"
-	check_package_dpkg "swig"
 	check_package_dpkg "pkg-config"
 	check_package_dpkg "build-essential"
 	check_package_dpkg "git"
 	check_package_dpkg "qemu-user-static"
 	check_package_dpkg "cmake"
-	check_package_dpkg "libssl-dev"
-	check_package_dpkg "python3-dev"
 	check_package_dpkg "m4"
 	check_package_dpkg "autoconf"
 	check_package_dpkg "libarchive-tools"
@@ -87,41 +84,30 @@ elif [[ "$env_distro" = *"postmarketos"* || "$env_distro" = *"alpine"* ]]; then
 	check_package_apk "cmake"
 	check_package_apk "build-base"
 	check_package_apk "pkgconf"
-	check_package_apk "openssl-dev"
-	check_package_apk "python3-dev"
-	check_package_apk "py3-gpep517"
-	check_package_apk "py3-setuptools"
-	check_package_apk "swig"
 	check_package_apk "py3-pip"
 	check_package_apk "libarchive-tools"
 elif [[ "$env_distro" = *"fedora"* ]]; then
 	package_generate_list=$(rpm -qa --qf '%{NAME}\n')
 	check_package_rpmdnf "python3"
 	check_package_rpmdnf "python3-pip"
-	check_package_rpmdnf "python3-devel"
 	check_package_rpmdnf "gcc"
 	check_package_rpmdnf "cmake"
 	check_package_rpmdnf "m4"
 	check_package_rpmdnf "automake"
 	check_package_rpmdnf "make"
 	check_package_rpmdnf "gcc-c++"
-	check_package_rpmdnf "swig"
 	check_package_rpmdnf "openssl"
-	check_package_rpmdnf "openssl-devel"
-	check_package_rpmdnf "openssl-devel-engine"
 	check_package_rpmdnf "bsdtar"
 elif [[ "$env_platform" = *"darwin"* ]]; then
 	package_generate_list=$(brew list -1)
 	check_package_brew "bsdtar"
 	check_package_brew "bash"
 	check_package_brew "m4"
-	check_package_brew "swig"
 	check_package_brew "autoconf"
 	check_package_brew "automake"
 	check_package_brew "cmake"
 	check_package_brew "pkgconf"
 	check_package_brew "gcc"
-	check_package_brew "openssl@3"
 	check_package_brew "python@3" "-q"
 elif [ "$env_distro" == "msys2" ]; then
 	package_generate_list=$(pacman -Q | awk '{print $1}')
@@ -135,6 +121,7 @@ elif [ "$env_distro" == "msys2" ]; then
 	check_package_pacman "autoconf-wrapper"
 	check_package_pacman "pkgconf"
 	check_package_pacman "m4"
+	check_package_pacman "openssl"
 elif [[ "$env_distro" = *"nixos"* ]]; then
 	echo "Package dependencies have been already handled by nix-shell, continuing..."
 elif [ "$env_distro" == "generic" ]; then
@@ -263,43 +250,15 @@ else
     echo "XCB already exists"
 fi
 
-setup_xcb_presetup(){
-	python3 -m venv xcb
-	source xcb/bin/activate
-	python3 -m pip install pyserial libusb1 setuptools
-}
-
 setup_xcb(){
-	if [ $env_platform == "apple-darwin" ]; then
-		echo "M2Crypto Darwin Brew build"
-		setup_xcb_presetup
-		brew_gcc_path=$(brew --prefix gcc)
-		brew_openssl_path=$(brew --prefix openssl)
-		export CC=$(ls "/opt/homebrew/opt/gcc/bin/gcc-"* | head -n1)
-		export CFLAGS=-I$brew_openssl_path/include
-		export LDFLAGS="-L$brew_openssl_path/lib -lssl -lcrypto"
-		export SWIG_FEATURES="-cpperraswarn -includeall $CFLAGS"
-		python3 -m pip install --pre --no-binary :all: M2Crypto --no-cache
-	elif [[ "$env_distro" = *"debian"* ]]; then
-		echo "M2Crypto Debian build"
-		setup_xcb_presetup
-		export CFLAGS=$(pkg-config --cflags openssl)
-		export LDFLAGS=$(pkg-config --libs openssl)
-		export SWIG_FEATURES="-cpperraswarn -includeall $(pkg-config --cflags openssl)"
-		python3 -m pip install --pre --no-binary :all: M2Crypto --no-cache
-	elif [[ "$env_distro" = *"alpine"* || "$env_distro" = *"postmarketos"* || "$env_distro" = *"fedora"* ]]; then
-		echo "M2Crypto Other Linux build"
-		setup_xcb_presetup
-		python3 -m pip install M2Crypto
-	elif [[ "$env_distro" = *"nixos"* ]]; then
-		echo "M2Crypto NixOS build"
+	if [[ "$env_distro" = *"nixos"* ]]; then
+		echo "XCB client NixOS build"
 		nix build xcb/
-	elif [[ "$env_distro" = *"msys2"* ]]; then
-		echo "Skipping XCB client install for now"
 	else
-		echo "M2Crypto alternative fallback"
-		setup_xcb_presetup
-		python3 -m pip install M2Crypto==0.44.0
+		echo "XCB client setup"
+		python3 -m venv xcb
+		source xcb/bin/activate
+		python3 -m pip install pyserial
 	fi
 }
 
