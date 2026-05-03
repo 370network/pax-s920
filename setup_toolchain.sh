@@ -100,7 +100,7 @@ elif [[ "$env_distro" = *"fedora"* ]]; then
 	check_package_rpmdnf "bsdtar"
 elif [[ "$env_platform" = *"darwin"* ]]; then
 	package_generate_list=$(brew list -1)
-	check_package_brew "bsdtar"
+	check_package_brew "libarchive"
 	check_package_brew "bash"
 	check_package_brew "m4"
 	check_package_brew "autoconf"
@@ -122,6 +122,18 @@ elif [ "$env_distro" == "msys2" ]; then
 	check_package_pacman "pkgconf"
 	check_package_pacman "m4"
 	check_package_pacman "openssl"
+elif [ "$env_distro" == "arch" ]; then
+        package_generate_list=$(pacman -Q | awk '{print $1}')
+        check_package_pacman "git"
+        check_package_pacman "libarchive"
+        check_package_pacman "python"
+        check_package_pacman "gcc"
+        check_package_pacman "make"
+        check_package_pacman "cmake"
+        check_package_pacman "automake"
+        check_package_pacman "autoconf"
+        check_package_pacman "pkgconf"
+        check_package_pacman "openssl"
 elif [[ "$env_distro" = *"nixos"* ]]; then
 	echo "Package dependencies have been already handled by nix-shell, continuing..."
 elif [ "$env_distro" == "generic" ]; then
