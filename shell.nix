@@ -10,7 +10,7 @@ mkShell {
 		pkgconf
 		openssl
 		python3
-		swig
+		libarchive
 	];
 	
 }
