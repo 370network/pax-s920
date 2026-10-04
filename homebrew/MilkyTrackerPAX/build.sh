@@ -7,6 +7,12 @@ echo "370network paxdevs"
 echo "= build milktrack="
 echo "=================="
 
+echo "Dependency setup!"
+cd ../SDL
+./build.sh
+
+cd ../MilkyTrackerPAX
+
 git clone https://github.com/370network/MilkyTrackerPAX.git repo
 
 if [ ! -f repo/cmakefilesupdated ]; then
