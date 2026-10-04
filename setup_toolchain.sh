@@ -73,7 +73,7 @@ if [[ "$env_distro" = *"debian"* || "$env_distro" = *"ubuntu"* ]]; then
 	check_package_dpkg "m4"
 	check_package_dpkg "autoconf"
 	check_package_dpkg "libarchive-tools"
-elif [[ "$env_distro" = *"postmarketos"* || "$env_distro" = *"alpine"* ]]; then
+elif [[ "$env_distro" = *"nura"* || "$env_distro" = *"postmarketos"* || "$env_distro" = *"alpine"* ]]; then
 	echo "Getting apk package list..."
 	package_generate_list=$(apk info)
 	check_package_apk "curl"
