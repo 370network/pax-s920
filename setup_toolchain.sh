@@ -78,6 +78,15 @@ check_package_zypper(){
         fi
 }
 
+check_package_bsdpkg(){
+        if ! printf '%s\n' "$package_generate_list" | grep -Fxq "$1"; then
+                echo "[-] $1 missing. Installing $1..."
+                pkg install -y "$1" > /dev/null 2>&1
+        else
+                echo "[+] $1 installed"
+        fi
+}
+
 
 echo ""
 echo "[*] Distro/system specific package checkup!"
@@ -179,6 +188,16 @@ elif [[ "$env_distro" = *"opensuse"* ]]; then
 	check_package_zypper "pkgconf"
 	check_package_zypper "m4"
 	check_package_zypper "python3"
+elif [[ "$env_distro" = *"freebsd"* ]]; then
+	echo "Getting pkg package list..."
+	package_generate_list=$(pkg query "%n")
+	check_package_bsdpkg "git"
+	check_package_bsdpkg "cmake"
+	check_package_bsdpkg "automake"
+	check_package_bsdpkg "autoconf"
+	check_package_bsdpkg "pkgconf"
+	check_package_bsdpkg "m4"
+	check_package_bsdpkg "python3"
 elif [[ "$env_distro" = *"nixos"* ]]; then
 	echo "Package dependencies have been already handled by nix-shell, continuing..."
 elif [ "$env_distro" == "generic" ]; then

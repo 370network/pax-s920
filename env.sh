@@ -24,7 +24,7 @@ case "$env_distro" in
     env_xcb_args=""
     ;;
   *)
-    source $PAXPATH/xcb/bin/activate
+    . $PAXPATH/xcb/bin/activate
     env_xcb="python3"
     env_xcb_args="$PAXPATH/xcb/src/main.py"
     ;;
@@ -57,7 +57,7 @@ export CROSS_COMPILE_ARCHITECTURE='arm'
 export CROSS_COMPILE_GLIBCVER='2.13'
 export CROSS_COMPILE_SYSROOT=$TOOLCHAIN/arm-unknown-linux-gnueabi2.13
 
-function paxreconfigure() {
+paxreconfigure() {
 	printf "[*] Enter device address ({IP|hostname}+port or the whole /dev/ path): "
 	read addr
 	
@@ -67,10 +67,10 @@ function paxreconfigure() {
 	    echo "export PAX_CLIENT_SERIAL=\"$addr\"" > .xcb_config
 	fi
 	
-	source $PAXPATH/.xcb_config
+	. $PAXPATH/.xcb_config
 }
 
-function paxpush() {
+paxpush() {
 	if [ "$#" -lt 2 ]; then
 		echo "usage: paxpush <local source 1> <local source 2> .. <device destination>"
 		return
@@ -79,7 +79,7 @@ function paxpush() {
 	$env_xcb $env_xcb_args push $@
 }
 
-function paxpull() {
+paxpull() {
 	if [ "$#" -lt 1 ]; then
 		echo "usage: paxpull <pax source> [optional: local destination]"
 		return
@@ -88,7 +88,7 @@ function paxpull() {
 	$env_xcb $env_xcb_args pull $1 $2
 }
 
-function paxls() {
+paxls() {
 	if [ "$#" -lt 1 ]; then
 		echo "usage: paxls <pax directory>"
 		return
@@ -97,7 +97,7 @@ function paxls() {
 	$env_xcb $env_xcb_args ls $1
 }
 
-function paxdeployssh() {
+paxdeployssh() {
         local pubkey_file="$1"
         local tmp_auth="authorized_keys"
 
@@ -141,7 +141,7 @@ function paxdeployssh() {
 }
 
 
-function paxdump() {
+paxdump() {
 	if [ "$#" -lt 1 ]; then
 		echo "usage: paxdump <dump name> [optional: device path to dump]"
 		echo "The resulting dump will be stored in dumps/<dump name>/ inside the working directory"
@@ -159,7 +159,7 @@ function paxdump() {
 if [ ! -f $PAXPATH/.xcb_config ]; then
 	paxreconfigure
 else
-	source $PAXPATH/.xcb_config
+	. $PAXPATH/.xcb_config
 fi
 
 echo "Welcome to the 370network PAX/ProlinOS build environment!"

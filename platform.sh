@@ -31,6 +31,8 @@ fi
 env_arch=$(uname -m)
 if [ "$env_arch" == "arm64" ]; then
 	env_arch="aarch64"
+elif [ "$env_arch" == "amd64" ]; then
+	env_arch="x86_64"
 fi
 
 echo "export env_platform=$env_platform env_distro=$env_distro env_arch=$env_arch"
