@@ -19,7 +19,7 @@ check_package_dpkg(){
 		echo "[-] $1 missing. installing $1..."
 		sudo apt-get -qq --yes install $1
 	else
-		echo "$1 installed"
+		echo "[+] $1 installed"
 	fi
 }
 
@@ -28,7 +28,7 @@ check_package_apk(){
 		echo "[-] $1 missing. installing $1..."
 		sudo apk add -q $1 --no-interactive
 	else
-		echo "$1 installed"
+		echo "[+] $1 installed"
 	fi
 }
 
@@ -37,7 +37,7 @@ check_package_rpmdnf(){
 		echo "[-] $1 missing. installing $1..."
 		sudo dnf install $1 -q -y
 	else
-		echo "$1 installed"
+		echo "[+] $1 installed"
 	fi
 }
 
@@ -47,7 +47,7 @@ check_package_brew(){
 		echo "[-] $1 missing. installing $1..."
 		brew install $1 -q -f
 	else
-		echo "$1 installed"
+		echo "[+] $1 installed"
 	fi
 }
 
@@ -56,7 +56,7 @@ check_package_pacman(){
 		echo "[-] $1 missing. installing $1..."
 		pacman -Sy $1 --quiet --noconfirm
 	else
-		echo "$1 installed"
+		echo "[+] $1 installed"
 	fi
 }
 
@@ -67,6 +67,15 @@ check_package_rpmpkcon(){
 	else
 		echo "[+] $1 installed"
 	fi
+}
+
+check_package_zypper(){
+        if ! printf '%s\n' "$package_generate_list" | grep -Fxq "$1"; then
+                echo "[-] $1 missing. Installing $1..."
+                zypper --non-interactive install --no-confirm "$1" > /dev/null 2>&1
+        else
+                echo "[+] $1 installed"
+        fi
 }
 
 
@@ -158,6 +167,18 @@ elif [ "$env_distro" == "sailfishos" ]; then
 	check_package_rpmpkcon "autoconf"
 	check_package_rpmpkcon "pkgconf"
 	check_package_rpmpkcon "m4"
+elif [[ "$env_distro" = *"opensuse"* ]]; then
+	echo "Getting rpm package list..."
+	package_generate_list=$(rpm -qa --qf '%{NAME}\n')
+	check_package_zypper "git"
+	check_package_zypper "bsdtar"
+	check_package_zypper "make"
+	check_package_zypper "cmake"
+	check_package_zypper "automake"
+	check_package_zypper "autoconf"
+	check_package_zypper "pkgconf"
+	check_package_zypper "m4"
+	check_package_zypper "python3"
 elif [[ "$env_distro" = *"nixos"* ]]; then
 	echo "Package dependencies have been already handled by nix-shell, continuing..."
 elif [ "$env_distro" == "generic" ]; then
