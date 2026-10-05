@@ -3,13 +3,15 @@ set(HOST $ENV{HOST})
 
 set(TARGET_GLIBC "2.13")
 set(TOOLCHAIN_PREFIX "$arm-unknown-linux-gnueabi")
-set(TOOLCHAIN_PATH "$ENV{PREFIX}")
+set(TOOLCHAIN_PATH "$ENV{TOOLCHAIN}")
 
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_C_COMPILER   ${CC})
 set(CMAKE_CXX_COMPILER ${CXX})
+set(CMAKE_AR "$ENV{TOOLCHAIN}/bin/arm-unknown-linux-gnueabi-ar" CACHE FILEPATH "Archiver" FORCE)
+set(CMAKE_RANLIB "$ENV{TOOLCHAIN}/bin/arm-unknown-linux-gnueabi-ranlib" CACHE FILEPATH "Indexer" FORCE)
 
-set(CMAKE_FIND_ROOT_PATH  ${PREFIX} ${PREFIX}/arm-unknown-linux-gnueabi)
+set(CMAKE_FIND_ROOT_PATH  ${PREFIX} ${TOOLCHAIN} ${TOOLCHAIN}/arm-unknown-linux-gnueabi)
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)

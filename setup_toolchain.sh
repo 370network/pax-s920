@@ -33,7 +33,7 @@ check_package_apk(){
 }
 
 check_package_rpmdnf(){
-    if ! printf '%s\n' "$package_generate_list" | grep -Fxq "$1"; then
+	if ! printf '%s\n' "$package_generate_list" | grep -Fxq "$1"; then
 		echo "[-] $1 missing. installing $1..."
 		sudo dnf install $1 -q -y
 	else
@@ -43,7 +43,7 @@ check_package_rpmdnf(){
 
 check_package_brew(){
 	grep_arg="${2:- -Fqx}"
-    if ! printf '%s\n' "$package_generate_list" | grep $grep_arg "$1"; then
+	if ! printf '%s\n' "$package_generate_list" | grep $grep_arg "$1"; then
 		echo "[-] $1 missing. installing $1..."
 		brew install $1 -q -f
 	else
@@ -52,11 +52,20 @@ check_package_brew(){
 }
 
 check_package_pacman(){
-    if ! printf '%s\n' "$package_generate_list" | grep -Fxq "$1"; then
+	if ! printf '%s\n' "$package_generate_list" | grep -Fxq "$1"; then
 		echo "[-] $1 missing. installing $1..."
 		pacman -Sy $1 --quiet --noconfirm
 	else
 		echo "$1 installed"
+	fi
+}
+
+check_package_rpmpkcon(){
+	if ! printf '%s\n' "$package_generate_list" | grep -Fxq "$1"; then
+		echo "[-] $1 missing. Installing $1..."
+		pkcon install -y --noninteractive "$1" > /dev/null 2>&1
+	else
+		echo "[+] $1 installed"
 	fi
 }
 
@@ -87,6 +96,7 @@ elif [[ "$env_distro" = *"nura"* || "$env_distro" = *"postmarketos"* || "$env_di
 	check_package_apk "py3-pip"
 	check_package_apk "libarchive-tools"
 elif [[ "$env_distro" = *"fedora"* ]]; then
+	echo "Getting rpm package list..."
 	package_generate_list=$(rpm -qa --qf '%{NAME}\n')
 	check_package_rpmdnf "python3"
 	check_package_rpmdnf "python3-pip"
@@ -99,6 +109,7 @@ elif [[ "$env_distro" = *"fedora"* ]]; then
 	check_package_rpmdnf "openssl"
 	check_package_rpmdnf "bsdtar"
 elif [[ "$env_platform" = *"darwin"* ]]; then
+	echo "Getting homebrew package list..."
 	package_generate_list=$(brew list -1)
 	check_package_brew "libarchive"
 	check_package_brew "bash"
@@ -110,6 +121,7 @@ elif [[ "$env_platform" = *"darwin"* ]]; then
 	check_package_brew "gcc"
 	check_package_brew "python@3" "-q"
 elif [ "$env_distro" == "msys2" ]; then
+	echo "Getting pacman package list..."
 	package_generate_list=$(pacman -Q | awk '{print $1}')
 	check_package_pacman "git"
 	check_package_pacman "bsdtar"
@@ -123,7 +135,8 @@ elif [ "$env_distro" == "msys2" ]; then
 	check_package_pacman "m4"
 	check_package_pacman "openssl"
 elif [ "$env_distro" == "arch" ]; then
-        package_generate_list=$(pacman -Q | awk '{print $1}')
+        echo "Getting pacman package list..."
+	package_generate_list=$(pacman -Q | awk '{print $1}')
         check_package_pacman "git"
         check_package_pacman "libarchive"
         check_package_pacman "python"
@@ -134,6 +147,17 @@ elif [ "$env_distro" == "arch" ]; then
         check_package_pacman "autoconf"
         check_package_pacman "pkgconf"
         check_package_pacman "openssl"
+elif [ "$env_distro" == "sailfishos" ]; then
+	echo "Getting rpm package list..."
+	package_generate_list=$(rpm -qa --qf '%{NAME}\n')
+	check_package_rpmpkcon "git"
+	check_package_rpmpkcon "bsdtar"
+	check_package_rpmpkcon "make"
+	check_package_rpmpkcon "cmake"
+	check_package_rpmpkcon "automake"
+	check_package_rpmpkcon "autoconf"
+	check_package_rpmpkcon "pkgconf"
+	check_package_rpmpkcon "m4"
 elif [[ "$env_distro" = *"nixos"* ]]; then
 	echo "Package dependencies have been already handled by nix-shell, continuing..."
 elif [ "$env_distro" == "generic" ]; then

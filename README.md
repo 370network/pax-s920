@@ -5,7 +5,7 @@ Beware that, by using this toolchain, you are already more than well aware of al
 ## setup instructions
 either download the repo from [this link](https://github.com/370network/pax-s920/archive/refs/heads/main.zip) and unpack it or just git clone if you already have git installed.
 
-### Debian, Ubuntu, Fedora, Alpine, Nura (postmarketOS), Arch and macOS
+### Debian, Ubuntu, Fedora, Alpine, Nura (postmarketOS), Arch, Sailfish OS and macOS
 our toolchain script includes all necessary checks to make sure you have all things needed, just run 
 
 ```bash
@@ -38,6 +38,13 @@ make sure you have `gcc`, `python3`, `python3-venv`, `git`, `swig`, `openssl` + 
 continue *(or start on your next session)* with
 ```bash
 source env.sh
+```
+
+### Sailfish OS
+
+switching to the build environment on SFOS currently needs this alternative
+```bash
+. ./env.sh
 ```
 
 ## commands

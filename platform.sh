@@ -25,7 +25,7 @@ if [ "$env_platform" != "apple-darwin" ]; then
 		. /etc/lsb-release
 		env_distro=$ID
 	fi
-	env_distro="${env_distro,,}"
+	env_distro=$(echo "$env_distro"|tr '[:upper:]' '[:lower:]')
 fi
 
 env_arch=$(uname -m)
