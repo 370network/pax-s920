@@ -30,3 +30,5 @@ homebrew/*/repo*
 homebrew/*/repo.zip
 homebrew/*/install.zip
 homebrew/*/patches/*.patched
+
+dumps/
