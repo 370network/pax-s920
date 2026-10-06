@@ -4,10 +4,14 @@
 
 env_platform=$(uname)
 env_libc=$(ldd --version 2>&1)
+env_android=$(uname -o)
+
 if [ "$env_platform" == "Linux" ]; then
 	if [[ "$env_libc" == *"musl"* ]]; then
 		env_platform="linux-musl"
-	else
+	elif [[ "$env_android" == *"Android"* ]]; then
+                env_platform="linux-android"
+        else
 		env_platform="linux-gnu"
 	fi
 elif [ "$env_platform" == "Darwin" ]; then
@@ -17,7 +21,9 @@ elif [[ "$env_platform" == *"MINGW"* ]]; then
 fi
 
 env_distro="generic"
-if [ "$env_platform" != "apple-darwin" ]; then
+if [ "$env_platform" == "linux-android" ]; then
+        env_distro="Android"
+elif [ "$env_platform" != "apple-darwin" ]; then
 	if [ -f /etc/os-release ]; then
 		. /etc/os-release
 		env_distro=$ID
