@@ -31,6 +31,8 @@ toolchain/include/include
 #homebrew related
 homebrew/*/repo*
 homebrew/*/repo.zip
+homebrew/*/*.tar.gz
+homebrew/*/*.tar.xz
 homebrew/*/install.zip
 homebrew/*/patches/*.patched
 
