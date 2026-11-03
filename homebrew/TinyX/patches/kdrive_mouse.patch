@@ -1,0 +1,127 @@
+diff --git a/kdrive/linux/mouse.c b/kdrive/linux/mouse.c
+index 18a8d9c..6e604b9 100644
+--- a/kdrive/linux/mouse.c
++++ b/kdrive/linux/mouse.c
+@@ -32,6 +32,8 @@
+ #include "inputstr.h"
+ #include "scrnintstr.h"
+ #include "kdrive.h"
++#include <sys/ioctl.h>
++#include <linux/input.h>
+ 
+ #undef DEBUG
+ #undef DEBUG_BYTES
+@@ -762,6 +764,63 @@ static void MouseNextProtocol(Kmouse * km)
+ 	ErrorF("Switching to mouse protocol \"%s\"\n", km->prot->name);
+ }
+ 
++typedef struct _kevdevTouch {
++	int pending_x, pending_y;
++	Bool have_x, have_y;
++	Bool down;
++} KevdevTouch;
++
++static void EvdevRead(int fd, void *closure)
++{
++	KdMouseInfo *mi = closure;
++	KevdevTouch *kt = mi->driver;
++	struct input_event ev;
++	ssize_t n;
++
++	while ((n = read(fd, &ev, sizeof(ev))) == sizeof(ev)) {
++		switch (ev.type) {
++		case EV_ABS:
++			switch (ev.code) {
++			case ABS_X:
++			case ABS_MT_POSITION_X:
++				kt->pending_x = ev.value;
++				kt->have_x = TRUE;
++				break;
++			case ABS_Y:
++			case ABS_MT_POSITION_Y:
++				kt->pending_y = ev.value;
++				kt->have_y = TRUE;
++				break;
++			}
++			break;
++		case EV_KEY:
++			if (ev.code == BTN_TOUCH || ev.code == BTN_LEFT)
++				kt->down = ev.value ? TRUE : FALSE;
++			break;
++		case EV_SYN:
++			if (ev.code != SYN_REPORT)
++				break;
++			if (kt->have_x && kt->have_y && screenInfo.numScreens > 0) {
++				unsigned long flags = kt->down ? KD_BUTTON_1 : 0;
++				KdEnqueueMouseEvent(mi, flags, kt->pending_x, kt->pending_y);
++			}
++			break;
++		}
++	}
++}
++
++static Bool EvdevInit(KdMouseInfo * mi, int fd)
++{
++	KevdevTouch *kt;
++
++	kt = calloc(1, sizeof(KevdevTouch));
++	if (!kt)
++		return FALSE;
++
++	mi->driver = kt;
++	return TRUE;
++}
++
+ static void MouseRead(int mousePort, void *closure)
+ {
+ 	KdMouseInfo *mi = closure;
+@@ -866,6 +925,7 @@ static void MouseRead(int mousePort, void *closure)
+ static int MouseInputType;
+ 
+ const char * const kdefaultMouse[] = {
++	"/dev/tp",
+ 	"/dev/mouse",
+ 	"/dev/psaux",
+ 	"/dev/input/mice",
+@@ -903,21 +963,29 @@ static Bool MouseInit(void)
+ 			fd = open(mi->name, 2);
+ 
+ 		if (fd >= 0) {
+-			km = malloc(sizeof(Kmouse));
+-			if (km) {
+-				km->iob.fd = fd;
+-				km->iob.avail = km->iob.used = 0;
+-				km->prot = 0;
+-				km->i_prot = 0;
+-				km->tty = isatty(fd);
+-				mi->driver = km;
++			if (EvdevInit(mi, fd)) {
+ 				mi->inputType = MouseInputType;
+-				MouseFirstProtocol(km, mi->prot);
+-				if (KdRegisterFd
+-				    (MouseInputType, fd, MouseRead, (void *)mi))
++				if (KdRegisterFd(MouseInputType, fd, EvdevRead, (void *)mi))
+ 					n++;
+-			} else
++				else
++					close(fd);
++			} else {
++				km = malloc(sizeof(Kmouse));
++				if (km) {
++					km->iob.fd = fd;
++					km->iob.avail = km->iob.used = 0;
++					km->prot = 0;
++					km->i_prot = 0;
++					km->tty = isatty(fd);
++					mi->driver = km;
++					mi->inputType = MouseInputType;
++					MouseFirstProtocol(km, mi->prot);
++					if (KdRegisterFd
++					    (MouseInputType, fd, MouseRead, (void *)mi))
++						n++;
++				} else
+ 				close(fd);
++			}
+ 		}
+ 	}
+ 	return TRUE;

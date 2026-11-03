@@ -1,0 +1,4 @@
+#!/data/app/MAINAPP/bin/sh
+cd /data/app/MAINAPP;
+export ROOTSHELL=/data/app/MAINAPP/apps/TinyX/TinyX_loader;
+exec /data/app/MAINAPP/Loader;

@@ -1,0 +1,19 @@
+diff --git a/dix/dixfonts.c b/dix/dixfonts.c
+index f24a7d0..02fd66c 100644
+--- a/dix/dixfonts.c
++++ b/dix/dixfonts.c
+@@ -65,6 +65,14 @@ Equipment Corporation.
+ #include "closestr.h"
+ #include "xfont2_compat.h"
+ 
++static void * glibc_reallocarray(void *optr, size_t nmemb, size_t size)
++{
++	if (nmemb != 0 && size > ((size_t) -1) / nmemb)
++		return NULL;
++	return realloc(optr, nmemb * size);
++}
++#define reallocarray glibc_reallocarray
++
+ #ifdef XF86BIGFONT
+ #define _XF86BIGFONT_SERVER_
+ #include <X11/extensions/xf86bigfont.h>

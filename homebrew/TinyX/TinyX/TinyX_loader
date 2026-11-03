@@ -1,0 +1,3 @@
+#!/data/app/MAINAPP/bin/sh
+cd /data/app/MAINAPP/apps/TinyX;
+LD_LIBRARY_PATH="/data/app/MAINAPP/apps/TinyX/lib" ./Xfbdev -screen 320x240@270 -fb /dev/fb -fp /data/app/MAINAPP/apps/TinyX/fonts/misc;

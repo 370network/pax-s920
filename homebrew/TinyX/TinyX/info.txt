@@ -1,0 +1,4 @@
+name: TinyX
+version: 1.3
+author: tinycorelinux, stefan11111 & Morc <morc@370.network>
+description: The smallest fully featured X server binary
