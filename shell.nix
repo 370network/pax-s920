@@ -6,6 +6,7 @@ mkShell {
 		m4
 		autoconf
 		automake
+		libtool
 		cmake
 		pkgconf
 		openssl
