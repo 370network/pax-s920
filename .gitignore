@@ -2,6 +2,9 @@
 .DS_Store
 ._*
 
+#NixOS xcb client derivation
+result
+
 #libs and objects
 *.so
 *.o
