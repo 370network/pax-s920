@@ -1,4 +1,4 @@
 name: DOOM
 description: DOOM
 version: 1.0.0
-author: Morc @ 370network
+author: ID Software, maximevince, Morc @ 370network
