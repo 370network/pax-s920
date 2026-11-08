@@ -27,7 +27,7 @@ fi
 if [ ! -f repo/libpaxdemo.so ]; then
         echo "paxgbc build processs!"
         cd repo
-        cmake -DCMAKE_TOOLCHAIN_FILE=$PAXPATH/toolchain/build/cmake/arm-unknown-linux-gnueabi2.13.cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 .
+        cmake -DCMAKE_TOOLCHAIN_FILE=../../build_helper.cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 .
         make -j$(nproc)
         $STRIP libpaxdemo.so
         cd ..
