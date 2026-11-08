@@ -31,7 +31,7 @@ case "$env_distro" in
 esac
 
 export HOST=arm-unknown-linux-gnueabi
-export HOST_GLIBC=arm-unknown-linux-gnueabi2.13
+export HOST_GLIBC=${HOST}2.13
 CC=$HOST_GLIBC-gcc
 CXX=$HOST_GLIBC-g++
 export CC=$CC
@@ -46,16 +46,16 @@ export TOOLCHAIN=$PAXPATH/toolchain
 export PREFIX=$TOOLCHAIN/paxroot
 export PATH=$TOOLCHAIN/bin:$PATH
 export LD_LIBRARY_PATH=$TOOLCHAIN/lib
-export QEMU_LD_PREFIX=$TOOLCHAIN/arm-unknown-linux-gnueabi2.13/
-export CPPFLAGS="--sysroot=$TOOLCHAIN/arm-unknown-linux-gnueabi -I$PREFIX/include"
-export LDFLAGS="-L$PREFIX/lib"
-export CXXFLAGS=$CPPFLAGS
-export CFLAGS=$CPPFLAGS
-export CROSS_COMPILE_TRIPLET='arm-unknown-linux-gnueabi'
+export QEMU_LD_PREFIX=$TOOLCHAIN/$HOST_GLIBC/
+export CPPFLAGS="--sysroot=$TOOLCHAIN/$HOST_GLIBC/ -I$PREFIX/include"
+export CFLAGS="$CPPFLAGS -mcpu=arm1136j-s -O2 -fno-strict-aliasing -funroll-all-loops"
+export CXXFLAGS=$CFLAGS
+export LDFLAGS="-L$PREFIX/lib -s"
+export CROSS_COMPILE_TRIPLET=$HOST
 export CROSS_COMPILE_SYSTEM='linux'
 export CROSS_COMPILE_ARCHITECTURE='arm'
 export CROSS_COMPILE_GLIBCVER='2.13'
-export CROSS_COMPILE_SYSROOT=$TOOLCHAIN/arm-unknown-linux-gnueabi2.13
+export CROSS_COMPILE_SYSROOT=$TOOLCHAIN/$HOST_GLIBC
 
 paxreconfigure() {
 	printf "[*] Enter device address ({IP|hostname}+port or the whole /dev/ path): "
