@@ -22,7 +22,7 @@ fi
 if [ ! -f repo/libpaxgbc.so ]; then
         echo "paxgbc build process!"
         cd repo
-        cmake -DCMAKE_TOOLCHAIN_FILE=$PAXPATH/toolchain/build/cmake/arm-unknown-linux-gnueabi2.13.cmake .
+        cmake -DCMAKE_TOOLCHAIN_FILE=../../build_helper.cmake .
         make -j$(nproc)
         $STRIP libpaxgbc.so
         cd ..
