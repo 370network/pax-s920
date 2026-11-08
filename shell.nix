@@ -12,6 +12,7 @@ mkShell {
 		openssl
 		python3
 		libarchive
+		qemu-user
 	];
 	
 }
