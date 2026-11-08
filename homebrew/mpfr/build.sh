@@ -26,7 +26,7 @@ if [ ! -f repo/src/.libs/libmpfr.so.6.2.2 ]; then
 	unset AS
 	unset STRIP
 	unset LD_LIBRARY_PATH
-	./configure --enable-static --with-gmp=$PREFIX --prefix=$PREFIX --host=$HOST_GLIBC CPPFLAGS="-I$PREFIX/include" LDFLAGS="-L$PREFIX/lib"
+	./configure --enable-static --with-gmp=$PREFIX --prefix=$PREFIX --host=$HOST_GLIBC
 	make -j$(nproc)
 	make install
 fi
