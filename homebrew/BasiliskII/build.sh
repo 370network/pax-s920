@@ -7,11 +7,25 @@ echo "370network paxdevs"
 echo "=build BasiliskII="
 echo "=================="
 
-if [[ $env_platform != "linux-gnu" ]]; then
+if [[ $env_platform != "linux-gnu" ]] then
 	echo "You are currently building on $env_platform, this environment is UNSUPPORTED!"
-	echo "BasiliskII compilation process currently depends on a glibc Linux environment with qemu-binfmt!"
+	echo "BasiliskII compilation process currently depends on a glibc Linux environment for obscure reasons!"
 	echo "If you want to compile BasiliskII, you have to do so elsewhere. Sorry :("
 	exit
+fi
+
+if [[ $(getconf PAGESIZE) != 4096 ]]; then
+        echo "You are currently building on a platform that has a $(getconf PAGESIZE) byte kernel page size!"
+        echo "BasiliskII compilation process currently depends on a platform with 4096 bytes!"
+        echo "If you want to compile BasiliskII, you have to do so elsewhere. Sorry :("
+        exit
+fi
+
+if [[ $(command -v qemu-arm) != "" ]] || [[ $(command -v qemu-system-arm) != "" ]] then
+        echo "You are missing the qemu-user package!"
+        echo "BasiliskII compilation process currently depends on qemu-user (qemu-arm/qemu-system-arm) to work.!"
+        echo "If you want to compile BasiliskII, you have to do so elsewhere. Sorry :("
+        exit
 fi
 
 echo "Dependency setup!"
@@ -27,6 +41,10 @@ cd ../SDL
 cd ../BasiliskII
 
 git clone https://github.com/kanjitalk755/macemu repo-macemu
+
+for patch_file in "patches"/*.patch; do
+	build_patch $patch_file "repo-macemu"
+done
 
 if [ ! -d repo ]; then
 	cp -r repo-macemu/BasiliskII repo

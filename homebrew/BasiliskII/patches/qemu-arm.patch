@@ -1,0 +1,13 @@
+diff --git a/BasiliskII/src/Unix/Makefile.in b/BasiliskII/src/Unix/Makefile.in
+index 4503e3d6..ff98863e 100644
+--- a/BasiliskII/src/Unix/Makefile.in
++++ b/BasiliskII/src/Unix/Makefile.in
+@@ -228,7 +228,7 @@ $(OBJ_DIR)/gencomp$(EXEEXT): $(OBJ_DIR)/gencomp.o $(OBJ_DIR)/readcpu.o $(OBJ_DIR
+ UAE_PATH = @UAE_PATH@
+ 
+ cpudefs.cpp: $(OBJ_DIR)/build68k$(EXEEXT) @top_srcdir@/$(UAE_PATH)/table68k
+-	$(OBJ_DIR)/build68k$(EXEEXT) <@top_srcdir@/$(UAE_PATH)/table68k >cpudefs.cpp
++	qemu-arm $(OBJ_DIR)/build68k$(EXEEXT) <@top_srcdir@/$(UAE_PATH)/table68k >cpudefs.cpp
+ cpustbl.cpp: cpuemu.cpp
+ cpustbl_nf.cpp: cpustbl.cpp
+ compstbl.cpp: compemu.cpp
