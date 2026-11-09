@@ -1,0 +1,2 @@
+#!/data/app/MAINAPP/bin/sh
+LD_LIBRARY_PATH="lib" SDL_EVDEV_DEVICES="16:/dev/tp,2:/dev/keypad" ./ClassiCube_bin
