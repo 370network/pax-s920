@@ -9,8 +9,8 @@ export ACLOCAL_PATH="$PREFIX/share/aclocal:$ACLOCAL_PATH"
 build_check () {
         if [ -f repo/$1 ]; then
                 echo "$2 built successfully!"
-                mv repo/$1 $2.so
-                echo "file: $2.so"
+                mv repo/$1 $2
+                echo "file path: $2"
         fi
 }
 
