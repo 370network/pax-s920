@@ -1,0 +1,4 @@
+name: ClassiCube
+version: 1.3.9
+author: UnknownShadow200 and contributors & Morc @ 370network
+description: Custom Minecraft Classic compatible client

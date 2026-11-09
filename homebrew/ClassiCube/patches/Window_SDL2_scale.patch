@@ -1,0 +1,15 @@
+diff --git a/src/Window_SDL2.c b/src/Window_SDL2.c
+index d12d666f5..f10c8a474 100644
+--- a/src/Window_SDL2.c
++++ b/src/Window_SDL2.c
+@@ -67,8 +67,8 @@ void Window_Init(void) {
+ 	DisplayInfo.Width  = mode.w;
+ 	DisplayInfo.Height = mode.h;
+ 	DisplayInfo.Depth  = SDL_BITSPERPIXEL(mode.format);
+-	DisplayInfo.ScaleX = 1;
+-	DisplayInfo.ScaleY = 1;
++	DisplayInfo.ScaleX = 0.5f;
++	DisplayInfo.ScaleY = 0.5f;
+ }
+ 
+ void Window_Free(void) { }

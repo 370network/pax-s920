@@ -1,0 +1,18 @@
+diff --git a/misc/makefiles/linux.mk b/misc/makefiles/linux.mk
+index a3e3e068b..3648d5f18 100644
+--- a/misc/makefiles/linux.mk
++++ b/misc/makefiles/linux.mk
+@@ -9,10 +9,10 @@ BUILD_DIR	:= build/linux
+ TARGET 		:= ClassiCube
+ DIST_NAME	:= ClassiCube
+ 
+-CFLAGS  := -fvisibility=hidden -fno-ident
+-LDFLAGS	:= -rdynamic
++CFLAGS  += -Ofast -fvisibility=hidden -fno-ident -DCC_GFX_BACKEND=CC_GFX_BACKEND_SOFTFP -DCC_BUILD_TOUCH -DCC_BUILD_FPU_MODE=CC_FPU_MODE_MINIMAL -DCC_BUILD_CONSOLE -DCC_AUD_BACKEND=CC_AUD_BACKEND_NULL -DCC_BUILD_NOMUSIC -DCC_BUILD_NOSOUNDS
++LDFLAGS	+= -rdynamic
+ # -lm may be needed for __builtin_sqrtf (in cases where it isn't replaced by a CPU instruction intrinsic)
+-LIBS 	:= -lX11 -lXi -lpthread -lGL -ldl -lm
++LIBS 	+= -lpthread -ldl -lm
+ include misc/makefiles/common_config.mk
+ 
+ 

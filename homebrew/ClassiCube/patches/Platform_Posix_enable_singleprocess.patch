@@ -1,0 +1,16 @@
+diff --git a/src/Platform_Posix.c b/src/Platform_Posix.c
+index 614de99a3..fdbb722af 100644
+--- a/src/Platform_Posix.c
++++ b/src/Platform_Posix.c
+@@ -48,11 +48,7 @@ const char* Platform_AppNameSuffix = " iOS alpha";
+ const char* Platform_AppNameSuffix = "";
+ #endif
+ 
+-#ifdef CC_BUILD_MOBILE
+ cc_uint8 Platform_Flags = PLAT_FLAG_SINGLE_PROCESS;
+-#else
+-cc_uint8 Platform_Flags;
+-#endif
+ cc_bool  Platform_ReadonlyFilesystem;
+ #include "_PlatformBase.h"
+ 
