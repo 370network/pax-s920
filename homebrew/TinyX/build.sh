@@ -39,3 +39,5 @@ if [ ! -f repo/kdrive/fbdev/Xfbdev ]; then
 	make install
 	cd ..
 fi
+
+build_check "kdrive/fbdev/Xfbdev" "TinyX/Xfbdev"

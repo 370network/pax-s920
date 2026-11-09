@@ -71,4 +71,4 @@ if [ ! -f repo/src/Unix/BasiliskII ]; then
 	make -j$(nproc)
 fi
 
-mv repo/src/Unix/BasiliskII BasiliskII/BasiliskII_bin
+build_check "src/Unix/BasiliskII" "BasiliskII/BasiliskII_bin"

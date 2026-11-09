@@ -29,4 +29,4 @@ if [ ! -f repo/libpaxgbc.so ]; then
 fi
 
 
-build_check "libpaxgbc.so" "PAXGBC/PAXGBC"
+build_check "libpaxgbc.so" "PAXGBC/PAXGBC.so"

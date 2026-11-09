@@ -30,5 +30,5 @@ if [ ! -f repo/pmi ]; then
 fi
 
 
-build_check "zxem" "zxem/zxem"
-build_check "pmi" "pmi/pmi"
+build_check "zxem" "zxem/zxem.so"
+build_check "pmi" "pmi/pmi.so"

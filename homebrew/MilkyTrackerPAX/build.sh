@@ -39,6 +39,6 @@ if [ ! -f repo/build/src/tracker/libmilkytracker.so ]; then
 	$STRIP repo/build/src/ppui/libppui.so
 fi
 
-build_check "build/src/tracker/libmilkytracker.so" "MilkyTrackerPAX/MilkyTrackerPAX"
-build_check "build/src/milkyplay/libmilkyplay.so" "MilkyTrackerPAX/lib/libmilkyplay"
-build_check "build/src/ppui/libppui.so" "MilkyTrackerPAX/lib/libppui"
+build_check "build/src/tracker/libmilkytracker.so" "MilkyTrackerPAX/MilkyTrackerPAX.so"
+build_check "build/src/milkyplay/libmilkyplay.so" "MilkyTrackerPAX/lib/libmilkyplay.so"
+build_check "build/src/ppui/libppui.so" "MilkyTrackerPAX/lib/libppui.so"

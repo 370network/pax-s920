@@ -18,4 +18,4 @@ if [ ! -f repo/ClassiCube ]; then
 	make -j$(nproc) -C repo/ linux BUILD_SDL2=1
 fi
 
-#build_check "ClassiCube" "ClassiCube/ClassiCube_exe"
+build_check "ClassiCube" "ClassiCube/ClassiCube_bin"

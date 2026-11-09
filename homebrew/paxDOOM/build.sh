@@ -17,4 +17,4 @@ if [ ! -f repo/fbdoom/fbdoom ]; then
 	$STRIP repo/fbdoom/fbdoom
 fi
 
-build_check "fbdoom/fbdoom" "paxDOOM/paxDOOM"
+build_check "fbdoom/fbdoom" "paxDOOM/paxDOOM.so"

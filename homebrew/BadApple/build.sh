@@ -40,4 +40,4 @@ if [ ! -f BadApple/audio.opus ]; then
 	mv repo/audio.opus BadApple/
 fi
 
-build_check "libpaxdemo.so" "BadApple/BadApple"
+build_check "libpaxdemo.so" "BadApple/BadApple.so"
