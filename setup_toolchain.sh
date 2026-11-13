@@ -245,7 +245,7 @@ else
 	toolchain_type="-unknown-"
 	toolchain_extension="tar.xz"
 fi
-
+echo $env_arch$toolchain_type$env_platform.$toolchain_extension
 if [ ! -f cache/toolchain.$toolchain_extension ]; then
 	echo "GCC Toolchain cache download"
 	curl -o cache/toolchain.$toolchain_extension -L -O https://github.com/AmanoTeam/obggcc/releases/download/gcc-$gcc_ver/$env_arch$toolchain_type$env_platform.$toolchain_extension
