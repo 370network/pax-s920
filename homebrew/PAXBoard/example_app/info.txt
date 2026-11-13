@@ -1,0 +1,6 @@
+name: <Human-readable name>
+version: <Semantic versioning, e.g., 1.0.0>
+author: <Author or organization>
+description: <Short description of the application>
+license: <License identifier> (optional)
+url: <Homepage or repository URL> (optional)

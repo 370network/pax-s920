@@ -15,6 +15,7 @@ Usually controlled using the touchscreen + with additional keys for more control
 Just run `make`, the output is going to be called Launcher.so, feel free to paxpush it to `/data/app/MAINAPP/paxboard/lib/libosal.so` since that's the default place for PAXBoard on deployed terminals
 
 ## Application format:
+*Feel free to copy and reuse the `example_app` directory structure as a fast start.*
 All apps packaged for use with PAXBoard use one of either paths + a following folder structure:
 ```
 /data/app/MAINAPP/apps/<APP_NAME>/
