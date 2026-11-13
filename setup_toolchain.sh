@@ -315,7 +315,7 @@ echo ""
 echo "[*] GCC $gcc_ver Toolchain libs!"
 if [ ! -f cache/lib.tar.gz ]; then
 	echo "GCC Toolchain lib cache download"
-	curl -o cache/lib.tar.gz -L -O https://forum.370.network/download/file.php?id=927
+	curl -o cache/lib.tar.gz -L -O https://forum.370.network/download/file.php?id=979
 else
 	echo "GCC Toolchain lib cache already exists, continuing"
 fi

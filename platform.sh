@@ -6,9 +6,22 @@ env_platform=$(uname)
 env_libc=$(ldd --version 2>&1)
 env_android=$(uname -o)
 
+env_arch=$(uname -m)
+if [[ "$env_arch" == "armv"* ]]; then
+	env_arch="armv6"
+elif [ "$env_arch" == "arm64" ]; then
+	env_arch="aarch64"
+elif [ "$env_arch" == "amd64" ]; then
+	env_arch="x86_64"
+fi
+
 if [ "$env_platform" == "Linux" ]; then
 	if [[ "$env_libc" == *"musl"* ]]; then
-		env_platform="linux-musl"
+		if [[ "$env_arch" == "armv6" ]]; then
+			env_platform="linux-musleabihf"
+		elif [[ "$env_arch" == "aarch64" ]]; then
+			env_platform="linux-musl"
+		fi
 	elif [[ "$env_android" == *"Android"* ]]; then
                 env_platform="linux-android"
         else
@@ -32,13 +45,6 @@ elif [ "$env_platform" != "apple-darwin" ]; then
 		env_distro=$ID
 	fi
 	env_distro=$(echo "$env_distro"|tr '[:upper:]' '[:lower:]')
-fi
-
-env_arch=$(uname -m)
-if [ "$env_arch" == "arm64" ]; then
-	env_arch="aarch64"
-elif [ "$env_arch" == "amd64" ]; then
-	env_arch="x86_64"
 fi
 
 echo "export env_platform=$env_platform env_distro=$env_distro env_arch=$env_arch"
