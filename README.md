@@ -58,28 +58,31 @@ paxdeployssh ~/.ssh/id_ed25519.pub
 ```
 
 ### paxpush
-used as a shorter alias for the xcb command
+command for pushing files or directories from your host computer to the terminal
+- *supports tab autocompletion where available*
 ```bash
 paxpush <local source 1> <local source 2> .. <pax destination>
 #eg. paxpush osal_test.c /data/app/MAINAPP/libosal.so
 ```
 
 ### paxpull
-used as a shorter alias for the xcb command
+commmand for pulling files or directories from your terminal to your host computer
+- *supports tab autocompletion where available*
 ```bash
 paxpull <pax source> [optional: local destination]
 #eg. paxpull /usr/lib/libcbinder.so libcbinder.so
 ```
 
 ### paxls
-used as a shorter alias for the xcb command
+lists files on your payment terminal
+- *supports tab autocompletion where available*
 ```bash
 paxls <pax directory>
 #eg. paxls /data/app/MAINAPP
 ```
 
 ### paxdump
-used as a shorter alias for the xcb command
+command for dumping the contents of your terminal
 ```bash
 paxdump <dump name> [optional: device path to dump]
 #eg. paxdump mydump
@@ -87,13 +90,17 @@ paxdump <dump name> [optional: device path to dump]
 
 The resulting dump will be stored in `dumps/<dump name>` inside the working directory.
 
-## building homebrew
-~~the official way of distributing packages is using the handy app package manager~~
-~~download using the homebrew downloader (coming soon or never)~~
+## building and installing homebrew
+this is usually the more advanced part for those who really want to build their own software,
+~~for others there's the official way of distributing packages using the handy app package manager download using the homebrew downloader (coming soon or never)~~
 
-**for building homebrew:**
+### building
 traverse into the `homebrew` folder, pick your desired port and run `./build.sh` or `make`
 
+### installing
+the recommended way usually is to push the folder with the same name into the apps folder on the desired place (internal storage or SD) of the terminal
+
+***eg. `paxpush MilkyTrackerPAX /data/app/MAINAPP/apps/`***
 
 ## additional official docs
 see [pax-docs](https://github.com/370network/pax-s920/tree/main/pax-docs)
