@@ -54,6 +54,7 @@ export AR=$HOST-ar
 export LD=$HOST-ld
 export NM=$HOST-nm
 export STRIP=$HOST-strip
+export RANLIB=${HOST}-ranlib
 export BUILD=$env_arch-$env_platform
 export TOOLCHAIN=$PAXPATH/toolchain
 export PREFIX=$TOOLCHAIN/paxroot
