@@ -1,0 +1,18 @@
+diff --git a/src/crypto_openssl.c b/src/crypto_openssl.c
+index 14fe5d6..8a98e0d 100644
+--- a/src/crypto_openssl.c
++++ b/src/crypto_openssl.c
+@@ -27,6 +27,13 @@ static inline void EVP_MD_CTX_free(EVP_MD_CTX *mdctx)
+ 	return EVP_MD_CTX_destroy(mdctx);
+ }
+ 
++static inline int EVP_MD_CTX_reset(EVP_MD_CTX *mdctx)
++{
++	int ret = EVP_MD_CTX_cleanup(mdctx);
++	EVP_MD_CTX_init(mdctx);
++	return ret;
++}
++
+ #endif
+ 
+ // OpenSSL opaque types mapped directly to the priv

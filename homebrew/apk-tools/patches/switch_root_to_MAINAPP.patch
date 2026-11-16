@@ -1,0 +1,13 @@
+diff --git a/src/context.c b/src/context.c
+index e04b4ed..afdd8b5 100644
+--- a/src/context.c
++++ b/src/context.c
+@@ -69,7 +69,7 @@ int apk_ctx_prepare(struct apk_ctx *ac)
+ 	if (ac->flags & APK_ALLOW_UNTRUSTED) ac->trust.allow_untrusted = 1;
+ 	if (!ac->cache_dir) ac->cache_dir = "etc/apk/cache";
+ 	else ac->cache_dir_set = 1;
+-	if (!ac->root) ac->root = "/";
++	if (!ac->root) ac->root = "/data/app/MAINAPP";
+ 	if (ac->cache_predownload) ac->cache_packages = 1;
+ 
+ 	if (!strcmp(ac->root, "/")) {

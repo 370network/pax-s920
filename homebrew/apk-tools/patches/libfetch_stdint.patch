@@ -1,0 +1,12 @@
+diff --git a/libfetch/common.h b/libfetch/common.h
+index eb08b36..d2392b8 100644
+--- a/libfetch/common.h
++++ b/libfetch/common.h
+@@ -39,6 +39,7 @@
+ #include <sys/types.h>
+ #include <limits.h>
+ #include "openssl-compat.h"
++#include <stdint.h>
+ 
+ #if defined(__GNUC__) && __GNUC__ >= 3
+ #define LIBFETCH_PRINTFLIKE(fmtarg, firstvararg)	\
