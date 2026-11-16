@@ -1,0 +1,11 @@
+[binaries]
+pkg-config = 'pkg-config'
+
+[host_machine]
+system = 'linux'
+cpu_family = 'arm'
+cpu = 'arm1136j-s'
+endian = 'little'
+
+[properties]
+needs_exe_wrapper = true
