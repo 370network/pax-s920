@@ -8,15 +8,15 @@ echo "=   build zlib   ="
 echo "=================="
 
 if [ ! -f zlib.tar.gz ]; then
-	curl -o zlib.tar.gz -L -O https://zlib.net/zlib-1.3.2.tar.gz
+	curl -o zlib.tar.gz -L -O https://zlib.net/fossils/zlib-1.2.7.tar.gz
 fi
 
 if [ ! -d repo ]; then
 	tar -xf zlib.tar.gz
-	mv zlib-1.3.2 repo
+	mv zlib-1.2.7 repo
 fi
 
-if [ ! -f repo/libz.so.1.3.2 ]; then
+if [ ! -f repo/libz.so.1.2.7 ]; then
 	echo "zlib build process!"
 	cd repo
 	./configure --prefix=$PREFIX
