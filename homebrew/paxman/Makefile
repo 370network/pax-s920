@@ -4,7 +4,7 @@ SRCS = src/arcade.c src/pacbox.c src/hardware.c src/z80.c src/wsg3.c src/pacbox_
 
 OBJS = $(SRCS:.c=.o)
 
-TARGET = paxman/paxman.so
+TARGET = src/paxman.so
 
 all: $(TARGET)
 
