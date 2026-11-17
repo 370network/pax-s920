@@ -15,6 +15,7 @@ mkShell {
 		qemu-user
 		meson
 		ninja
+		lua
 	];
 	
 }
