@@ -1,4 +1,0 @@
-name: Bad Apple
-description: Bad Apple
-version: 1.0.0
-author: rhgndf
