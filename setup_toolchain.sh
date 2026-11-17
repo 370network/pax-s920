@@ -327,6 +327,29 @@ else
 	echo "GCC Toolchain lib already unpacked, continuing"
 fi
 
+echo ""
+echo "[*] Packaging tools setup!"
+if [[ ! "$env_platform" == *"linux"* ]]; then
+	#freebsd and macOS hopefully soon :P
+	echo "Packaging tools are currently not supported on this platform!"
+else
+	if [ ! -f cache/apk-tools.apk ]; then
+        	echo "Packaging tools cache download"
+		if [ "$env_arch" == "armv6" ]; then #stubborn annoying arm naming schemes
+			$env_arch="armhf"
+		fi
+        	curl -o cache/apk-tools.apk -L -O https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/$env_arch/apk-tools-static-3.0.9-r0.apk
+	else
+        	echo "Packaging tools cache already exists, continuing"
+	fi
+
+	if [ ! -f sbin/apk.static ]; then
+                echo "Packaging tools unpack..."
+		bsdtar -xf cache/apk-tools.apk -C $PWD/toolchain/
+        else
+                echo "Packaging tools already unpacked, continuing"
+        fi
+fi
 
 echo ""
 echo "[*] XCB setup!"

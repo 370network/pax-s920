@@ -58,7 +58,7 @@ export RANLIB=${HOST}-ranlib
 export BUILD=$env_arch-$env_platform
 export TOOLCHAIN=$PAXPATH/toolchain
 export PREFIX=$TOOLCHAIN/paxroot
-export PATH=$TOOLCHAIN/bin:$PATH
+export PATH=$TOOLCHAIN/bin:$TOOLCHAIN/sbin:$PATH
 export LD_LIBRARY_PATH=$TOOLCHAIN/lib
 export QEMU_LD_PREFIX=$TOOLCHAIN/$HOST_GLIBC/
 export CPPFLAGS="--sysroot=$TOOLCHAIN/$HOST_GLIBC/ -I$PREFIX/include"

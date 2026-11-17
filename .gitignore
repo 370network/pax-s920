@@ -27,6 +27,9 @@ toolchain/include/SDL
 toolchain/include/SDL2
 toolchain/include/lib
 toolchain/include/include
+#static + packaging tools
+toolchain/sbin
+toolchain/.*
 
 #homebrew related
 homebrew/*/repo*
