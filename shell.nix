@@ -13,6 +13,8 @@ mkShell {
 		python3
 		libarchive
 		qemu-user
+		meson
+		ninja
 	];
 	
 }
