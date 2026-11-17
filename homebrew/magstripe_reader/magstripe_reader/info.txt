@@ -1,4 +1,0 @@
-name: Magstripe Reader
-version: 1.0.0
-author: HiImMilan <milan.babuljak@hiimmilan.dev>
-description: Example App
