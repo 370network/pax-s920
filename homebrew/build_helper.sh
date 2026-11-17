@@ -1,7 +1,7 @@
 #build helpers
 BUILD_FOLDER=$(pwd)
 
-export PKG_CONFIG=pkg-config
+export PKG_CONFIG=$TOOLCHAIN/bin/$HOST_GLIBC-pkg-config
 export PKG_CONFIG_LIBDIR="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig"
 export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig"
 export ACLOCAL_PATH="$PREFIX/share/aclocal:$ACLOCAL_PATH"
