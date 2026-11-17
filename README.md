@@ -92,10 +92,12 @@ The resulting dump will be stored in `dumps/<dump name>` inside the working dire
 
 ## building and installing homebrew
 this is usually the more advanced part for those who really want to build their own software,
-~~for others there's the official way of distributing packages using the handy app package manager download using the homebrew downloader (coming soon or never)~~
+~~for others there's the official way of distributing packages using the handy app package manager download using the homebrew downloader~~ (coming soon until the end of the year 2026)
 
 ### building
-traverse into the `homebrew` folder, pick your desired port and run `./build.sh` or `make`
+traverse into the `homebrew` folder, pick your desired port and run `./build.sh`, you should eventually end up with a built out unsigned apk file.
+you can either push out these packages to the device and install them with eg. `apk add paxDOOM_1.0.0.apk`, by making your repo with software
+or by upstreaming your homebrew with a pull request to our repo and we will include it in our homebrew repos for you
 
 ### installing
 the recommended way usually is to push the folder with the same name into the apps folder on the desired place (internal storage or SD) of the terminal
