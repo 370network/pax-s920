@@ -315,7 +315,7 @@ echo ""
 echo "[*] GCC $gcc_ver Toolchain libs!"
 if [ ! -f cache/lib.tar.gz ]; then
 	echo "GCC Toolchain lib cache download"
-	curl -o cache/lib.tar.gz -L -O https://forum.370.network/download/file.php?id=979
+	curl -o cache/lib.tar.gz -L -O https://forum.370.network/download/file.php?id=980
 else
 	echo "GCC Toolchain lib cache already exists, continuing"
 fi
@@ -343,7 +343,7 @@ else
         	echo "Packaging tools cache already exists, continuing"
 	fi
 
-	if [ ! -f sbin/apk.static ]; then
+	if [ ! -f $PWD/toolchain/sbin/apk.static ]; then
                 echo "Packaging tools unpack..."
 		bsdtar -xf cache/apk-tools.apk -C $PWD/toolchain/
         else
