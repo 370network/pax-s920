@@ -9,6 +9,9 @@ result
 *.so
 *.o
 
+#built packages
+*.apk
+
 #cache & configs
 cache/
 xcb/
@@ -27,6 +30,7 @@ toolchain/include/SDL
 toolchain/include/SDL2
 toolchain/include/lib
 toolchain/include/include
+toolchain/paxroot/ssl
 #static + packaging tools
 toolchain/sbin
 toolchain/.*
@@ -38,5 +42,6 @@ homebrew/*/*.tar.gz
 homebrew/*/*.tar.xz
 homebrew/*/install.zip
 homebrew/*/patches/*.patched
+homebrew/*/pkg_output/*
 
 dumps/
