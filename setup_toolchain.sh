@@ -322,7 +322,7 @@ fi
 
 if [ ! -f toolchain/arm-unknown-linux-gnueabi/lib/libosal.so ]; then
 	echo "GCC Toolchain lib unpack..."
-	tar -xf cache/lib.tar.gz -C $PWD/toolchain/arm-unknown-linux-gnueabi/lib
+	bsdtar -xf cache/lib.tar.gz -C $PWD/toolchain/arm-unknown-linux-gnueabi/lib
 else
 	echo "GCC Toolchain lib already unpacked, continuing"
 fi
