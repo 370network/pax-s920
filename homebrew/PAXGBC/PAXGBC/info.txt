@@ -1,4 +1,0 @@
-name: PAXGBC
-description: Gameboy Color Emulator
-version: 1.0.0
-author: rhgndf
