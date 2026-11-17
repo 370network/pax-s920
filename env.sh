@@ -236,20 +236,20 @@ _pax_autocomplete_prepare() {
 #install autocomplete
 if [[ -n "${ZSH_VERSION-}" ]]; then
 	if ! whence -w compdef >/dev/null 2>&1; then
-        autoload -Uz compinit
-        compinit
-    fi
-	
+		autoload -Uz compinit
+		compinit
+	fi
+
 	. $PAXPATH/autocomplete_zsh.sh
-    
-    if command -v compdef >/dev/null 2>&1; then
-    	compdef _pax_autocomplete_zsh paxls paxpull paxpush
-        #echo "[+] Zsh autocomplete installed"
-    fi
+
+	if command -v compdef >/dev/null 2>&1; then
+		compdef _pax_autocomplete_zsh paxls paxpull paxpush
+		echo "[+] Autocomplete installed for pax commands"
+	fi
 elif command -v complete >/dev/null 2>&1; then #bash
 	. $PAXPATH/autocomplete_bash.sh
 	complete -o default -F _pax_autocomplete_bash paxls paxpull paxpush
-    #echo "[+] Bash autocomplete installed"
+	echo "[+] Autocomplete installed for pax commands"
 fi
 
 
