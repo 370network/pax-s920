@@ -19,6 +19,19 @@ if [ ! -f repo/libz.so.1.2.7 ]; then
 	meson setup build --cross-file $PAXPATH/homebrew/build_helper.meson --prefix=$PREFIX --buildtype=plain	
 	meson configure build -Dminimal=true -Ddefault_library=shared -Dcrypto_backend=openssl -Durl_backend=libfetch -Dhelp=enabled -Ddocs=disabled -Dlua=disabled -Dpython=disabled -Dtests=disabled -Dzstd=disabled -Dlua_bin=$(which lua)
 	ninja -C build install
-	cp $PREFIX/lib/libapk.so ../libapk.so.3.0.0
-	cp $PREFIX/bin/apk ..
 fi
+
+cd ..
+mkdir -p pkg_output/lib/
+mkdir -p pkg_output/bin/
+cp $PREFIX/lib/libapk.so pkg_output/lib/libapk.so.3.0.0
+cp $PREFIX/bin/apk pkg_output/bin/
+echo "You can now push the content of the pkg_output folder to your device:"
+echo " - paxpush pkg_output/* /data/app/MAINAPP/"
+
+apk.static mkpkg --info arch:armel --files ./pkg_output \
+    --info name:apk-tools \
+    --info version:3.0.8 \
+    --info description:"Alpine Package Keeper - package manager for alpine" \
+    --info "tags:pax:type=system-only" \
+    --output ./apk-tools_3.0.8.apk
