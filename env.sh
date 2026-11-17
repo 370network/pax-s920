@@ -64,7 +64,7 @@ export QEMU_LD_PREFIX=$TOOLCHAIN/$HOST_GLIBC/
 export CFLAGS="-mcpu=arm1136j-s -O2 -fno-strict-aliasing -funroll-all-loops -ffunction-sections -fdata-sections --sysroot=$TOOLCHAIN/$HOST_GLIBC/ -I$PREFIX/include"
 export CPPFLAGS=$CFLAGS
 export CXXFLAGS=$CFLAGS
-export LDFLAGS="-L$PREFIX/lib -Wl,--gc-sections -Wl,-rpath,\$ORIGIN:\/data\/app\/MAINAPP\/lib:\/mnt\/sdcard\/lib:\/lib -s"
+export LDFLAGS="-L$TOOLCHAIN/$HOST_GLIBC/lib -L$PREFIX/lib -Wl,--gc-sections -Wl,-rpath,\$ORIGIN:\$ORIGIN/../lib:/usr/lib/:/data/app/MAINAPP/lib:/mnt/sdcard/lib:/lib -s"
 export CROSS_COMPILE_TRIPLET=$HOST
 export CROSS_COMPILE_SYSTEM='linux'
 export CROSS_COMPILE_ARCHITECTURE='arm'
