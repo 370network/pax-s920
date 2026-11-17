@@ -23,15 +23,28 @@ fi
 
 cd ..
 mkdir -p pkg_output/lib/
-mkdir -p pkg_output/bin/
 cp $PREFIX/lib/libapk.so pkg_output/lib/libapk.so.3.0.0
+apk.static mkpkg --info arch:armel --files ./pkg_output \
+    --info name:libapk \
+    --info version:3.0.9-r0 \
+    --info description:"Alpine Package Keeper - package manager for alpine" \
+    --info "tags:pax:type=system-only" \
+    --output ./libapk_3.0.9-r0.apk
+
+mv pkg_output/lib/ .
+
+mkdir -p pkg_output/bin/
 cp $PREFIX/bin/apk pkg_output/bin/
-echo "You can now push the content of the pkg_output folder to your device:"
-echo " - paxpush pkg_output/* /data/app/MAINAPP/"
 
 apk.static mkpkg --info arch:armel --files ./pkg_output \
     --info name:apk-tools \
-    --info version:3.0.8 \
+    --info version:3.0.9 \
     --info description:"Alpine Package Keeper - package manager for alpine" \
     --info "tags:pax:type=system-only" \
-    --output ./apk-tools_3.0.8.apk
+    --info depends:libapk \
+    --output ./apk-tools_3.0.9-r0.apk
+
+mv lib/ pkg_output/
+
+echo "You can now push the content of the pkg_output folder to your device:"
+echo " - paxpush pkg_output/* /data/app/MAINAPP/"
