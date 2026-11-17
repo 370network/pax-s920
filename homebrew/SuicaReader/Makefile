@@ -1,8 +1,8 @@
-CFLAGS = -include prolin_printf.h -Wl,--unresolved-symbols=ignore-all,--dynamic-linker=/lib/ld-linux.so.3 -lfreetype -lpng12 -lxui -lfribidi -lz -losal -lcbinder -lcrypto
+CFLAGS = -include prolin_printf.h -Wl,--unresolved-symbols=ignore-all,--dynamic-linker=/lib/ld-linux.so.3 -lfreetype -lpng12 -lxui -lfribidi -lz -losal -lcbinder -lcrypto -lrt
 INCLUDES = -I$(PREFIX)/include 
 
 SOURCES = main.c
-TARGET = suica-reader/suica-reader
+TARGET = suica-reader.o
 OBJECTS = $(SOURCES:.c=.o)
 
 all: $(TARGET)
