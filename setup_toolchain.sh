@@ -357,7 +357,8 @@ if [ ! -d xcb ]; then
     echo "XCB download..."
     git clone https://github.com/370network/prolin-xcb-client xcb --depth=1
 else
-    echo "XCB already exists"
+    echo "XCB already exists, making sure it is up to date"
+    git -C xcb pull
 fi
 
 setup_xcb(){
