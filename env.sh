@@ -78,9 +78,11 @@ paxreconfigure() {
 	read addr
 	
 	if [[ "$addr" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ || "$addr" = *:5555 ]]; then
-		echo "export PAX_CLIENT_IP=\"$addr\"" > $PAXPATH/.xcb_config
+		echo "unset PAX_CLIENT_SERIAL" > $PAXPATH/.xcb_config
+		echo "export PAX_CLIENT_IP=\"$addr\"" >> $PAXPATH/.xcb_config
 	else
-		echo "export PAX_CLIENT_SERIAL=\"$addr\"" > $PAXPATH/.xcb_config
+		echo "unset PAX_CLIENT_IP" > $PAXPATH/.xcb_config
+		echo "export PAX_CLIENT_SERIAL=\"$addr\"" >> $PAXPATH/.xcb_config
 	fi
 	
 	. $PAXPATH/.xcb_config
