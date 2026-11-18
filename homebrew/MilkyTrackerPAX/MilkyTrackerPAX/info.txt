@@ -1,4 +1,0 @@
-name: MilkyTrackerPAX
-version: 0.90.86
-author: MilkyTracker contributors, Morc @ 370network
-description: MilkyTrackerPAX
