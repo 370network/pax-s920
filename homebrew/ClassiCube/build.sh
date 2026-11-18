@@ -13,6 +13,12 @@ PKG_VER="1.3.9"
 PKG_AUTHOR="UnknownShadow200 and contributors & Morc @ 370network"
 PKG_DEPENDS="SDL2"
 
+echo "Dependency setup!"
+cd ../SDL2
+./build.sh
+
+cd ../ClassiCube
+
 git clone https://github.com/ClassiCube/ClassiCube --depth 1 repo
 
 for patch_file in "patches"/*.patch; do
