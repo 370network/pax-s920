@@ -1,0 +1,442 @@
+diff --git a/src/apk.c b/src/apk.c
+index 88c2e88..c4bd254 100644
+--- a/src/apk.c
++++ b/src/apk.c
+@@ -73,6 +73,7 @@ static void version(struct apk_out *out, const char *prefix)
+ 	OPT(OPT_GLOBAL_quiet,			APK_OPT_SH("q") "quiet") \
+ 	OPT(OPT_GLOBAL_repositories_file,	APK_OPT_ARG "repositories-file") \
+ 	OPT(OPT_GLOBAL_repository,		APK_OPT_ARG APK_OPT_SH("X") "repository") \
++	OPT(OPT_GLOBAL_secondary_repository,	APK_OPT_ARG "secondary-repository") \
+ 	OPT(OPT_GLOBAL_repository_config,	APK_OPT_ARG "repository-config") \
+ 	OPT(OPT_GLOBAL_root,			APK_OPT_ARG APK_OPT_SH("p") "root") \
+ 	OPT(OPT_GLOBAL_root_tmpfs,		APK_OPT_AUTO "root-tmpfs") \
+@@ -189,6 +190,9 @@ static int optgroup_global_parse(struct apk_ctx *ac, int opt, const char *optarg
+ 	case OPT_GLOBAL_repository:
+ 		apk_string_array_add(&ac->repository_list, (char*) optarg);
+ 		break;
++	case OPT_GLOBAL_secondary_repository:
++		ac->secondary_root = optarg;
++		break;
+ 	case OPT_GLOBAL_repository_config:
+ 		apk_string_array_add(&ac->repository_config_list, (char*) optarg);
+ 		break;
+diff --git a/src/apk_context.h b/src/apk_context.h
+index 58426a0..4c0b896 100644
+--- a/src/apk_context.h
++++ b/src/apk_context.h
+@@ -68,6 +68,7 @@ struct apk_ctx {
+ 	struct apk_out out;
+ 	struct adb_compression_spec compspec;
+ 	const char *root;
++	const char *secondary_root;
+ 	const char *keys_dir;
+ 	const char *cache_dir;
+ 	const char *repositories_file;
+diff --git a/src/apk_database.h b/src/apk_database.h
+index af1ded3..50c8394 100644
+--- a/src/apk_database.h
++++ b/src/apk_database.h
+@@ -157,6 +157,7 @@ struct apk_repository {
+ #define APK_DB_LAYER_ROOT		0
+ #define APK_DB_LAYER_UVOL		1
+ #define APK_DB_LAYER_NUM		2
++#define APK_DB_LAYER_SECONDARY		2
+ 
+ #define APK_REPO_DB_INSTALLED		-1
+ #define APK_REPO_CACHE_INSTALLED	-2
+@@ -229,6 +230,7 @@ struct apk_database {
+ 	struct apk_atom_pool atoms;
+ 	struct apk_string_array *filename_array;
+ 	struct apk_package_tmpl overlay_tmpl;
++	struct apk_package_array *secondary_packages;
+ 	struct apk_ipkg_creator ic;
+ 
+ 	struct {
+diff --git a/src/app_del.c b/src/app_del.c
+index 4fc8248..e9968e3 100644
+--- a/src/app_del.c
++++ b/src/app_del.c
+@@ -134,7 +134,7 @@ static int delete_name(struct apk_database *db, const char *match,
+ 	}
+ 
+ 	pkg = apk_pkg_get_installed(name);
+-	if (pkg != NULL)
++	if (pkg != NULL && pkg->layer < APK_DB_LAYER_NUM)
+ 		delete_pkg(pkg, NULL, NULL, pctx);
+ 	else
+ 		apk_deps_del(&ctx->world, name);
+diff --git a/src/commit.c b/src/commit.c
+index 6f6f313..d2f5019 100644
+--- a/src/commit.c
++++ b/src/commit.c
+@@ -397,6 +397,34 @@ int apk_solver_commit_changeset(struct apk_database *db,
+ 	int r, errors = 0, pkg_diff = 0;
+ 
+ 	assert(world);
++	if (changeset->changes != NULL) {
++		apk_array_foreach(change, changeset->changes) {
++			if (change->old_pkg == NULL || change->new_pkg == NULL)
++				continue;
++			if (change->old_pkg->layer >= APK_DB_LAYER_NUM || change->new_pkg->layer != APK_DB_LAYER_SECONDARY)
++				continue;
++			if (apk_blob_compare(apk_pkg_hash_blob(change->old_pkg), apk_pkg_hash_blob(change->new_pkg)) != 0)
++				continue;
++			change->new_pkg = NULL;
++			change->new_repository_tag = change->old_repository_tag;
++			change->reinstall = 0;
++			if (changeset->num_adjust > 0) changeset->num_adjust--;
++			changeset->num_remove++;
++		}
++	}
++	apk_array_foreach(change, changeset->changes) {
++		if (change->old_pkg && change->old_pkg->layer >= APK_DB_LAYER_NUM &&
++		    (change->new_pkg != change->old_pkg || change->reinstall ||
++		     change->new_repository_tag != change->old_repository_tag)) {
++			apk_err(out, "Cannot modify %s: it is installed in the secondary root", change->old_pkg->name->name);
++			return -1;
++		}
++		if (change->new_pkg && change->new_pkg->layer >= APK_DB_LAYER_NUM &&
++		    change->new_pkg != change->old_pkg) {
++			apk_err(out, "Cannot install %s from the secondary root", change->new_pkg->name->name);
++			return -1;
++		}
++	}
+ 	if (apk_db_check_world(db, world) != 0) {
+ 		apk_err(out, "Not committing changes due to missing repository tags.");
+ 		return -1;
+diff --git a/src/database.c b/src/database.c
+index 5a93eb8..918ccda 100644
+--- a/src/database.c
++++ b/src/database.c
+@@ -570,12 +570,49 @@ const struct apk_package *apk_db_pkg_upgradable(const struct apk_database *db, c
+ 
+ 	if (!ipkg) return NULL;
+ 
++	if (ipkg->layer >= APK_DB_LAYER_NUM) return NULL;
++
+ 	unsigned short allowed_repos = db->repo_tags[ipkg->ipkg->repository_tag].allowed_repos;
+ 	if (!(pkg->repos & allowed_repos)) return NULL;
+ 
+ 	return apk_version_match(*ipkg->version, APK_VERSION_LESS, *pkg->version) ? ipkg : NULL;
+ }
+ 
++static struct apk_package *apk_db_pkg_add_secondary_duplicate( struct apk_database *db, struct apk_package *base, struct apk_installed_package *secondary_ipkg, size_t digest_len)
++{
++	struct apk_package *copy;
++	struct apk_db_dir_instance *diri;
++
++	if (base == NULL || secondary_ipkg == NULL ||
++	    digest_len < APK_DIGEST_LENGTH_SHA1)
++		return NULL;
++
++	copy = apk_balloc_new_extra(&db->ba_pkgs, struct apk_package, digest_len);
++	if (copy == NULL)
++		return NULL;
++	memcpy(copy, base, sizeof(*copy));
++	memcpy(copy->digest, base->digest, digest_len);
++	memset(&copy->hash_node, 0, sizeof(copy->hash_node));
++	memset(&copy->ss, 0, sizeof(copy->ss));
++	copy->ipkg = secondary_ipkg;
++	copy->ipkg->pkg = copy;
++	copy->layer = APK_DB_LAYER_SECONDARY;
++	copy->seen = 0;
++	copy->marked = 0;
++	copy->foreach_genid = 0;
++	apk_array_foreach_item(diri, copy->ipkg->diris)
++		diri->pkg = copy;
++
++	apk_provider_array_add(&copy->name->providers, APK_PROVIDER_FROM_PACKAGE(copy));
++	copy->name->providers_sorted = 0;
++	apk_array_foreach(dep, copy->provides) {
++		apk_provider_array_add(&dep->name->providers, APK_PROVIDER_FROM_PROVIDES(copy, dep));
++		dep->name->providers_sorted = 0;
++	}
++	apk_package_array_add(&db->secondary_packages, copy);
++	return copy;
++}
++
+ struct apk_package *apk_db_pkg_add(struct apk_database *db, struct apk_package_tmpl *tmpl)
+ {
+ 	struct apk_package *pkg = &tmpl->pkg, *idb;
+@@ -619,7 +656,28 @@ struct apk_package *apk_db_pkg_add(struct apk_database *db, struct apk_package_t
+ 			dep->name->has_repository_providers = 1;
+ 	}
+ 
+-	if (idb->ipkg == NULL && pkg->ipkg != NULL) {
++	if (pkg->ipkg != NULL && pkg->layer == APK_DB_LAYER_SECONDARY) {
++		if (idb->layer < APK_DB_LAYER_NUM &&
++		    (idb->ipkg != NULL || idb->repos != 0 || idb->filename_ndx != 0)) {
++			if (apk_db_pkg_add_secondary_duplicate(db, idb, pkg->ipkg, tmpl->id.len) == NULL)
++				return NULL;
++			pkg->ipkg = NULL;
++		} else if (idb->ipkg == NULL) {
++			idb->layer = APK_DB_LAYER_SECONDARY;
++			apk_array_foreach_item(diri, pkg->ipkg->diris)
++				diri->pkg = idb;
++			idb->ipkg = pkg->ipkg;
++			idb->ipkg->pkg = idb;
++			pkg->ipkg = NULL;
++		}
++	} else if (pkg->ipkg == NULL && pkg->repos != 0 &&
++		   idb->layer == APK_DB_LAYER_SECONDARY && idb->ipkg != NULL) {
++		struct apk_installed_package *secondary_ipkg = idb->ipkg;
++		if (apk_db_pkg_add_secondary_duplicate(db, idb, secondary_ipkg, tmpl->id.len) == NULL)
++			return NULL;
++		idb->ipkg = NULL;
++		idb->layer = APK_DB_LAYER_ROOT;
++	} else if (idb->ipkg == NULL && pkg->ipkg != NULL) {
+ 		apk_array_foreach_item(diri, pkg->ipkg->diris)
+ 			diri->pkg = idb;
+ 		idb->ipkg = pkg->ipkg;
+@@ -924,6 +982,7 @@ static int apk_db_fdb_read(struct apk_database *db, struct apk_istream *is, int
+ 	uid_t uid;
+ 	gid_t gid;
+ 	int field, r, lineno = 0;
++	int secondary = layer == APK_DB_LAYER_SECONDARY;
+ 
+ 	if (IS_ERR(is)) return PTR_ERR(is);
+ 
+@@ -971,6 +1030,7 @@ static int apk_db_fdb_read(struct apk_database *db, struct apk_istream *is, int
+ 			ipkg = apk_db_ipkg_create(db, &tmpl.pkg);
+ 		}
+ 		if (repo != APK_REPO_DB_INSTALLED || ipkg == NULL) continue;
++		if (secondary) continue;
+ 
+ 		/* Check FDB special entries */
+ 		switch (field) {
+@@ -1363,6 +1423,55 @@ static int apk_db_read_layer(struct apk_database *db, unsigned layer)
+ 	return ret;
+ }
+ 
++static int apk_db_read_secondary_root(struct apk_database *db)
++{
++	struct apk_ctx *ac = db->ctx;
++	int root_fd = -1, db_fd = -1, lock_fd = -1;
++	int r = 0;
++	struct stat primary_stat, secondary_stat;
++
++	if (ac->secondary_root == NULL) return 0;
++
++	root_fd = openat(AT_FDCWD, ac->secondary_root, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
++	if (root_fd < 0) return -errno;
++	if (fstat(db->root_fd, &primary_stat) < 0 || fstat(root_fd, &secondary_stat) < 0) {
++		r = -errno;
++		goto done;
++	}
++	if (primary_stat.st_dev == secondary_stat.st_dev && primary_stat.st_ino == secondary_stat.st_ino) {
++		r = -EINVAL;
++		goto done;
++	}
++	db_fd = openat(root_fd, "lib/apk/db", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
++	if (db_fd < 0) {
++		r = -errno; goto done;
++	}
++
++	lock_fd = openat(db_fd, "lock", O_RDONLY | O_CLOEXEC);
++	if (lock_fd < 0 && errno != ENOENT) {
++		r = -errno;
++		goto done;
++	}
++	if (lock_fd >= 0 && flock(lock_fd, LOCK_SH | LOCK_NB) < 0) {
++		r = -errno;
++		goto done;
++	}
++
++	if (!(ac->open_flags & APK_OPENF_NO_INSTALLED)) {
++		r = apk_db_fdb_read(db, apk_istream_from_file(db_fd, "installed"), APK_REPO_DB_INSTALLED, APK_DB_LAYER_SECONDARY);
++		if (r == -ENOENT) r = 0;
++		if (r) goto done;
++	}
++
++	db->active_layers |= BIT(APK_DB_LAYER_SECONDARY);
++
++done:
++	if (lock_fd >= 0) close(lock_fd);
++	if (db_fd >= 0) close(db_fd);
++	if (root_fd >= 0) close(root_fd);
++	return r;
++}
++
+ static int apk_db_index_write_nr_cache(struct apk_database *db)
+ {
+ 	struct apk_ostream *os = NULL;
+@@ -1373,6 +1482,7 @@ static int apk_db_index_write_nr_cache(struct apk_database *db)
+ 	 * cached index file */
+ 	struct apk_package_array *pkgs = apk_db_sorted_installed_packages(db);
+ 	apk_array_foreach_item(pkg, pkgs) {
++		if (pkg->layer >= APK_DB_LAYER_NUM) continue;
+ 		if (apk_db_pkg_available(db, pkg)) continue;
+ 		if (pkg->cached || pkg->filename_ndx || !pkg->installed_size) {
+ 			if (!os) {
+@@ -2008,6 +2118,7 @@ void apk_db_init(struct apk_database *db, struct apk_ctx *ac)
+ 	apk_blobptr_array_init(&db->arches);
+ 	apk_name_array_init(&db->available.sorted_names);
+ 	apk_package_array_init(&db->installed.sorted_packages);
++	apk_package_array_init(&db->secondary_packages);
+ 	apk_repoparser_init(&db->repoparser, &ac->out, &db_repoparser_ops);
+ 	db->root_fd = -1;
+ 	db->lock_fd = -1;
+@@ -2146,6 +2257,11 @@ int apk_db_open(struct apk_database *db)
+ 			}
+ 			db->active_layers |= BIT(i);
+ 		}
++		r = apk_db_read_secondary_root(db);
++		if (r) {
++			msg = "Unable to read secondary root";
++			goto ret_r;
++		}
+ 	} else {
+ 		// Allow applets that use solver without state (fetch) to work correctly
+ 		db->active_layers = ~0;
+@@ -2265,7 +2381,9 @@ static int apk_db_write_layers(struct apk_database *db)
+ 
+ 	pkgs = apk_db_sorted_installed_packages(db);
+ 	apk_array_foreach_item(pkg, pkgs) {
+-		struct layer_data *ld = &layers[pkg->layer];
++		struct layer_data *ld;
++		if (pkg->layer >= APK_DB_LAYER_NUM) continue;
++		ld = &layers[pkg->layer];
+ 		if (ld->fd < 0) continue;
+ 		apk_db_fdb_write(db, pkg->ipkg, ld->installed);
+ 		apk_db_scriptdb_write(db, pkg->ipkg, ld->scripts);
+@@ -2363,6 +2481,7 @@ void apk_db_close(struct apk_database *db)
+ 	apk_repoparser_free(&db->repoparser);
+ 	apk_name_array_free(&db->available.sorted_names);
+ 	apk_package_array_free(&db->installed.sorted_packages);
++	apk_package_array_free(&db->secondary_packages);
+ 	apk_hash_free(&db->available.packages);
+ 	apk_hash_free(&db->available.names);
+ 	apk_hash_free(&db->installed.files);
+diff --git a/src/package.c b/src/package.c
+index 4740f43..4b6c415 100644
+--- a/src/package.c
++++ b/src/package.c
+@@ -28,11 +28,16 @@
+ 
+ struct apk_package *apk_pkg_get_installed(struct apk_name *name)
+ {
+-	apk_array_foreach(p, name->providers)
+-		if (p->pkg->name == name && p->pkg->ipkg != NULL)
+-			return p->pkg;
++	struct apk_package *secondary = NULL;
+ 
+-	return NULL;
++	apk_array_foreach(p, name->providers) {
++		struct apk_package *pkg = p->pkg;
++		if (pkg->name != name || pkg->ipkg == NULL) continue;
++		if (pkg->layer < APK_DB_LAYER_NUM) return pkg;
++		if (secondary == NULL) secondary = pkg;
++	}
++
++	return secondary;
+ }
+ 
+ struct apk_installed_package *apk_pkg_install(struct apk_database *db,
+@@ -55,8 +60,10 @@ struct apk_installed_package *apk_pkg_install(struct apk_database *db,
+ 		db->sorted_installed_packages = 0;
+ 		db->installed.stats.packages++;
+ 		db->installed.stats.bytes += pkg->installed_size;
+-		list_add_tail(&ipkg->installed_pkgs_list,
+-			      &db->installed.packages);
++		if (pkg->layer == APK_DB_LAYER_SECONDARY)
++			list_add_head(&ipkg->installed_pkgs_list, &db->installed.packages);
++		else
++			list_add_tail(&ipkg->installed_pkgs_list, &db->installed.packages);
+ 	}
+ 
+ 	return ipkg;
+diff --git a/src/solver.c b/src/solver.c
+index 1fefd58..c39729c 100644
+--- a/src/solver.c
++++ b/src/solver.c
+@@ -667,6 +667,13 @@ static int compare_providers(struct apk_solver_state *ss,
+ 		return r;
+ 	}
+ 
++	if (pkgA->layer != pkgB->layer) {
++		if (solver_flags & APK_SOLVERF_REMOVE)
++			r = (int)pkgA->layer - (int)pkgB->layer;
++		else
++			r = (int)pkgB->layer - (int)pkgA->layer;
++		if (r) return r;
++	}
+ 	/* Prefer installed (matches here if upgrading) */
+ 	if (!(solver_flags & APK_SOLVERF_REMOVE)) {
+ 		r = (pkgA->ipkg != NULL) - (pkgB->ipkg != NULL);
+@@ -917,6 +924,13 @@ static void cset_gen_name_change(struct apk_solver_state *ss, struct apk_name *n
+ 
+ 	if (name->ss.changeset_processed) return;
+ 
++	pkg = name->ss.chosen.pkg;
++	if (pkg != NULL && pkg->layer >= APK_DB_LAYER_NUM) {
++		opkg = pkg->name->ss.installed_pkg;
++		if (opkg == NULL ||
++		    apk_blob_compare(apk_pkg_hash_blob(opkg), apk_pkg_hash_blob(pkg)) != 0)
++			return;
++	}
+ 	dbg_printf("cset_gen: processing: %s\n", name->name);
+ 	cset_gen_name_preprocess(ss, name);
+ 
+@@ -953,7 +967,7 @@ static void cset_gen_name_remove(struct apk_solver_state *ss, struct apk_package
+ {
+ 	struct apk_name *name = pkg->name;
+ 
+-	if (pkg->ss.in_changeset ||
++	if (pkg->ss.in_changeset || pkg->layer >= APK_DB_LAYER_NUM ||
+ 	    (name->ss.chosen.pkg != NULL &&
+ 	     name->ss.chosen.pkg->name == name))
+ 		return;
+@@ -1004,16 +1018,21 @@ static void generate_changeset(struct apk_solver_state *ss, struct apk_dependenc
+ 	apk_hash_foreach(&ss->db->available.names, cset_reset_name, NULL);
+ 	list_for_each_entry(ipkg, &ss->db->installed.packages, installed_pkgs_list) {
+ 		pkg = ipkg->pkg;
++		if (pkg->layer >= APK_DB_LAYER_NUM) continue;
+ 		pkg->name->ss.installed_pkg = pkg;
+ 		pkg->name->ss.installed_name = pkg->name;
+ 		apk_array_foreach(d, pkg->provides)
+ 			if (d->version != &apk_atom_null)
+ 				d->name->ss.installed_name = pkg->name;
+ 	}
+-	list_for_each_entry(ipkg, &ss->db->installed.packages, installed_pkgs_list)
++	list_for_each_entry(ipkg, &ss->db->installed.packages, installed_pkgs_list) {
++		if (ipkg->pkg->layer >= APK_DB_LAYER_NUM) continue;
+ 		cset_track_deps_added(ipkg->pkg);
+-	list_for_each_entry(ipkg, &ss->db->installed.packages, installed_pkgs_list)
++	}
++	list_for_each_entry(ipkg, &ss->db->installed.packages, installed_pkgs_list) {
++		if (ipkg->pkg->layer >= APK_DB_LAYER_NUM) continue;
+ 		cset_check_removal_by_deps(ss, ipkg->pkg);
++	}
+ 
+ 	apk_array_foreach(d, world)
+ 		cset_gen_dep(ss, NULL, d);
+@@ -1022,8 +1041,10 @@ static void generate_changeset(struct apk_solver_state *ss, struct apk_dependenc
+ 	 * dependency nodes where a new package was provided under a different name (using provides).  As such,
+ 	 * treat everything as a change first and then call cset_gen_name_remove() from there if appropriate.
+ 	 */
+-	list_for_each_entry(ipkg, &ss->db->installed.packages, installed_pkgs_list)
++	list_for_each_entry(ipkg, &ss->db->installed.packages, installed_pkgs_list) {
++		if (ipkg->pkg->layer >= APK_DB_LAYER_NUM) continue;
+ 		cset_gen_name_change(ss, ipkg->pkg->name);
++	}
+ 
+ 	changeset->num_total_changes =
+ 		changeset->num_install +
+@@ -1134,6 +1155,8 @@ restart:
+ 		}
+ 		apk_hash_foreach(&db->available.names, free_name, NULL);
+ 		apk_hash_foreach(&db->available.packages, free_package, NULL);
++		apk_array_foreach_item(secondary_pkg, db->secondary_packages)
++			memset(&secondary_pkg->ss, 0, sizeof(secondary_pkg->ss));
+ 		goto restart;
+ 	}
+ 
+@@ -1144,6 +1167,8 @@ restart:
+ 
+ 	apk_hash_foreach(&db->available.names, free_name, NULL);
+ 	apk_hash_foreach(&db->available.packages, free_package, NULL);
++	apk_array_foreach_item(secondary_pkg, db->secondary_packages)
++		memset(&secondary_pkg->ss, 0, sizeof(secondary_pkg->ss));
+ 	dbg_printf("solver done, errors=%d\n", ss->errors);
+ 
+ 	return ss->errors;
