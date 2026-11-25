@@ -29,7 +29,7 @@ apk.static mkpkg --info arch:armel --files ./pkg_output \
     --info version:3.0.9-r0 \
     --info description:"Alpine Package Keeper - package manager for alpine" \
     --info "tags:pax:type=system-only" \
-    --output ./libapk_3.0.9-r0.apk
+    --output ./libapk-3.0.9-r0.apk
 
 mv pkg_output/lib/ .
 
@@ -42,7 +42,7 @@ apk.static mkpkg --info arch:armel --files ./pkg_output \
     --info description:"Alpine Package Keeper - package manager for alpine" \
     --info "tags:pax:type=system-only" \
     --info depends:libapk \
-    --output ./apk-tools_3.0.9-r0.apk
+    --output ./apk-tools-3.0.9-r0.apk
 
 mv lib/ pkg_output/
 

@@ -33,7 +33,7 @@ apk.static mkpkg --info arch:armel --files ./pkg_output \
     --info "version:${PKG_VER}" \
     --info "description:${PKG_DESC}" \
     --info "maintainer:${PKG_AUTHOR}" \
-    --output ./${PKG_NAME_SANITIZED}_${PKG_VER}.apk
+    --output ./${PKG_NAME_SANITIZED}-${PKG_VER}.apk
 
 echo "You can now push the content of the pkg_output folder to your device:"
 echo " - paxpush pkg_output/* /data/app/MAINAPP/"
