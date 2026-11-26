@@ -1,50 +1,53 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "= build apk-tools="
-echo "=================="
+PKG_NAME="libapk"
+PKG_DESC="Alpine Package Keeper - library"
+PKG_VER="3.0.9-r0"
+PKG_AUTHOR="Alpine Linux Project & Morc <morc@370.network>"
 
-git clone https://github.com/alpinelinux/apk-tools.git repo
+_build() {
+	git clone https://github.com/alpinelinux/apk-tools.git repo
 
-for patch_file in "patches"/*.patch; do
-	build_patch $patch_file "repo"
-done
+	build_apply_all_patches "repo"
 
-if [ ! -f repo/libz.so.1.2.7 ]; then
-	echo "apk-tools build process!"
-	cd repo
-	meson setup build --cross-file $PAXPATH/homebrew/build_helper.meson --prefix=$PREFIX --buildtype=plain	
-	meson configure build -Dminimal=true -Ddefault_library=shared -Dcrypto_backend=openssl -Durl_backend=libfetch -Dhelp=enabled -Ddocs=disabled -Dlua=disabled -Dpython=disabled -Dtests=disabled -Dzstd=disabled -Dlua_bin=$(which lua)
-	ninja -C build install
-fi
+	if [ ! -f repo/build/src/libapk.so.3.0.0 ]; then
+		cd repo
+		meson setup build --cross-file $PAXPATH/homebrew/build_helper.meson --prefix=$PREFIX --buildtype=plain	
+		meson configure build -Dminimal=true -Ddefault_library=shared -Dcrypto_backend=openssl -Durl_backend=libfetch -Dhelp=enabled -Ddocs=disabled -Dlua=disabled -Dpython=disabled -Dtests=disabled -Dzstd=disabled -Dlua_bin=$(which lua)
+		ninja -C build install
+		cd ..
+	fi
+}
 
-cd ..
-mkdir -p pkg_output/lib/
-cp $PREFIX/lib/libapk.so pkg_output/lib/libapk.so.3.0.0
-apk.static mkpkg --info arch:armel --files ./pkg_output \
-    --info name:libapk \
-    --info version:3.0.9-r0 \
-    --info description:"Alpine Package Keeper - package manager for alpine" \
-    --info "tags:pax:type=system-only" \
-    --output ./libapk-3.0.9-r0.apk
+build_header
 
-mv pkg_output/lib/ .
+build
 
-mkdir -p pkg_output/bin/
-cp $PREFIX/bin/apk pkg_output/bin/
+#libapk
+package_init
 
-apk.static mkpkg --info arch:armel --files ./pkg_output \
-    --info name:apk-tools \
-    --info version:3.0.9 \
-    --info description:"Alpine Package Keeper - package manager for alpine" \
-    --info "tags:pax:type=system-only" \
-    --info depends:libapk \
-    --output ./apk-tools-3.0.9-r0.apk
+_packaging() {
+	cp $PREFIX/lib/libapk.so $PKG_LIB_DIR/libapk.so.3.0.0
+}
 
-mv lib/ pkg_output/
+packaging
 
-echo "You can now push the content of the pkg_output folder to your device:"
-echo " - paxpush pkg_output/* /data/app/MAINAPP/"
+package_create
+
+
+
+#apk cli tool
+PKG_NAME="apk-tools"
+PKG_DESC="Alpine Package Keeper - cli utility"
+PKG_DEPENDS="libapk"
+package_init
+
+_packaging() {
+	cp $PREFIX/bin/apk $PKG_BIN_DIR/
+}
+
+packaging
+
+package_create

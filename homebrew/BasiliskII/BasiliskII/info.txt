@@ -1,4 +1,0 @@
-name: Basilisk II
-version: 1.1
-author: Adam & Morc @ 370network
-description: 68k Macintosh Emulator
