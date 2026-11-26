@@ -43,5 +43,6 @@ homebrew/*/*.tar.xz
 homebrew/*/install.zip
 homebrew/*/patches/*.patched
 homebrew/*/pkg_output/*
+homebrew/*/.pkg_stage/
 
 dumps/
