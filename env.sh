@@ -71,7 +71,13 @@ export CROSS_COMPILE_ARCHITECTURE='arm'
 export CROSS_COMPILE_GLIBCVER='2.13'
 export CROSS_COMPILE_SYSROOT=$TOOLCHAIN/$HOST_GLIBC
 
+export PKG_CONFIG=$TOOLCHAIN/bin/$HOST_GLIBC-pkg-config
+export PKG_CONFIG_LIBDIR="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig"
+export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig"
+export ACLOCAL_PATH="$PREFIX/share/aclocal:$ACLOCAL_PATH"
 
+#load the build helper directly by now, useful for some commands from there
+. $PAXPATH/homebrew/build_helper.sh
 
 paxreconfigure() {
 	printf "[*] Enter device address ({IP|hostname}+port or the whole /dev/ path): "
