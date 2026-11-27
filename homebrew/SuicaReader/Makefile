@@ -1,5 +1,5 @@
-CFLAGS = -include prolin_printf.h -Wl,--unresolved-symbols=ignore-all,--dynamic-linker=/lib/ld-linux.so.3 -lfreetype -lpng12 -lxui -lfribidi -lz -losal -lcbinder -lcrypto -lrt
-INCLUDES = -I$(PREFIX)/include 
+CFLAGS = -lfreetype -lpng12 -lxui -lfribidi -lz -lcbinder -lcrypto -lrt -lts -losal
+INCLUDES = -I$(PREFIX)/include
 
 SOURCES = main.c
 TARGET = suica-reader.o
@@ -9,7 +9,9 @@ all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(INCLUDES) $(OBJECTS) $(LDFLAGS) -o $@
-	$(STRIP) $@
+	#following patchelf is a workaround to make our app look
+	#specifically for osal on an absolute path to prevent collisions with our root
+	patchelf --replace-needed libosal.so /usr/lib/libosal.so $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@

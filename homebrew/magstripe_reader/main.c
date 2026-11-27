@@ -7,8 +7,13 @@
 
 #include <stdlib.h>
 #include <dlfcn.h>
+#include <stdio.h>
 #include "osal.h"
 #include "xui.h"
+
+static const XuiColor cyan = { .b = 255, .g = 255, .r = 0, .a = 255 };
+static const XuiColor white = { .b = 255, .g = 255, .r = 255, .a = 255 };
+static const XuiColor black = { .b = 0, .g = 0, .r = 0, .a = 255 };
 
 int main()
 {
@@ -30,8 +35,8 @@ int main()
 
     XuiWindow *statusbar;
 	statusbar = XuiStatusbarCanvas();
-	XuiCanvasSetBackground(statusbar, XUI_BG_NORMAL, NULL, XuiColor(255, 0, 255, 255));
-    XuiCanvasSetBackground(root, XUI_BG_NORMAL, NULL, XuiColor(255, 255, 255, 255));
+	XuiCanvasSetBackground(statusbar, XUI_BG_NORMAL, NULL, cyan);
+    XuiCanvasSetBackground(root, XUI_BG_NORMAL, NULL, white);
 
 
     ST_MSR_DATA Track1, Track2, Track3;
@@ -39,11 +44,17 @@ int main()
     OsMsrOpen();
 
     XuiClearArea(root, 0, 0, 239, 288);
-	XuiCanvasDrawText(root, (240-XuiTextWidth(font, 5, "Cakam na kartu...")) / 2, 140, 5, font, 0, XuiColor(255, 0, 0, 0), "Cakam na kartu...");
-	XuiCanvasDrawText(statusbar, (240-XuiTextWidth(font, 1, "Magstripe Reader")) / 2, 25, 1, font, 0, XuiColor(255, 0, 0, 0), "Magstripe Reader");	
+	XuiCanvasDrawText(root, (240-XuiTextWidth(font, 5, "Cakam na kartu...")) / 2, 140, 5, font, 0, black, "Cakam na kartu...");
+	XuiCanvasDrawText(statusbar, (240-XuiTextWidth(font, 1, "Magstripe Reader")) / 2, 25, 1, font, 0, black, "Magstripe Reader");	
 	
     // cakame doḱym neprejdeme kartou
-    while (OsMsrSwiped() == 0) {}
+    while (OsMsrSwiped() == 0) {
+        if (XuiHasKey()) {
+        	int key = XuiGetKey();
+        	if (key == XUI_KEYCANCEL)
+        		exit(0);
+        }
+    }
 
     OsMsrRead(&Track1, &Track2, &Track3);
     OsPrnOpen(0, NULL);
@@ -72,15 +83,15 @@ int main()
 
 
     XuiClearArea(root, 0, 0, 239, 288);
-    XuiCanvasDrawText(root, (240-XuiTextWidth(font, 5, "Karta nacitana")) / 2, 140, 5, font, 0, XuiColor(255, 0, 0, 0), "Karta nacitana");
+    XuiCanvasDrawText(root, (240-XuiTextWidth(font, 5, "Karta nacitana")) / 2, 140, 5, font, 0, black, "Karta nacitana");
     
     sleep(1);
     
     // jednotlive tracky na obrazovku
     XuiClearArea(root, 0, 0, 239, 288);
-    XuiCanvasDrawText(root, 0, 0, 2, font, 0, XuiColor(255, 0, 0, 0), (char*)Track1.TrackData);
-    XuiCanvasDrawText(root, 0, 40, 2, font, 0, XuiColor(255, 0, 0, 0), (char*)Track2.TrackData);
-    XuiCanvasDrawText(root, 0, 80, 2, font, 0, XuiColor(255, 0, 0, 0), (char*)Track3.TrackData);
+    XuiCanvasDrawText(root, 0, 0, 2, font, 0, black, (char*)Track1.TrackData);
+    XuiCanvasDrawText(root, 0, 40, 2, font, 0, black, (char*)Track2.TrackData);
+    XuiCanvasDrawText(root, 0, 80, 2, font, 0, black, (char*)Track3.TrackData);
     
     
     OsPrnSetGray(4);

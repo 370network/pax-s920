@@ -1,47 +1,30 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
-
-echo "=================="
-echo "370network paxdevs"
-echo "build SuicaReader"
-echo "=================="
+. $PAXPATH/homebrew/build_helper.sh
 
 PKG_NAME="Suica Reader"
 PKG_DESC="Reader of Suica cards. Shows balance as demo."
 PKG_VER="1.0"
 PKG_AUTHOR="HiImMilan <milan.babuljak@hiimmilan.dev>"
+PKG_ISAPP=1
 
-if [ ! -f suica-reader.o ]; then
-	echo "suica-reader build process!"
-	make -j$(nproc)
-	$STRIP suica-reader.o
-fi
+_build() {
+	if [ ! -f suica-reader.o ]; then
+		make -j$(nproc)
+	fi
+}
 
-PKG_NAME_SANITIZED=$(printf '%s' "$PKG_NAME" | LC_ALL=C sed -E 's/[^a-zA-Z0-9._+-]+/-/g; s/^[^a-zA-Z0-9]+//; s/[._+-]+$//')
-PKG_DEVICE_DIR="pkg_output/apps/${PKG_NAME_SANITIZED}"
+_packaging() {
+	cp icon.png $PKG_APP_DIR/
+	cp "suica-reader.o" "$PKG_APP_DIR/$_pkg_name"
+}
 
-mkdir -p $PKG_DEVICE_DIR
-cp icon.png $PKG_DEVICE_DIR
+build_header
 
-cp "suica-reader.o" "${PKG_DEVICE_DIR}/${PKG_NAME_SANITIZED}"
+build
 
-{
-    printf 'name: %s\n' "$PKG_NAME"
-    printf 'description: %s\n' "$PKG_DESC"
-    printf 'version: %s\n' "$PKG_VER"
-    printf 'author: %s\n' "$PKG_AUTHOR"
-    [ -z "$PKG_LICENSE" ] || printf 'license: %s\n' "$LICENSE"
-    [ -z "$PKG_URL" ] || printf 'url: %s\n' "$URL"
-} > "${PKG_DEVICE_DIR}/info.txt"
+package_init
 
+packaging
 
-apk.static mkpkg --info arch:armel --files ./pkg_output \
-    --info "name:${PKG_NAME_SANITIZED}" \
-    --info "version:${PKG_VER}" \
-    --info "description:${PKG_DESC}" \
-    --info "maintainer:${PKG_AUTHOR}" \
-    --output ./${PKG_NAME_SANITIZED}_${PKG_VER}.apk
-
-echo "You can now push the content of the pkg_output folder to your device:"
-echo " - paxpush pkg_output/* /data/app/MAINAPP/"
+package_create

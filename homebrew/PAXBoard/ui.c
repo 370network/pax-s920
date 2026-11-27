@@ -20,6 +20,11 @@ const int GRID_MARGIN = 3;
 const int GRID_BUTTONS = GRID_W * GRID_H;
 const uint16_t GRID_KEYCODE = 0xE000;
 
+static const XuiColor statusbar_bg_color = { .b = 0, .g = 0, .r = 128, .a = 0 };
+static const XuiColor white = { .b = 255, .g = 255, .r = 255, .a = 255 };
+static const XuiColor black = { .b = 0, .g = 0, .r = 0, .a = 255 };
+static const XuiColor icon_press_background = { .b = 0, .g = 0, .r = 255, .a = 30 };
+
 #define BATT_STATUS_TEXT_LEN 16
 static char battery_status_text_old[BATT_STATUS_TEXT_LEN];
 
@@ -110,7 +115,6 @@ void draw_statusbar(ui_state *state, bool first) {
     char battery_state;
     FILE* file_battery_status;
     char *statusbar_text = "PAXBoard";
-    uint32_t statusbar_bg_color = XuiColor(0, 128, 0, 0);
 
     // Battery and ethernet status in future?
     // XuiSetStatusbarIcon(5, "/usr/share/tm/tm_icon_pageup.bmp");
@@ -151,7 +155,7 @@ void draw_statusbar(ui_state *state, bool first) {
 
     if (first) {
         XuiCanvasSetBackground(state->statusbar, XUI_BG_NORMAL, 0, statusbar_bg_color);
-        XuiCanvasDrawText(state->statusbar, 5, 15, 10, state->font, 0, XuiColor(255, 255, 255, 255), statusbar_text);
+        XuiCanvasDrawText(state->statusbar, 5, 15, 10, state->font, 0, white, statusbar_text);
     }
     if (state->statusbar_battery) {
         XuiDestroyWindow(state->statusbar_battery);
@@ -160,7 +164,7 @@ void draw_statusbar(ui_state *state, bool first) {
 
     state->statusbar_battery = XuiCreateCanvas(state->statusbar, batt_text_x, 0, batt_text_len, 32);
     XuiCanvasSetBackground(state->statusbar_battery, XUI_BG_NORMAL, 0, statusbar_bg_color);
-    XuiCanvasDrawText(state->statusbar_battery, 0, 15, BATT_TEXT_FONT_SIZE, state->font, 0, XuiColor(255, 255, 255, 255), battery_status_text);
+    XuiCanvasDrawText(state->statusbar_battery, 0, 15, BATT_TEXT_FONT_SIZE, state->font, 0, white, battery_status_text);
     XuiShowWindow(state->statusbar_battery, 1, 0);
 }
 
@@ -195,7 +199,7 @@ void draw_grid(ui_state *state) {
 
     draw_statusbar(state, true);
 
-    XuiCanvasSetBackground(state->root, XUI_BG_NORMAL, 0, XuiColor(255, 255, 255, 255));
+    XuiCanvasSetBackground(state->root, XUI_BG_NORMAL, 0, white);
 
     if (applist && applist->count > 0) {
         for (int bi = 0; bi < GRID_BUTTONS; bi++) {
@@ -223,11 +227,7 @@ void draw_grid(ui_state *state) {
                 unsigned int x = col * cell_w + GRID_MARGIN;
                 unsigned int y = row * cell_h + GRID_MARGIN;
 
-                //XuiCanvasDrawRect(state->root, x, y, icon_w, icon_h, XuiColor(255, 220, 220, 220), 1, 1);
-                XuiCanvasDrawImg(state->root, x, y, icon_w, icon_h, XUI_BG_CENTER, app->icon);
                 XuiWindow *btn = XuiCreateButton(state->root, x, y, icon_w, icon_h);
-
-
                 if (!btn) {
                     printf("[!] Failed to create button");
                     continue;
@@ -235,22 +235,23 @@ void draw_grid(ui_state *state) {
 
 
                 XuiButtonStat* btn_stat = malloc(sizeof(XuiButtonStat));
-                if (!btn_stat) {
+                XuiButtonStat* btn_stat_pressed = malloc(sizeof(XuiButtonStat));
+                if (!btn_stat || !btn_stat_pressed) {
                     printf("[!] malloc fail");
                     continue;
                 }
 
 
-                // I couldn't find a reason why img is not working, so I'm rendering an image bellow this and making this button transparent
-                // If anyone has nerves to fix it, please do so
-
                 *btn_stat = (XuiButtonStat){
-                    .btn_bg = XuiColor(0, 255, 0, 255),
-                    .img = *((XuiImg*) app->icon)
+                    .img = ((XuiImg*) app->icon),
+                    .img_style = XUI_BG_CENTER,
+                    .btn_round = 1
                 };
+                
+				*btn_stat_pressed = *btn_stat;
+				btn_stat_pressed->btn_bg = icon_press_background;
 
-
-                if (XuiButtonSetStat(btn, XUI_BTN_NORMAL, btn_stat) != 0) {
+                if (XuiButtonSetStat(btn, XUI_BTN_NORMAL, btn_stat) != 0 || XuiButtonSetStat(btn, XUI_BTN_PRESSED, btn_stat_pressed) != 0) {
                     printf("[!] Failed to set button stat");
                     free(btn_stat);
                     continue;
@@ -261,7 +262,7 @@ void draw_grid(ui_state *state) {
             }
         }
     } else {
-        XuiCanvasDrawText(state->root, (240 - XuiTextWidth(state->font, 5, "No Apps")) / 2, 140, 5, state->font, 0, XuiColor(255, 0, 0, 0), "No Apps");
+        XuiCanvasDrawText(state->root, (240 - XuiTextWidth(state->font, 5, "No Apps")) / 2, 140, 5, state->font, 0, black, "No Apps");
     }
 }
 

@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include "osal.h"
 #include "xui.h"
+
+static const XuiColor white = { .b = 255, .g = 255, .r = 255, .a = 255 };
+static const XuiColor black = { .b = 0, .g = 0, .r = 0, .a = 255 };
 
 void printHex(const unsigned char *data, int len) {
     for (int i = 0; i < len; i++) {
@@ -26,11 +30,11 @@ int main() {
 
     XuiWindow *statusbar;
     statusbar = XuiStatusbarCanvas();
-    XuiCanvasSetBackground(statusbar, XUI_BG_NORMAL, 0, XuiColor(255, 255, 255, 255));
-    XuiCanvasSetBackground(root, XUI_BG_NORMAL, 0, XuiColor(255, 255, 255, 255));
+    XuiCanvasSetBackground(statusbar, XUI_BG_NORMAL, 0, white);
+    XuiCanvasSetBackground(root, XUI_BG_NORMAL, 0, white);
 
     XuiClearArea(root, 0, 0, 239, 288);
-    XuiCanvasDrawText(root, (240 - XuiTextWidth(font, 25, "Waiting for card")) / 2, 140, 25, font, 0, XuiColor(255, 0, 0, 0), "Waiting for card");
+    XuiCanvasDrawText(root, (240 - XuiTextWidth(font, 25, "Waiting for card")) / 2, 140, 25, font, 0, black, "Waiting for card");
 	
     status = OsPiccOpen();
     if (status != 0) { printf("OsPiccOpen failed\n"); return -1; }
@@ -51,6 +55,12 @@ int main() {
         rx_poll_len = sizeof(rx_poll);
         status = OsPiccTransfer(tx_poll, sizeof(tx_poll), rx_poll, &rx_poll_len);
         retry++;
+        
+        if (XuiHasKey()) {
+        	int key = XuiGetKey();
+        	if (key == XUI_KEYCANCEL)
+        		exit(0);
+        }
     }
 
     printf("Polling Response:\n");
@@ -103,7 +113,7 @@ int main() {
         XuiClearArea(root, 0, 0, 239, 288);
         char balance_str[32];
         snprintf(balance_str, sizeof(balance_str), "Balance: %d JPY", balance);
-        XuiCanvasDrawText(root, (240 - XuiTextWidth(font, 25, balance_str)) / 2, 140, 25, font, 0, XuiColor(255, 0, 0, 0), balance_str);
+        XuiCanvasDrawText(root, (240 - XuiTextWidth(font, 25, balance_str)) / 2, 140, 25, font, 0, black, balance_str);
         OsPiccRemove();
         OsPiccClose();
         OsBeep(4, 1000);

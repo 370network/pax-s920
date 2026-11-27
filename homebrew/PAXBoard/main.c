@@ -66,7 +66,7 @@ void scan_dir_apps(AppList *list, const char* base_path) {
 
 int _init()
 {
-    printf("PAXBoard v1.1\n");
+    printf("PAXBoard v1.2\n");
     
     //Load libosal stuff
     ui_funcs funcs;
