@@ -1,34 +1,44 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "=  build libXi   ="
-echo "=================="
+PKG_NAME="libXi"
+PKG_DESC="Extension to the X11 protocol to support input devices other than the core X keyboard and pointer"
+PKG_VER="1.8.4"
+PKG_AUTHOR="X.Org Foundation"
 
-echo "Dependency setup!"
-cd ../libxext
-./build.sh
+build_dependency "libxext"
+build_dependency "libxfixes"
 
-cd ../libxfixes
-./build.sh
+_build() {
+	if [ ! -f $PKG_NAME.tar.gz ]; then
+		curl -o $PKG_NAME.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/$PKG_NAME-$PKG_VER.tar.gz
+	fi
+	
+	if [ ! -d repo ]; then
+		tar -xf $PKG_NAME.tar.gz
+		mv $PKG_NAME-$PKG_VER repo
+	fi
 
-cd ../libxi
+	if [ ! -f repo/src/.libs/libXi.so.6.1.0 ]; then
+		cd repo
+		./configure --prefix=$PREFIX --host=$HOST
+		make -j$(nproc) install
+	fi
+}
 
-if [ ! -f libxi.tar.gz ]; then
-	curl -o libxi.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/libXi-1.8.4.tar.gz
-fi
+_packaging() {
+	cp $PREFIX/lib/libXi.so $PKG_LIB_DIR/
+	cp $PREFIX/lib/libXi.so.6 $PKG_LIB_DIR/
+	cp $PREFIX/lib/libXi.so.6.1.0 $PKG_LIB_DIR/
+}
 
-if [ ! -d repo ]; then
-	tar -xf libxi.tar.gz
-	mv libXi-1.8.4 repo
-fi
+build_header
 
-if [ ! -f $PREFIX/lib/libXi.so ]; then
-	echo "libXi build process!"
-	cd repo
-	./configure --prefix=$PREFIX --host=$HOST --disable-malloc0returnsnull
-	make -j$(nproc)
-	make install
-fi
+build
+
+package_init
+
+packaging
+
+package_create

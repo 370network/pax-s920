@@ -1,31 +1,43 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "=build libXfixes ="
-echo "=================="
+PKG_NAME="libXfixes"
+PKG_DESC="Provides an X Window System client interface to the 'XFIXES' extension to the X protocol"
+PKG_VER="6.0.2"
+PKG_AUTHOR="X.Org Foundation"
 
-echo "Dependency setup!"
-cd ../libx11
-./build.sh
+build_dependency "libx11"
 
-cd ../libxfixes
+_build() {
+	if [ ! -f $PKG_NAME.tar.gz ]; then
+		curl -o $PKG_NAME.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/$PKG_NAME-$PKG_VER.tar.gz
+	fi
 
-if [ ! -f libxfixes.tar.gz ]; then
-	curl -o libxfixes.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/libXfixes-6.0.2.tar.gz
-fi
+	if [ ! -d repo ]; then
+		tar -xf $PKG_NAME.tar.gz
+		mv $PKG_NAME-$PKG_VER repo
+	fi
 
-if [ ! -d repo ]; then
-	tar -xf libxfixes.tar.gz
-	mv libXfixes-6.0.2 repo
-fi
+	if [ ! -f repo/src/.libs/libXfixes.so.3.1.0 ]; then
+		cd repo
+		./configure --prefix=$PREFIX --host=$HOST
+		make -j$(nproc) install
+	fi
+}
 
-if [ ! -f $PREFIX/lib/libXfixes.so ]; then
-	echo "libXfixes build process!"
-	cd repo
-	./configure --prefix=$PREFIX --host=$HOST --disable-malloc0returnsnull
-	make -j$(nproc)
-	make install
-fi
+_packaging() {
+	cp $PREFIX/lib/libXfixes.so $PKG_LIB_DIR/
+	cp $PREFIX/lib/libXfixes.so.3 $PKG_LIB_DIR/
+	cp $PREFIX/lib/libXfixes.so.3.1.0 $PKG_LIB_DIR/
+}
+
+build_header
+
+build
+
+package_init
+
+packaging
+
+package_create

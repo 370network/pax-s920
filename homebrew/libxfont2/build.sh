@@ -1,40 +1,46 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "=build libXfont2 ="
-echo "=================="
+PKG_NAME="libXfont2"
+PKG_DESC="libXfont provides various services for X servers, most notably font selection and rasterisation"
+PKG_VER="2.0.9"
+PKG_AUTHOR="X.Org Foundation"
 
-echo "Dependency setup!"
-cd ../freetype
-./build.sh
+build_dependency "freetype"
+build_dependency "libfontenc"
+build_dependency "xtrans"
+build_dependency "xorgproto"
 
-cd ../libfontenc
-./build.sh
+_build() {
+	if [ ! -f $PKG_NAME.tar.gz ]; then
+		curl -o $PKG_NAME.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/$PKG_NAME-$PKG_VER.tar.gz
+	fi
+	
+	if [ ! -d repo ]; then
+		tar -xf $PKG_NAME.tar.gz
+		mv $PKG_NAME-$PKG_VER repo
+	fi
 
-cd ../xtrans
-./build.sh
+	if [ ! -f repo/.libs/libXfont2.so.2.0.0 ]; then
+		cd repo
+		./configure --prefix=$PREFIX --host=$HOST
+		make -j$(nproc) install
+	fi
+}
 
-cd ../xorgproto
-./build.sh
+_packaging() {
+	cp $PREFIX/lib/libXfont2.so $PKG_LIB_DIR/
+	cp $PREFIX/lib/libXfont2.so.2 $PKG_LIB_DIR/
+	cp $PREFIX/lib/libXfont2.so.2.0.0 $PKG_LIB_DIR/
+}
 
-cd ../libxfont2
+build_header
 
-if [ ! -f libxfont2.tar.gz ]; then
-	curl -o libxfont2.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/libXfont2-2.0.9.tar.gz
-fi
+build
 
-if [ ! -d repo ]; then
-	tar -xf libxfont2.tar.gz
-	mv libXfont2-2.0.9 repo
-fi
+package_init
 
-if [ ! -f $PREFIX/lib/pkgconfig/xfont2.pc ]; then
-	echo "libXfont2 build process!"
-	cd repo
-	./configure --prefix=$PREFIX --host=$HOST
-	make -j$(nproc)
-	make install
-fi
+packaging
+
+package_create

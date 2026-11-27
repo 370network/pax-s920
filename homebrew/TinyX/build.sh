@@ -1,43 +1,50 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "=  build tinyx   ="
-echo "=================="
+PKG_NAME="TinyX"
+PKG_DESC="The smallest fully featured X server binary"
+PKG_VER="1.3"
+PKG_AUTHOR="tinycorelinux, stefan11111 & Morc <morc@370.network>"
+PKG_ISAPP=1
 
-echo "Dependency setup!"
-cd ../libxfont2
-./build.sh
+build_dependency "libxfont2"
+build_dependency "libxtst"
 
-cd ../libxtst
-./build.sh
+_build() {
+	if [ ! -d repo ]; then
+		git clone --depth=1 -b proper-libXfont2-port https://github.com/stefan11111/tinyx.git repo
+	fi
 
-cd ../TinyX
+	if [ ! -f repo/configure ]; then
+		cd repo
+		NOCONFIGURE=1 ./autogen.sh
+		cd ..
+	fi
 
-if [ ! -d repo ]; then
-	git clone --depth=1 -b proper-libXfont2-port https://github.com/stefan11111/tinyx.git repo
-fi
+	build_apply_all_patches "repo"
 
-if [ ! -f repo/configure ]; then
-	echo "tinyx autogen!"
-	cd repo
-	NOCONFIGURE=1 ./autogen.sh
-	cd ..
-fi
+	if [ ! -f repo/kdrive/fbdev/Xfbdev ]; then
+		cd repo
+		ax_cv_check_cflags___flto=no ./configure --prefix=$PREFIX --host=$HOST --disable-screensaver --disable-xvesa --enable-xfbdev --disable-xf86bigfont --enable-libXfont2 --disable-dpms CFLAGS="$CFLAGS -fpermissive -std=gnu17" CPPFLAGS="$CPPFLAGS -fpermissive -std=gnu17"
+		make -j$(nproc) install
+		cd ..
+	fi
+}
 
-for patch_file in "patches"/*.patch; do
-	build_patch $patch_file "repo"
-done
+_packaging() {
+	cp icon.png $PKG_APP_DIR
+	cp "repo/kdrive/fbdev/Xfbdev" "$PKG_APP_DIR/Xfbdev"
+	cp "TinyX_loader" "$PKG_APP_DIR/TinyX_loader"
+	cp "TinyX_script" "$PKG_APP_DIR/$_pkg_name"
+}
 
-if [ ! -f repo/kdrive/fbdev/Xfbdev ]; then
-	echo "tinyx build process!"
-	cd repo
-	ax_cv_check_cflags___flto=no ./configure --prefix=$PREFIX --host=$HOST --disable-screensaver --disable-xvesa --enable-xfbdev --disable-xf86bigfont --enable-libXfont2 --disable-dpms CFLAGS="$CFLAGS -fpermissive -std=gnu17" CPPFLAGS="$CPPFLAGS -fpermissive -std=gnu17"
-	make -j$(nproc)
-	make install
-	cd ..
-fi
+build_header
 
-build_check "kdrive/fbdev/Xfbdev" "TinyX/Xfbdev"
+build
+
+package_init
+
+packaging
+
+package_create

@@ -1,31 +1,43 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "=  build libXext ="
-echo "=================="
+PKG_NAME="libXext"
+PKG_DESC="Provides an X Window System client interface to several extensions to the X protocol"
+PKG_VER="1.3.7"
+PKG_AUTHOR="X.Org Foundation"
 
-echo "Dependency setup!"
-cd ../libx11
-./build.sh
+build_dependency "libx11"
 
-cd ../libxext
+_build() {
+	if [ ! -f $PKG_NAME.tar.gz ]; then
+		curl -o $PKG_NAME.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/$PKG_NAME-$PKG_VER.tar.gz
+	fi
 
-if [ ! -f libxext.tar.gz ]; then
-	curl -o libxext.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/libXext-1.3.7.tar.gz
-fi
+	if [ ! -d repo ]; then
+		tar -xf $PKG_NAME.tar.gz
+		mv $PKG_NAME-$PKG_VER repo
+	fi
 
-if [ ! -d repo ]; then
-	tar -xf libxext.tar.gz
-	mv libXext-1.3.7 repo
-fi
+	if [ ! -f repo/src/.libs/libXext.so.6.4.0 ]; then
+		cd repo
+		./configure --prefix=$PREFIX --host=$HOST
+		make -j$(nproc) install
+	fi
+}
 
-if [ ! -f $PREFIX/lib/libXext.so ]; then
-	echo "libXext build process!"
-	cd repo
-	./configure --prefix=$PREFIX --host=$HOST --disable-malloc0returnsnull
-	make -j$(nproc)
-	make install
-fi
+_packaging() {
+	cp $PREFIX/lib/libXext.so $PKG_LIB_DIR/
+	cp $PREFIX/lib/libXext.so.6 $PKG_LIB_DIR/
+	cp $PREFIX/lib/libXext.so.6.4.0 $PKG_LIB_DIR/
+}
+
+build_header
+
+build
+
+package_init
+
+packaging
+
+package_create
