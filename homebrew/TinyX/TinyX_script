@@ -1,4 +1,5 @@
 #!/data/app/MAINAPP/bin/sh
+export CURDIR=$(pwd)
 cd /data/app/MAINAPP;
-export ROOTSHELL=/data/app/MAINAPP/apps/TinyX/TinyX_loader;
+export ROOTSHELL="$CURDIR/TinyX_loader";
 exec /data/app/MAINAPP/Loader;
