@@ -116,7 +116,7 @@ int _init()
         switch (initui(&funcs, &list)) {
             case UI_RESULT_RELAUNCH:
                 printf("Result: relaunch\n");
-                funcs.OsSleep(500); //In case a key is pressed when app exited
+                funcs.OsSleep(100); //In case a key is pressed when app exited
                 XuiClearKey();
                 break;
             case UI_RESULT_EXIT:

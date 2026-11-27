@@ -1,5 +1,5 @@
 INCLUDES = -I$(PREFIX)/include
-CFLAGS = -std=gnu99 -shared -nostartfiles -include prolin_printf.h
+CFLAGS = -shared -nostartfiles
 
 SOURCES = main.c app.c applist.c ui.c apploader.c
 HEADERS = app.h applist.h ui.h apploader.h
@@ -10,7 +10,6 @@ all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(INCLUDES) $(OBJECTS) $(LDFLAGS) -o $@
-	$(STRIP) $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@

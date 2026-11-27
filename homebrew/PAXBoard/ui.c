@@ -77,11 +77,10 @@ err_mmap:
 }
 
 void destroyui(ui_state *state) {
-    //Free up icons
-    for (int i = 0; i < state->applist->count; i++) {
-        XuiImgFree(state->applist->apps[i].icon);
-        state->applist->apps[i].icon = 0;
-    }
+	if (state->root) {
+		XuiDestroyWindow(state->root);
+		state->root = 0;
+	}
     if (state->statusbar_battery) {
         XuiDestroyWindow(state->statusbar_battery);
         state->statusbar_battery = 0;
@@ -97,7 +96,6 @@ int launch_app_applist(ui_state *state, size_t app_index) {
         destroyui(state);
         clear_framebuffer();
         LoadApp(state->applist->apps[app_index].path, state->applist->apps[app_index].app);
-        clear_framebuffer(); //Clear after app ran
         return UI_RESULT_RELAUNCH;
     } else {
         return UI_RESULT_NONE;
@@ -243,7 +241,7 @@ void draw_grid(ui_state *state) {
 
 
                 *btn_stat = (XuiButtonStat){
-                    .img = ((XuiImg*) app->icon),
+                    .img = app->icon,
                     .img_style = XUI_BG_CENTER,
                     .btn_round = 1
                 };
@@ -268,7 +266,7 @@ void draw_grid(ui_state *state) {
 
 UIResult initui(ui_funcs* funcs, AppList *applist)
 {
-	//Each tick = 100ms sleep
+	//Each tick @ 33ms sleep (~30fps)
     ui_state state;
     int autolaunch_ticks;
     int statusbar_ticks = 0;
@@ -343,13 +341,10 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
             } else if (key == (XUI_KEYENTER + XUI_KEYCANCEL)) {
             	printf("[UI] Launching tm\n");
                 destroyui(&state);
-                clear_framebuffer();
                 LoadApp("/usr/bin", "tm");
-                clear_framebuffer(); //Clear after app ran
                 result = UI_RESULT_RELAUNCH;
             } else if (key == XUI_KEYCANCEL) {
                 destroyui(&state);
-                clear_framebuffer();
                 result = UI_RESULT_EXIT;
             } else if ((key & GRID_KEYCODE) == GRID_KEYCODE) {
                 //Virtual keycodes from UI
@@ -383,7 +378,7 @@ UIResult initui(ui_funcs* funcs, AppList *applist)
                     launch_app_applist(&state, state.autolaunch_app);
                 }
             }
-            funcs->OsSleep(100);
+            funcs->OsSleep(33);
         }
     }
 
