@@ -261,3 +261,9 @@ package_create() {
 	unset _pkg_name _pkg_output_file _pkg_dir _pkg_status
 	return 0
 }
+
+wont_package() {
+	printf '\n'
+	_pkg_log_info 'The following package is already present on your device!'
+	printf    '    You can use the installed build outputs for building other packages for your device.\n'
+}

@@ -1,31 +1,34 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "= build freetype ="
-echo "=================="
+PKG_NAME="FreeType"
+PKG_DESC="Library used to render text onto bitmaps"
+PKG_VER="2.4.8"
+PKG_AUTHOR="FreeType contributors"
 
-echo "Dependency setup!"
-cd ../zlib
-./build.sh
+build_dependency "zlib"
 
-cd ../freetype
+_build() {
+	if [ ! -f freetype.tar.gz ]; then
+		curl -o freetype.tar.gz -L -O https://download.savannah.gnu.org/releases/freetype/freetype-old/freetype-$PKG_VER.tar.gz
+	fi
 
-if [ ! -f freetype.tar.xz ]; then
-	curl -o freetype.tar.xz -L -O https://downloads.sourceforge.net/freetype/freetype-2.13.3.tar.xz
-fi
+	if [ ! -d repo ]; then
+		tar -xf freetype.tar.gz
+		mv freetype-$PKG_VER repo
+	fi
 
-if [ ! -d repo ]; then
-	tar -xf freetype.tar.xz
-	mv freetype-2.13.3 repo
-fi
+	if [ ! -f repo/objs/.libs/libfreetype.so.6.8.0 ]; then
+		cd repo
+		#we need to hack around ancient autoconfigure with a forced build, atleast it works on aarch64 now
+		ac_cv_build="$BUILD" ./configure --prefix=$PREFIX --host=$HOST --without-bzip2
+		make -j$(nproc) install
+	fi
+}
 
-if [ ! -f $PREFIX/lib/pkgconfig/freetype2.pc ]; then
-	echo "freetype build process!"
-	cd repo
-	./configure --prefix=$PREFIX --host=$HOST --without-harfbuzz --without-png --without-bzip2 --without-brotli
-	make -j$(nproc)
-	make install
-fi
+build_header
+
+build
+
+wont_package

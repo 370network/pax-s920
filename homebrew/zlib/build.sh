@@ -1,25 +1,31 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "=   build zlib   ="
-echo "=================="
+PKG_NAME="zlib"
+PKG_DESC="A free, general-purpose, legally unencumbered lossless data-compression library"
+PKG_VER="1.2.7"
+PKG_AUTHOR="Jean-Loup Gailly, Mark Adler et al"
 
-if [ ! -f zlib.tar.gz ]; then
-	curl -o zlib.tar.gz -L -O https://zlib.net/fossils/zlib-1.2.7.tar.gz
-fi
+_build() {
+	if [ ! -f zlib.tar.gz ]; then
+		curl -o zlib.tar.gz -L -O https://zlib.net/fossils/zlib-$PKG_VER.tar.gz
+	fi
 
-if [ ! -d repo ]; then
-	tar -xf zlib.tar.gz
-	mv zlib-1.2.7 repo
-fi
+	if [ ! -d repo ]; then
+		tar -xf zlib.tar.gz
+		mv zlib-$PKG_VER repo
+	fi
 
-if [ ! -f repo/libz.so.1.2.7 ]; then
-	echo "zlib build process!"
-	cd repo
-	./configure --prefix=$PREFIX
-	make -j$(nproc) AR="$AR" ARFLAGS=rc RANLIB="${RANLIB:-${HOST}-ranlib}"
-	make install AR="$AR" ARFLAGS=rc RANLIB="${RANLIB:-${HOST}-ranlib}"
-fi
+	if [ ! -f repo/libz.so.$PKG_VER ]; then
+		cd repo
+		./configure --prefix=$PREFIX
+		make -j$(nproc) install AR="$AR" ARFLAGS=rc RANLIB="${HOST}-ranlib"
+	fi
+}
+
+build_header
+
+build
+
+wont_package
