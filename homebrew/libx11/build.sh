@@ -6,6 +6,7 @@ PKG_NAME="libX11"
 PKG_DESC="X Window System protocol client library"
 PKG_VER="1.8.14"
 PKG_AUTHOR="X.Org Foundation"
+PKG_DEPENDS="libxcb"
 
 build_dependency "libxcb"
 build_dependency "xorgproto"

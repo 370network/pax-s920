@@ -6,6 +6,7 @@ PKG_NAME="libXfixes"
 PKG_DESC="Provides an X Window System client interface to the 'XFIXES' extension to the X protocol"
 PKG_VER="6.0.2"
 PKG_AUTHOR="X.Org Foundation"
+PKG_DEPENDS="libX11"
 
 build_dependency "libx11"
 

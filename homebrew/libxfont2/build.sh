@@ -6,6 +6,7 @@ PKG_NAME="libXfont2"
 PKG_DESC="libXfont provides various services for X servers, most notably font selection and rasterisation"
 PKG_VER="2.0.9"
 PKG_AUTHOR="X.Org Foundation"
+PKG_DEPENDS="libfontenc"
 
 build_dependency "freetype"
 build_dependency "libfontenc"

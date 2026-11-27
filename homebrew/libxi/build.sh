@@ -6,6 +6,7 @@ PKG_NAME="libXi"
 PKG_DESC="Extension to the X11 protocol to support input devices other than the core X keyboard and pointer"
 PKG_VER="1.8.4"
 PKG_AUTHOR="X.Org Foundation"
+PKG_DEPENDS="libXext libXfixes"
 
 build_dependency "libxext"
 build_dependency "libxfixes"

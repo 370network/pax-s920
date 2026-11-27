@@ -7,6 +7,7 @@ PKG_DESC="The smallest fully featured X server binary"
 PKG_VER="1.3"
 PKG_AUTHOR="tinycorelinux, stefan11111 & Morc <morc@370.network>"
 PKG_ISAPP=1
+PKG_DEPENDS="libXfont2 libXtst X11Fonts"
 
 build_dependency "libxfont2"
 build_dependency "libxtst"

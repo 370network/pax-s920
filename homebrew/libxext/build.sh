@@ -6,6 +6,7 @@ PKG_NAME="libXext"
 PKG_DESC="Provides an X Window System client interface to several extensions to the X protocol"
 PKG_VER="1.3.7"
 PKG_AUTHOR="X.Org Foundation"
+PKG_DEPENDS="libX11"
 
 build_dependency "libx11"
 

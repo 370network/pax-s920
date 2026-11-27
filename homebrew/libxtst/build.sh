@@ -6,6 +6,7 @@ PKG_NAME="libXtst"
 PKG_DESC="X11 client library that provides the API for the XTEST and RECORD extensions in the X Window System"
 PKG_VER="1.2.6"
 PKG_AUTHOR="X.Org Foundation"
+PKG_DEPENDS="libXi"
 
 build_dependency "libxi"
 

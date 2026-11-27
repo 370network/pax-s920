@@ -6,6 +6,7 @@ PKG_NAME="libxcb"
 PKG_DESC="Library implementing the X11 Authorization Protocol"
 PKG_VER="1.17.0"
 PKG_AUTHOR="X.Org Foundation"
+PKG_DEPENDS="libXau libXdmcp"
 
 build_dependency "xcb-proto"
 build_dependency "libxau"
