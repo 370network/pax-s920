@@ -1,25 +1,31 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "=   build xtrans ="
-echo "=================="
+PKG_NAME="xtrans"
+PKG_DESC="The xorgproto package provides the header files required to build the X Window system, and to allow other applications to build against the installed X Window system."
+PKG_VER="1.6.0"
+PKG_AUTHOR="X.Org Foundation"
 
-if [ ! -f xtrans.tar.gz ]; then
-	curl -o xtrans.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/xtrans-1.6.0.tar.gz
-fi
+_build() {
+	if [ ! -f $PKG_NAME.tar.gz ]; then
+		curl -o $PKG_NAME.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/$PKG_NAME-$PKG_VER.tar.gz
+	fi
 
-if [ ! -d repo ]; then
-	tar -xf xtrans.tar.gz
-	mv xtrans-1.6.0 repo
-fi
+	if [ ! -d repo ]; then
+		tar -xf $PKG_NAME.tar.gz
+		mv $PKG_NAME-$PKG_VER repo
+	fi
 
-if [ ! -f $PREFIX/share/pkgconfig/xtrans.pc ]; then
-	echo "xtrans build process!"
-	cd repo
-	./configure --prefix=$PREFIX --host=$HOST
-	make -j$(nproc)
-	make install
-fi
+	if [ ! -f $PREFIX/share/pkgconfig/xtrans.pc ]; then
+		cd repo
+		./configure --prefix=$PREFIX --host=$HOST
+		make -j$(nproc) install
+	fi
+}
+
+build_header
+
+build
+
+wont_package

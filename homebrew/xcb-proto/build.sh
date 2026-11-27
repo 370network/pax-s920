@@ -1,25 +1,31 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "= build xcb-proto="
-echo "=================="
+PKG_NAME="xcb-proto"
+PKG_DESC="This package provides the XML-XCB protocol descriptions that libxcb uses to generate the majority of its code and API"
+PKG_VER="1.17.0"
+PKG_AUTHOR="Jamey Sharp, Josh Triplett, Bart Massey et al"
 
-if [ ! -f xcb-proto.tar.gz ]; then
-	curl -o xcb-proto.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/proto/xcb-proto-1.17.0.tar.xz
-fi
+_build() {
+	if [ ! -f $PKG_NAME.tar.gz ]; then
+		curl -o $PKG_NAME.tar.gz -L -O https://xcb.freedesktop.org/dist/$PKG_NAME-$PKG_VER.tar.gz
+	fi
 
-if [ ! -d repo ]; then
-	tar -xf xcb-proto.tar.gz
-	mv xcb-proto-1.17.0 repo
-fi
+	if [ ! -d repo ]; then
+		tar -xf $PKG_NAME.tar.gz
+		mv $PKG_NAME-$PKG_VER repo
+	fi
 
-if [ ! -f $PREFIX/share/pkgconfig/xcb-proto.pc ]; then
-	echo "xcb-proto build process!"
-	cd repo
-	./configure --prefix=$PREFIX
-	make -j$(nproc)
-	make install
-fi
+	if [ ! -f $PREFIX/share/pkgconfig/xcb-proto.pc ]; then
+		cd repo
+		./configure --prefix=$PREFIX
+		make -j$(nproc) install
+	fi
+}
+
+build_header
+
+build
+
+wont_package

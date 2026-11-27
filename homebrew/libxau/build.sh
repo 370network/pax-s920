@@ -1,31 +1,43 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "=   build libXau ="
-echo "=================="
+PKG_NAME="libXau"
+PKG_DESC="Library implementing the X11 Authorization Protocol"
+PKG_VER="1.0.12"
+PKG_AUTHOR="X.Org Foundation"
 
-echo "Dependency setup!"
-cd ../xorgproto
-./build.sh
+build_dependency "xorgproto"
 
-cd ../libxau
+_build() {
+	if [ ! -f $PKG_NAME.tar.gz ]; then
+		curl -o $PKG_NAME.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/$PKG_NAME-$PKG_VER.tar.gz
+	fi
+	
+	if [ ! -d repo ]; then
+		tar -xf $PKG_NAME.tar.gz
+		mv $PKG_NAME-$PKG_VER repo
+	fi
 
-if [ ! -f libxau.tar.gz ]; then
-	curl -o libxau.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/libXau-1.0.12.tar.gz
-fi
+	if [ ! -f repo/.libs/libXau.so.6.0.0 ]; then
+		cd repo
+		./configure --prefix=$PREFIX --host=$HOST
+		make -j$(nproc) install
+	fi
+}
 
-if [ ! -d repo ]; then
-	tar -xf libxau.tar.gz
-	mv libXau-1.0.12 repo
-fi
+_packaging() {
+	cp $PREFIX/lib/libXau.so $PKG_LIB_DIR/
+	cp $PREFIX/lib/libXau.so.6 $PKG_LIB_DIR/
+	cp $PREFIX/lib/libXau.so.6.0.0 $PKG_LIB_DIR/
+}
 
-if [ ! -f $PREFIX/lib/libXau.so ]; then
-	echo "libXau build process!"
-	cd repo
-	./configure --prefix=$PREFIX --host=$HOST
-	make -j$(nproc)
-	make install
-fi
+build_header
+
+build
+
+package_init
+
+packaging
+
+package_create

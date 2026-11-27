@@ -1,31 +1,43 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "= build libXdmcp ="
-echo "=================="
+PKG_NAME="libXdmcp"
+PKG_DESC="Library implementing the X Display Manager Control Protocol"
+PKG_VER="1.1.5"
+PKG_AUTHOR="X.Org Foundation"
 
-echo "Dependency setup!"
-cd ../xorgproto
-./build.sh
+build_dependency "xorgproto"
 
-cd ../libxdmcp
+_build() {
+	if [ ! -f $PKG_NAME.tar.gz ]; then
+		curl -o $PKG_NAME.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/$PKG_NAME-$PKG_VER.tar.gz
+	fi
 
-if [ ! -f libxdmcp.tar.gz ]; then
-	curl -o libxdmcp.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/libXdmcp-1.1.5.tar.gz
-fi
+	if [ ! -d repo ]; then
+		tar -xf $PKG_NAME.tar.gz
+		mv $PKG_NAME-$PKG_VER repo
+	fi
 
-if [ ! -d repo ]; then
-	tar -xf libxdmcp.tar.gz
-	mv libXdmcp-1.1.5 repo
-fi
+	if [ ! -f repo/.libs/libXdmcp.so.6.0.0 ]; then
+		cd repo
+		./configure --prefix=$PREFIX --host=$HOST
+		make -j$(nproc) install
+	fi
+}
 
-if [ ! -f $PREFIX/lib/libXdmcp.so ]; then
-	echo "libXdmcp build process!"
-	cd repo
-	./configure --prefix=$PREFIX --host=$HOST
-	make -j$(nproc)
-	make install
-fi
+_packaging() {
+	cp $PREFIX/lib/libXdmcp.so $PKG_LIB_DIR/
+	cp $PREFIX/lib/libXdmcp.so.6 $PKG_LIB_DIR/
+	cp $PREFIX/lib/libXdmcp.so.6.0.0 $PKG_LIB_DIR/
+}
+
+build_header
+
+build
+
+package_init
+
+packaging
+
+package_create

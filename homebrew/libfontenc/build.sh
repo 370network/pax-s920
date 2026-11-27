@@ -1,31 +1,44 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "= build fontenc  ="
-echo "=================="
+PKG_NAME="libfontenc"
+PKG_DESC="The libfontenc library is used by the Xorg server and other X font tools for handling fonts with different character set encodings."
+PKG_VER="1.1.10"
+PKG_AUTHOR="X.Org Foundation"
 
-echo "Dependency setup!"
-cd ../zlib
-./build.sh
+build_dependency "zlib"
+build_dependency "xorgproto"
 
-cd ../libfontenc
+_build() {
+	if [ ! -f $PKG_NAME.tar.gz ]; then
+		curl -o $PKG_NAME.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/$PKG_NAME-$PKG_VER.tar.gz
+	fi
 
-if [ ! -f libfontenc.tar.gz ]; then
-	curl -o libfontenc.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/libfontenc-1.1.9.tar.xz
-fi
+	if [ ! -d repo ]; then
+		tar -xf $PKG_NAME.tar.gz
+		mv $PKG_NAME-$PKG_VER repo
+	fi
 
-if [ ! -d repo ]; then
-	tar -xf libfontenc.tar.gz
-	mv libfontenc-1.1.9 repo
-fi
+	if [ ! -f repo/src/.libs/libfontenc.so.1.0.0 ]; then
+		cd repo
+		./configure --prefix=$PREFIX --host=$HOST
+		make -j$(nproc) install
+	fi
+}
 
-if [ ! -f $PREFIX/lib/pkgconfig/fontenc.pc ]; then
-	echo "libfontenc build process!"
-	cd repo
-	./configure --prefix=$PREFIX --host=$HOST
-	make -j$(nproc)
-	make install
-fi
+_packaging() {
+	cp $PREFIX/lib/libfontenc.so $PKG_LIB_DIR/
+	cp $PREFIX/lib/libfontenc.so.1.0.0 $PKG_LIB_DIR/
+	cp $PREFIX/lib/libfontenc.so.1 $PKG_LIB_DIR/
+}
+
+build_header
+
+build
+
+package_init
+
+packaging
+
+package_create

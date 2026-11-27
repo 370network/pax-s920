@@ -1,25 +1,31 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "= build xorgproto="
-echo "=================="
+PKG_NAME="xorgproto"
+PKG_DESC="The xorgproto package provides the header files required to build the X Window system, and to allow other applications to build against the installed X Window system."
+PKG_VER="2026.1"
+PKG_AUTHOR="X.Org Foundation"
 
-if [ ! -f xorgproto.tar.gz ]; then
-	curl -o xorgproto.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/proto/xorgproto-2026.1.tar.xz
-fi
+_build() {
+	if [ ! -f $PKG_NAME.tar.xz ]; then
+		curl -o $PKG_NAME.tar.xz -L -O https://xorg.freedesktop.org/archive/individual/proto/$PKG_NAME-$PKG_VER.tar.xz
+	fi
 
-if [ ! -d repo ]; then
-	tar -xf xorgproto.tar.gz
-	mv xorgproto-2026.1 repo
-fi
+	if [ ! -d repo ]; then
+		tar -xf $PKG_NAME.tar.xz
+		mv $PKG_NAME-$PKG_VER repo
+	fi
+	
+	if [ ! -f $PREFIX/share/pkgconfig/xproto.pc ]; then
+		cd repo
+		./configure --prefix=$PREFIX --host=$HOST
+		make -j$(nproc) install
+	fi
+}
 
-if [ ! -f $PREFIX/share/pkgconfig/xproto.pc ]; then
-	echo "xorgproto build process!"
-	cd repo
-	./configure --prefix=$PREFIX --host=$HOST
-	make -j$(nproc)
-	make install
-fi
+build_header
+
+build
+
+wont_package

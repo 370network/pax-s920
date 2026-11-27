@@ -1,40 +1,46 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "=  build libxcb  ="
-echo "=================="
+PKG_NAME="libxcb"
+PKG_DESC="Library implementing the X11 Authorization Protocol"
+PKG_VER="1.17.0"
+PKG_AUTHOR="X.Org Foundation"
 
-echo "Dependency setup!"
-cd ../xcb-proto
-./build.sh
+build_dependency "xcb-proto"
+build_dependency "libxau"
+build_dependency "libxdmcp"
+build_dependency "libpthread-stubs"
 
-cd ../libxau
-./build.sh
+_build() {
+	if [ ! -f $PKG_NAME.tar.gz ]; then
+		curl -o $PKG_NAME.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/$PKG_NAME-$PKG_VER.tar.gz
+	fi
 
-cd ../libxdmcp
-./build.sh
+	if [ ! -d repo ]; then
+		tar -xf $PKG_NAME.tar.gz
+		mv $PKG_NAME-$PKG_VER repo
+	fi
 
-cd ../libpthread-stubs
-./build.sh
+	if [ ! -f repo/src/.libs/libxcb.so.1.1.0 ]; then
+		cd repo
+		./configure --prefix=$PREFIX --host=$HOST
+		make -j$(nproc) install
+	fi
+}
 
-cd ../libxcb
+_packaging() {
+	cp $PREFIX/lib/libxcb.so $PKG_LIB_DIR/
+	cp $PREFIX/lib/libxcb.so.1 $PKG_LIB_DIR/
+	cp $PREFIX/lib/libxcb.so.1.1.0 $PKG_LIB_DIR/
+}
 
-if [ ! -f libxcb.tar.gz ]; then
-	curl -o libxcb.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/libxcb-1.17.0.tar.gz
-fi
+build_header
 
-if [ ! -d repo ]; then
-	tar -xf libxcb.tar.gz
-	mv libxcb-1.17.0 repo
-fi
+build
 
-if [ ! -f $PREFIX/lib/libxcb.so ]; then
-	echo "libxcb build process!"
-	cd repo
-	PYTHON=python3 ./configure --prefix=$PREFIX --host=$HOST --disable-build-docs
-	make -j$(nproc)
-	make install
-fi
+package_init
+
+packaging
+
+package_create

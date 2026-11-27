@@ -1,37 +1,45 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # build.sh - Morc @ 370network
-source $PAXPATH/homebrew/build_helper.sh
+. $PAXPATH/homebrew/build_helper.sh
 
-echo "=================="
-echo "370network paxdevs"
-echo "=  build libX11  ="
-echo "=================="
+PKG_NAME="libX11"
+PKG_DESC="X Window System protocol client library"
+PKG_VER="1.8.14"
+PKG_AUTHOR="X.Org Foundation"
 
-echo "Dependency setup!"
-cd ../libxcb
-./build.sh
+build_dependency "libxcb"
+build_dependency "xorgproto"
+build_dependency "xtrans"
 
-cd ../xorgproto
-./build.sh
+_build() {
+	if [ ! -f $PKG_NAME.tar.gz ]; then
+		curl -o $PKG_NAME.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/$PKG_NAME-$PKG_VER.tar.gz
+	fi
 
-cd ../xtrans
-./build.sh
+	if [ ! -d repo ]; then
+		tar -xf $PKG_NAME.tar.gz
+		mv $PKG_NAME-$PKG_VER repo
+	fi
 
-cd ../libx11
+	if [ ! -f repo/src/.libs/libX11.so.6.4.0 ]; then
+		cd repo
+		./configure --prefix=$PREFIX --host=$HOST
+		make -j$(nproc) install
+	fi
+}
 
-if [ ! -f libx11.tar.gz ]; then
-	curl -o libx11.tar.gz -L -O https://xorg.freedesktop.org/archive/individual/lib/libX11-1.8.14.tar.gz
-fi
+_packaging() {
+	cp $PREFIX/lib/libX11.so $PKG_LIB_DIR/
+	cp $PREFIX/lib/libX11.so.6 $PKG_LIB_DIR/
+	cp $PREFIX/lib/libX11.so.6.4.0 $PKG_LIB_DIR/
+}
 
-if [ ! -d repo ]; then
-	tar -xf libx11.tar.gz
-	mv libX11-1.8.14 repo
-fi
+build_header
 
-if [ ! -f $PREFIX/lib/libX11.so ]; then
-	echo "libX11 build process!"
-	cd repo
-	./configure --prefix=$PREFIX --host=$HOST --disable-malloc0returnsnull CFLAGS="$CFLAGS -std=gnu17" CPPFLAGS="$CPPFLAGS -std=gnu17"
-	make -j$(nproc)
-	make install
-fi
+build
+
+package_init
+
+packaging
+
+package_create
